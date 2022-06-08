@@ -1,0 +1,14 @@
+/dist
+node_modules/
+.vscode/
+/coverage
+.nyc_output
+npm-debug.log
+yarn-error.log
+.DS_Store
+Thumbs.db
+
+config.*.json
+!config.example.json
+!config.testing.json
+logs/

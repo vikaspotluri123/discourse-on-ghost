@@ -1,0 +1,42 @@
+{
+  "name": "@potluri/discourse-on-ghost",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "repository": "https://github.com/vikaspotluri/discourse-on-ghost",
+  "authors": [
+    "Vikas Potluri <vikaspotluri123.github@gmail.com>"
+  ],
+  "scripts": {
+    "lint": "xo"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "xo": "0.49.0"
+  },
+  "xo": {
+    "rules": {
+      "@typescript-eslint/naming-convention": "off",
+      "func-names": [
+        "error",
+        "as-needed"
+      ],
+      "no-use-extend-native/no-use-extend-native": "off",
+      "func-name-matching": "off",
+      "no-console": "error"
+    },
+    "overrides": [
+      {
+        "files": "test/**/*.js",
+        "envs": [
+          "node",
+          "mocha"
+        ],
+        "rules": {
+          "func-names": "off",
+          "prefer-arrow-callback": "off",
+          "no-unused-expressions": "off"
+        }
+      }
+    ]
+  }
+}
