@@ -3,10 +3,12 @@ import logging from '@tryghost/logging';
 import * as config from './services/config.js';
 import {sayHello} from './controllers/hello-world.js';
 import {logRequest} from './controllers/middleware.js';
+import {addRoutes} from './routing.js';
 
 export const app = express();
 
 app.use(logRequest);
+addRoutes(app);
 app.get('*', sayHello);
 
 app.listen(config.port, config.hostname, () => {

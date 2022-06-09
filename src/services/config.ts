@@ -8,11 +8,12 @@ interface IConfig {
 	DOG_HOSTNAME?: string;
 	DOG_PORT?: string;
 	DOG_GHOST_URL?: string;
+	DOG_DISCOURSE_SHARED_SECRET?: string;
 }
 
 config();
 let success = true;
-const {DOG_HOSTNAME, DOG_PORT, DOG_GHOST_URL} = process.env as IConfig;
+const {DOG_HOSTNAME, DOG_PORT, DOG_GHOST_URL, DOG_DISCOURSE_SHARED_SECRET} = process.env as IConfig;
 
 const messages = {
 	missingHostname: 'Missing required environment variable: DOG_HOSTNAME',
@@ -20,6 +21,7 @@ const messages = {
 	invalidPort: 'Invalid required environment variable: DOG_PORT must be a number',
 	missingGhostUrl: 'Missing required environment variable: DOG_GHOST_URL',
 	invalidGhostUrl: 'Invalid required environment variable: DOG_GHOST_URL must be a valid URL',
+	missingSharedSecret: 'Missing required environment variable: DOG_DISCOURSE_SHARED_SECRET',
 };
 
 if (!DOG_HOSTNAME) {
@@ -34,6 +36,11 @@ if (!DOG_PORT) {
 
 if (Number.isNaN(Number(DOG_PORT)) || Number(DOG_PORT) < 0 || Number(DOG_PORT) > 65_535) {
 	logging.error(new errors.InternalServerError({message: messages.invalidPort}));
+	success = false;
+}
+
+if (!DOG_DISCOURSE_SHARED_SECRET) {
+	logging.error(new errors.InternalServerError({message: messages.missingSharedSecret}));
 	success = false;
 }
 
@@ -58,5 +65,6 @@ if (!success) {
 
 export const hostname = DOG_HOSTNAME!;
 export const port = Number(DOG_PORT!);
+export const discourseSecret = DOG_DISCOURSE_SHARED_SECRET!;
 export const ghostUrl = parsedGhostUrl!.toString();
 export const basePath = parsedGhostUrl!.pathname;
