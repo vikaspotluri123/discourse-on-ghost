@@ -19,6 +19,7 @@ await build({
 const watcher = nodemon({
 	script: 'dist/index.js',
 	watch: ['dist'],
+	delay: 0.01,
 });
 
 watcher.once('start', () => {
