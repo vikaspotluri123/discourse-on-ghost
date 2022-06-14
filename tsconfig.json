@@ -3,6 +3,7 @@
   "compilerOptions": {
     "strict": true,
     "forceConsistentCasingInFileNames": true,
+    "downlevelIteration": true,
     "esModuleInterop": true,
     "module": "es2020",
     "moduleResolution": "node",
