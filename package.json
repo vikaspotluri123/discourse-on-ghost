@@ -10,7 +10,8 @@
   "module": "dist/index.js",
   "scripts": {
     "dev": "node scripts/dev.js",
-    "lint": "xo"
+    "lint": "xo",
+    "build": "esbuild `find src -name '*.ts'` --outdir=build --platform=node --target=node16  --format=esm"
   },
   "dependencies": {
     "@tryghost/errors": "^1.2.14",
