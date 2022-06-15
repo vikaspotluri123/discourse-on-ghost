@@ -65,6 +65,13 @@ declare module '@tryghost/admin-api' {
 		url: string;
 		key: string;
 		version: 'v5.0';
+		makeRequest?: ({url, method, data, params, headers}: {
+			url: string;
+			method: string;
+			data?: Record<string, any>;
+			params: Record<string, string>;
+			headers: Record<string, string>;
+		}) => Promise<unknown>;
 	}
 
 	const GhostAdminApi: {

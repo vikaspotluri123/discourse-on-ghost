@@ -13,11 +13,20 @@ interface IConfig {
 	DOG_DISCOURSE_URL?: string;
 	DOG_DISCOURSE_API_KEY?: string;
 	DOG_DISCOURSE_API_USER?: string;
+	DOG_LOG_DISCOURSE_REQUESTS?: string;
+	DOG_LOG_GHOST_REQUESTS?: string;
 }
 
 config();
 let success = true;
-const {DOG_HOSTNAME, DOG_PORT, DOG_GHOST_URL, DOG_DISCOURSE_SHARED_SECRET, DOG_GHOST_ADMIN_TOKEN, DOG_DISCOURSE_API_KEY, DOG_DISCOURSE_URL, DOG_DISCOURSE_API_USER} = process.env as IConfig;
+const {
+	DOG_HOSTNAME, DOG_PORT,
+	DOG_GHOST_URL,
+	DOG_DISCOURSE_SHARED_SECRET,
+	DOG_GHOST_ADMIN_TOKEN,
+	DOG_DISCOURSE_API_KEY, DOG_DISCOURSE_URL, DOG_DISCOURSE_API_USER,
+	DOG_LOG_DISCOURSE_REQUESTS, DOG_LOG_GHOST_REQUESTS,
+} = process.env as IConfig;
 
 const messages = {
 	missingHostname: 'Missing required environment variable: DOG_HOSTNAME',
@@ -106,6 +115,14 @@ if (!success) {
 	process.exit(1); // eslint-disable-line unicorn/no-process-exit
 }
 
+function coerceEnvToBoolean(envVar: string | undefined, defaultValue: boolean): boolean {
+	if (envVar === undefined || envVar === '') {
+		return defaultValue;
+	}
+
+	return envVar === 'true' || envVar === '1';
+}
+
 export const hostname = DOG_HOSTNAME!;
 export const port = Number(DOG_PORT!);
 export const discourseSecret = DOG_DISCOURSE_SHARED_SECRET!;
@@ -116,3 +133,5 @@ export const ghostUrl = DOG_GHOST_URL!;
 export const mountedPublicUrl = parsedMountUrl!.toString();
 export const mountedBasePath = parsedMountUrl!.pathname;
 export const ghostApiKey = DOG_GHOST_ADMIN_TOKEN!;
+export const logDiscourseRequests = coerceEnvToBoolean(DOG_LOG_DISCOURSE_REQUESTS, false);
+export const logGhostRequests = coerceEnvToBoolean(DOG_LOG_GHOST_REQUESTS, false);
