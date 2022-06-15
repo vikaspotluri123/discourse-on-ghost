@@ -14,6 +14,7 @@
     "build": "esbuild `find src -name '*.ts'` --outdir=build --platform=node --target=node16  --format=esm"
   },
   "dependencies": {
+    "@tryghost/admin-api": "^1.13.0",
     "@tryghost/errors": "^1.2.14",
     "@tryghost/logging": "^2.2.3",
     "dotenv": "^16.0.1",

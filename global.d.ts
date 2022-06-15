@@ -40,3 +40,42 @@ declare module '@tryghost/logging' {
 
 	export default defaultExport;
 }
+
+declare module '@tryghost/admin-api' {
+	type WithMeta<T> = T extends string
+		? Record<T | 'meta', Record<string, unknown>>
+		: T & {meta: Record<string, unknown>};
+	type Action<Key extends string, AllowedDataTypes extends string = string, Returns = WithMeta<Key>> = (
+		data: Partial<Record<AllowedDataTypes, unknown>>, query: Record<string, string>
+	) => Promise<Returns>;
+
+	interface ResourceActions<Key extends string> {
+		read: Action<Key, 'id' | 'email' | 'slug', Record<string, unknown>>;
+		edit: Action<Key>;
+		add: Action<Key>;
+		del: Action<Key, 'id' | 'email', unknown>;
+		browse(query: Record<string, string>): Promise<WithMeta<Array<Record<string, unknown>>>>;
+	}
+
+	interface GhostAdminApiClass {
+		members: ResourceActions<'members'>;
+	}
+
+	interface GhostAdminApiConstructorOptions {
+		url: string;
+		key: string;
+		version: 'v5.0';
+	}
+
+	const GhostAdminApi: {
+		(options: GhostAdminApiConstructorOptions): GhostAdminApiClass;
+		new(options: GhostAdminApiConstructorOptions): GhostAdminApiClass;
+	};
+
+	export default GhostAdminApi;
+}
+
+declare module '@tryghost/admin-api/lib/token.js' {
+	const token: (key: string, audience: string | string[]) => string;
+	export default token;
+}
