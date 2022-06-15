@@ -87,12 +87,12 @@ if (DOG_DISCOURSE_API_KEY) {
 	success = false;
 }
 
-let parsedGhostUrl: URL;
+let parsedMountUrl: URL;
 
 if (DOG_GHOST_URL) {
 	try {
-		parsedGhostUrl = new URL(DOG_GHOST_URL);
-		parsedGhostUrl.pathname = path.resolve(parsedGhostUrl.pathname, './ghost/api/external_discourse_on_ghost');
+		parsedMountUrl = new URL(DOG_GHOST_URL);
+		parsedMountUrl.pathname = path.resolve(parsedMountUrl.pathname, './ghost/api/external_discourse_on_ghost');
 	} catch {
 		logging.error(new errors.InternalServerError({message: messages.invalidGhostUrl}));
 		success = false;
@@ -112,6 +112,7 @@ export const discourseSecret = DOG_DISCOURSE_SHARED_SECRET!;
 export const discourseUrl = DOG_DISCOURSE_URL!;
 export const discourseApiKey = DOG_DISCOURSE_API_KEY!;
 export const discourseApiUser = DOG_DISCOURSE_API_USER ?? 'system';
-export const ghostUrl = parsedGhostUrl!.toString();
-export const ghostApiKey = DOG_GHOST_ADMIN_TOKEN;
-export const basePath = parsedGhostUrl!.pathname;
+export const ghostUrl = DOG_GHOST_URL!;
+export const mountedPublicUrl = parsedMountUrl!.toString();
+export const mountedBasePath = parsedMountUrl!.pathname;
+export const ghostApiKey = DOG_GHOST_ADMIN_TOKEN!;

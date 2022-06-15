@@ -1,11 +1,11 @@
 import path from 'node:path';
 import {Application, NextFunction, Request, Response} from 'express';
 import logging from '@tryghost/logging';
-import {basePath} from './services/config.js';
+import {mountedBasePath} from './services/config.js';
 import {securelyAuthorizeUser} from './controllers/sso.js';
 
 export function route(routePath: string): string {
-	return path.resolve(basePath, routePath);
+	return path.resolve(mountedBasePath, routePath);
 }
 
 function lazyJson(payload: Record<string, unknown>, statusCode = 200) {
