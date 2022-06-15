@@ -163,7 +163,7 @@ function coerceEnvToBoolean(envVar: string | undefined, defaultValue: boolean): 
 		return defaultValue;
 	}
 
-	return envVar === 'true' || envVar === '1';
+	return envVar.toLowerCase() === 'true' || envVar === '1';
 }
 
 export const hostname = DOG_HOSTNAME!;
