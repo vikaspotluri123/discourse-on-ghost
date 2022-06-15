@@ -4,19 +4,10 @@ import {NextFunction, Request, Response} from 'express';
 import fetch from 'node-fetch';
 import {getGhostUrl} from '../services/ghost-url.js';
 import {discourseSecret} from '../services/config.js';
+import {GhostMember} from '../types/ghost.js';
 
 const NOT_LOGGED_IN_ENDPOINT = getGhostUrl('/', '#/portal/account');
 const MEMBERS_WHOAMI_ENDPOINT = getGhostUrl('/members/api/member');
-
-interface GhostMember {
-	uuid: string;
-	email: string;
-	name: string | null; // eslint-disable-line @typescript-eslint/ban-types
-	firstname: string | null; // eslint-disable-line @typescript-eslint/ban-types
-	paid: boolean;
-	subscriptions: unknown[];
-	avatar_image: string;
-}
 
 const enum MemberError {
 	NotLoggedIn = 'NotLoggedIn',
