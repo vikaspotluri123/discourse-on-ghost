@@ -1,6 +1,6 @@
 import {Buffer} from 'node:buffer';
 import {createHmac, timingSafeEqual} from 'node:crypto';
-import {NextFunction, Request, Response} from 'express';
+import {Request, Response} from 'express';
 import fetch from 'node-fetch';
 import {getGhostUrl} from '../services/ghost-url.js';
 import {discourseSecret} from '../services/config.js';
