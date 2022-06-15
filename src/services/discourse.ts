@@ -1,9 +1,12 @@
 import path from 'node:path';
-import fetch, {type RequestInit} from 'node-fetch';
+import {type RequestInit} from 'node-fetch';
 import errors from '@tryghost/errors';
 import logging from '@tryghost/logging';
+import {createFetch} from '../lib/request.js';
 import {Semaphore, withSemaphore} from '../lib/semaphore.js';
-import {discourseApiKey, discourseApiUser, discourseUrl} from './config.js';
+import {discourseApiKey, discourseApiUser, discourseUrl, logDiscourseRequests} from './config.js';
+
+const fetch = createFetch('discourse', logDiscourseRequests);
 
 const JSON_MIME_TYPE = 'application/json';
 
@@ -55,7 +58,7 @@ interface CreateGroup {
 }
 
 export async function idempotentlyCreateGroup(name: string, fullName: string): Promise<CreateGroup> {
-	const checkUrl = getDiscourseUrl(`/groups/${name}.json`, {group_name: name});
+	const checkUrl = getDiscourseUrl(`/groups/${name}.json`);
 	const options = getDiscourseHeaders(true);
 
 	const possibleGroup = await fetch(checkUrl, options);
@@ -81,7 +84,7 @@ export async function idempotentlyCreateGroup(name: string, fullName: string): P
 		method: 'POST',
 		body: JSON.stringify(group),
 		...options,
-	});
+	}, {name, fullName});
 
 	if (creationResponse.ok) {
 		const {basic_group: group} = await creationResponse.json() as {basic_group: DiscourseGroup};
@@ -136,7 +139,7 @@ export async function addMemberToGroup(discourseId: number, name: string, niceNa
 		method: 'PUT',
 		body: JSON.stringify({user_ids: discourseId, notify_users: false}),
 		...options,
-	});
+	}, {discourseId: discourseId.toString()});
 
 	if (!response.ok) {
 		logging.error(new errors.InternalServerError({
@@ -166,7 +169,7 @@ export async function removeMemberFromGroup(discourseId: number, name: string) {
 		method: 'DELETE',
 		body: JSON.stringify({user_id: discourseId}),
 		...getDiscourseHeaders(true),
-	});
+	}, {discourseId: discourseId.toString()});
 
 	const body = await response.json() as {errors?: string[]};
 
