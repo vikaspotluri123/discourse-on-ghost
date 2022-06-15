@@ -7,7 +7,7 @@ import {
 import {securelyAuthorizeUser} from './controllers/sso.js';
 
 export function route(routePath: string): string {
-	return path.resolve(mountedBasePath, routePath);
+	return path.resolve(mountedBasePath, routePath.replace(/^\//, ''));
 }
 
 function lazyJson(payload: Record<string, unknown>, statusCode = 200) {
