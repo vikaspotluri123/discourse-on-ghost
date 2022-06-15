@@ -1,3 +1,5 @@
+import {Buffer} from 'node:buffer';
+import {randomFillSync} from 'node:crypto';
 import path from 'node:path';
 import process from 'node:process';
 import {config} from 'dotenv';
@@ -15,6 +17,10 @@ interface IConfig {
 	DOG_DISCOURSE_API_USER?: string;
 	DOG_LOG_DISCOURSE_REQUESTS?: string;
 	DOG_LOG_GHOST_REQUESTS?: string;
+	DOG_GHOST_MEMBER_WEBHOOKS_ENABLED?: string;
+	DOG_GHOST_MEMBER_CREATED_WEBHOOK_ID?: string;
+	DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID?: string;
+	DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID?: string;
 }
 
 config();
@@ -26,7 +32,12 @@ const {
 	DOG_GHOST_ADMIN_TOKEN,
 	DOG_DISCOURSE_API_KEY, DOG_DISCOURSE_URL, DOG_DISCOURSE_API_USER,
 	DOG_LOG_DISCOURSE_REQUESTS, DOG_LOG_GHOST_REQUESTS,
+	DOG_GHOST_MEMBER_WEBHOOKS_ENABLED,
+	DOG_GHOST_MEMBER_CREATED_WEBHOOK_ID, DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID, DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID,
 } = process.env as IConfig;
+
+const HEX_24 = /^[\da-f]{24}$/;
+const EXAMPLE_HEX_24 = 'BAFF1EDBEADEDCAFEBABB1ED';
 
 const messages = {
 	missingHostname: 'Missing required environment variable: DOG_HOSTNAME',
@@ -41,6 +52,11 @@ const messages = {
 	invalidDiscourseUrl: 'Invalid required environment variable: DOG_DISCOURSE_URL must be a valid URL',
 	missingDiscourseApiKey: 'Missing required environment variable: DOG_DISCOURSE_API_KEY',
 	invalidDiscourseApiKey: 'Invalid required environment variable: DOG_DISCOURSE_API_KEY must match [\\da-f]{64}',
+	missingGhostMemberWebhookId: (type: string) =>
+		`Missing required environment variable: DOG_GHOST_MEMBER_${type.toUpperCase()}_WEBHOOK_ID`,
+	invalidGhostMemberWebhookId: (type: string) =>
+		`Invalid required environment variable: DOG_GHOST_MEMBER_${type.toUpperCase()}_WEBHOOK_ID must match [\\da-f]{24} `
+		+ `and not be the example (${EXAMPLE_HEX_24}). Try ${randomFillSync(Buffer.alloc(12)).toString('hex')}`,
 };
 
 if (!DOG_HOSTNAME) {
@@ -111,6 +127,33 @@ if (DOG_GHOST_URL) {
 	success = false;
 }
 
+if (DOG_GHOST_MEMBER_CREATED_WEBHOOK_ID) {
+	if (!HEX_24.test(DOG_GHOST_MEMBER_CREATED_WEBHOOK_ID) || DOG_GHOST_MEMBER_CREATED_WEBHOOK_ID === EXAMPLE_HEX_24) {
+		logging.error(new errors.InternalServerError({message: messages.invalidGhostMemberWebhookId('created')}));
+		success = false;
+	}
+} else {
+	logging.error(new errors.InternalServerError({message: messages.missingGhostMemberWebhookId('created')}));
+}
+
+if (DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID) {
+	if (!HEX_24.test(DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID) || DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID === EXAMPLE_HEX_24) {
+		logging.error(new errors.InternalServerError({message: messages.invalidGhostMemberWebhookId('created')}));
+		success = false;
+	}
+} else {
+	logging.error(new errors.InternalServerError({message: messages.missingGhostMemberWebhookId('created')}));
+}
+
+if (DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID) {
+	if (!HEX_24.test(DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID) || DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID === EXAMPLE_HEX_24) {
+		logging.error(new errors.InternalServerError({message: messages.invalidGhostMemberWebhookId('created')}));
+		success = false;
+	}
+} else {
+	logging.error(new errors.InternalServerError({message: messages.missingGhostMemberWebhookId('created')}));
+}
+
 if (!success) {
 	process.exit(1); // eslint-disable-line unicorn/no-process-exit
 }
@@ -135,3 +178,7 @@ export const mountedBasePath = parsedMountUrl!.pathname;
 export const ghostApiKey = DOG_GHOST_ADMIN_TOKEN!;
 export const logDiscourseRequests = coerceEnvToBoolean(DOG_LOG_DISCOURSE_REQUESTS, false);
 export const logGhostRequests = coerceEnvToBoolean(DOG_LOG_GHOST_REQUESTS, false);
+export const enableGhostWebhooks = coerceEnvToBoolean(DOG_GHOST_MEMBER_WEBHOOKS_ENABLED, false);
+export const ghostMemberCreatedRoute = DOG_GHOST_MEMBER_CREATED_WEBHOOK_ID!;
+export const ghostMemberUpdatedRoute = DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID!;
+export const ghostMemberDeletedRoute = DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID!;
