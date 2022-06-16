@@ -4,6 +4,7 @@ import errors from '@tryghost/errors';
 import logging from '@tryghost/logging';
 import {createFetch} from '../lib/request.js';
 import {Semaphore, withSemaphore} from '../lib/semaphore.js';
+import {DiscourseGroup, MinimalGroup} from '../types/discourse.js';
 import {discourseApiKey, discourseApiUser, discourseUrl, logDiscourseRequests} from './config.js';
 
 const fetch = createFetch('discourse', logDiscourseRequests);
@@ -17,16 +18,6 @@ export const DEFAULT_GROUP_MEMBERS_VISIBILITY_LEVEL = 2;
 export const DEFAULT_GROUP_PREFIX = 'tier_';
 
 const requestSemaphore = new Semaphore(DEFAULT_MAX_DISCOURSE_REQUEST_CONCURRENCY);
-
-interface DiscourseGroup {
-	id: number;
-	name: string;
-	full_name: string;
-	automatic: boolean;
-	mentionable_level: number;
-	visibility_level: number;
-	members_visibility_level: number;
-}
 
 export function getDiscourseUrl(urlPath: string, query: Record<string, string> = {}): string {
 	const base = new URL(discourseUrl);
@@ -185,7 +176,7 @@ export async function removeMemberFromGroup(discourseId: number, name: string) {
 	return !body.errors || body.errors.length === 0;
 }
 
-export async function setMemberGroups(uuid: string, groups: Array<{name: string; niceName: string}>) {
+export async function setMemberGroups(uuid: string, groups: MinimalGroup[]) {
 	const {id, groups: currentGroups} = await getMemberGroups(uuid);
 	const changes: Array<{name: string; type: 'added' | 'removed'; success: boolean}> = [];
 	const requestedGroups = new Map<string, string>();
