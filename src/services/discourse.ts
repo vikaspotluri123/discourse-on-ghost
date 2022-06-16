@@ -100,7 +100,7 @@ interface InternalGroup {
 	name: string;
 }
 
-export async function getMemberGroups(uuid: string): Promise<{id: number; groups: InternalGroup[]}> {
+export async function getMember(uuid: string): Promise<{id: number; groups: InternalGroup[]} | undefined> {
 	const url = getDiscourseUrl(`/u/by-external/${uuid}.json`);
 	const options = getDiscourseHeaders();
 
@@ -119,7 +119,7 @@ export async function getMemberGroups(uuid: string): Promise<{id: number; groups
 		errorDetails: await response.json(),
 	}));
 
-	return {id: -1, groups: []};
+	return undefined;
 }
 
 export async function addMemberToGroup(discourseId: number, name: string, niceName: string) {
@@ -177,13 +177,15 @@ export async function removeMemberFromGroup(discourseId: number, name: string) {
 }
 
 export async function setMemberGroups(uuid: string, groups: MinimalGroup[]) {
-	const {id, groups: currentGroups} = await getMemberGroups(uuid);
+	const member = await getMember(uuid);
 	const changes: Array<{name: string; type: 'added' | 'removed'; success: boolean}> = [];
 	const requestedGroups = new Map<string, string>();
 
-	if (id === -1) {
+	if (!member) {
 		throw new errors.NotFoundError({message: `Unable to map ${uuid} to Discourse`});
 	}
+
+	const {id, groups: currentGroups} = member;
 
 	for (const group of groups) {
 		requestedGroups.set(group.name, group.niceName);
