@@ -1,5 +1,5 @@
 import logging from '@tryghost/logging';
-import {DEFAULT_GROUP_PREFIX, deleteGroup, getAllGroups, idempotentlyCreateGroup} from './discourse.js';
+import {DEFAULT_GROUP_PREFIX, deleteGroup, getAllGroups, getNiceName, getSlug, idempotentlyCreateGroup} from './discourse.js';
 import {getTiers} from './ghost.js';
 
 const LOG_PREFIX = '[discourse:sync]';
@@ -20,11 +20,11 @@ export async function syncTiersToGroups(removeUnmappedTiers = false) {
 	const work = [];
 
 	for (const tier of tiers) {
-		const groupSlug = `${DEFAULT_GROUP_PREFIX}${tier.slug}`;
+		const groupSlug = getSlug(tier.slug);
 		if (groups.has(groupSlug)) {
 			groups.delete(groupSlug);
 		} else {
-			work.push(idempotentlyCreateGroup(groupSlug, tier.name)
+			work.push(idempotentlyCreateGroup(groupSlug, getNiceName(tier.name))
 				.then(({created}) => {
 					if (created) {
 						logging.info(`${LOG_PREFIX} Created group ${groupSlug}`);
