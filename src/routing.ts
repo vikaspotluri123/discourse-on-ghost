@@ -5,6 +5,7 @@ import {
 	mountedBasePath, enableGhostWebhooks, ghostMemberDeletedRoute, ghostMemberUpdatedRoute,
 } from './services/config.js';
 import {securelyAuthorizeUser} from './controllers/sso.js';
+import {memberRemoved, memberUpdated} from './controllers/ghost-webhook.js';
 
 export function route(routePath: string): string {
 	return path.resolve(mountedBasePath, routePath.replace(/^\//, ''));
@@ -24,16 +25,12 @@ export function addRoutes(app: Application, includeCommon = false): void {
 	app.get(route('sso'), securelyAuthorizeUser);
 
 	if (enableGhostWebhooks) {
-		const handler = (request: Request, response: Response) => {
-			// @todo
-			response.status(204).end();
-		};
-
 		const fullMemberUpdatedRoute = route(`hook/${ghostMemberUpdatedRoute}`);
 		const fullMemberDeletedRoute = route(`hook/${ghostMemberDeletedRoute}`);
+		const jsonParser = json();
 
-		app.post(fullMemberUpdatedRoute, json(), handler);
-		app.post(fullMemberDeletedRoute, json(), handler);
+		app.post(fullMemberUpdatedRoute, jsonParser, memberUpdated);
+		app.post(fullMemberDeletedRoute, jsonParser, memberRemoved);
 		logging.info(''
 			+ 'Webhooks Mounted:\n'
 			+ ` - Member Updated @ ${fullMemberUpdatedRoute}\n`

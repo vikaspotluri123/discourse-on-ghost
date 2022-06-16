@@ -1,3 +1,5 @@
+import {GhostTier} from '../types/ghost.js';
+import {Queue} from '../lib/queue.js';
 import {getMember} from './ghost.js';
 import {setMemberGroups} from './discourse.js';
 
@@ -8,8 +10,16 @@ export async function syncMemberGroups(ghostId: string) {
 		return false;
 	}
 
-	return setMemberGroups(user.uuid, user.tiers.map(tier => ({
+	return setDiscourseGroupsFromGhostTiers(user.uuid, user.tiers);
+}
+
+export async function setDiscourseGroupsFromGhostTiers(uuid: string, tiers: GhostTier[]) {
+	const mappedGroups = tiers.map(tier => ({
 		name: `tier_${tier.slug}`,
 		niceName: `${tier.name} Tier`,
-	})));
+	}));
+
+	return setMemberGroups(uuid, mappedGroups);
 }
+
+export const memberSyncQueue = new Queue();

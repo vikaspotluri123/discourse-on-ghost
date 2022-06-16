@@ -1,4 +1,5 @@
 export interface GhostMember {
+	id?: string;
 	uuid: string;
 	email: string;
 	name: string | null; // eslint-disable-line @typescript-eslint/ban-types
@@ -25,4 +26,18 @@ export interface GhostTier {
 
 export interface GhostMemberWithTiers extends GhostMember {
 	tiers: GhostTier[];
+}
+
+export interface MemberUpdated {
+	member: {
+		current: Partial<GhostMember> & GhostMemberWithTiers;
+		partial: Partial<GhostMemberWithTiers>;
+	};
+}
+
+export interface MemberRemoved {
+	member: {
+		previous: Partial<GhostMember> & GhostMemberWithTiers;
+		current: Record<never, unknown>;
+	};
 }
