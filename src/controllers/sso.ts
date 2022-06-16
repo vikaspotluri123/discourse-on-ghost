@@ -5,6 +5,7 @@ import fetch from 'node-fetch';
 import {getGhostUrl} from '../services/ghost.js';
 import {discourseSecret} from '../services/config.js';
 import {GhostMember} from '../types/ghost.js';
+import {DiscourseSSOResponse} from '../types/discourse.js';
 
 const NOT_LOGGED_IN_ENDPOINT = getGhostUrl('/', '#/portal/account');
 const MEMBERS_WHOAMI_ENDPOINT = getGhostUrl('/members/api/member');
@@ -27,8 +28,10 @@ function getDiscoursePayload(encodedPayload: string, signature: string): URLSear
 	return new URLSearchParams(payload);
 }
 
-function addEncodedPayloadToDiscourseReturnUrl(payload: Record<string, string>, secret: string, urlBase: string) {
-	const encodedPayload = Buffer.from(new URLSearchParams(payload).toString(), 'utf8')
+function addEncodedPayloadToDiscourseReturnUrl(payload: DiscourseSSOResponse, secret: string, urlBase: string) {
+	// @ts-expect-error all values of DiscourseSSOResponse are strings
+	const typeSafePayload = payload as Record<string, string>;
+	const encodedPayload = Buffer.from(new URLSearchParams(typeSafePayload).toString(), 'utf8')
 		.toString('base64');
 
 	const signature = createHmac('sha256', secret)
@@ -94,7 +97,7 @@ export async function securelyAuthorizeUser(request: Request, response: Response
 	const discourseRedirect = rawDiscoursePayload.get('return_sso_url')!;
 	const {email, uuid, name, avatar_image} = memberResponse;
 
-	const memberPayload: Record<string, string> = {
+	const memberPayload: DiscourseSSOResponse = {
 		nonce,
 		email,
 		external_id: uuid,
