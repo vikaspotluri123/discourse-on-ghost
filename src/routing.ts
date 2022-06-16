@@ -2,7 +2,7 @@ import path from 'node:path';
 import {Application, NextFunction, Request, Response, json} from 'express';
 import logging from '@tryghost/logging';
 import {
-	mountedBasePath, enableGhostWebhooks, ghostMemberCreatedRoute, ghostMemberDeletedRoute, ghostMemberUpdatedRoute,
+	mountedBasePath, enableGhostWebhooks, ghostMemberDeletedRoute, ghostMemberUpdatedRoute,
 } from './services/config.js';
 import {securelyAuthorizeUser} from './controllers/sso.js';
 
@@ -29,16 +29,13 @@ export function addRoutes(app: Application, includeCommon = false): void {
 			response.status(204).end();
 		};
 
-		const fullMemberCreatedRoute = route(`hook/${ghostMemberCreatedRoute}`);
 		const fullMemberUpdatedRoute = route(`hook/${ghostMemberUpdatedRoute}`);
 		const fullMemberDeletedRoute = route(`hook/${ghostMemberDeletedRoute}`);
 
-		app.post(fullMemberCreatedRoute, json(), handler);
 		app.post(fullMemberUpdatedRoute, json(), handler);
 		app.post(fullMemberDeletedRoute, json(), handler);
 		logging.info(''
 			+ 'Webhooks Mounted:\n'
-			+ ` - Member Created @ ${fullMemberCreatedRoute}\n`
 			+ ` - Member Updated @ ${fullMemberUpdatedRoute}\n`
 			+ ` - Member Deleted @ ${fullMemberDeletedRoute}`,
 		);
