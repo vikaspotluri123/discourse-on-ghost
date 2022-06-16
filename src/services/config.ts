@@ -18,7 +18,6 @@ interface IConfig {
 	DOG_LOG_DISCOURSE_REQUESTS?: string;
 	DOG_LOG_GHOST_REQUESTS?: string;
 	DOG_GHOST_MEMBER_WEBHOOKS_ENABLED?: string;
-	DOG_GHOST_MEMBER_CREATED_WEBHOOK_ID?: string;
 	DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID?: string;
 	DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID?: string;
 }
@@ -33,7 +32,7 @@ const {
 	DOG_DISCOURSE_API_KEY, DOG_DISCOURSE_URL, DOG_DISCOURSE_API_USER,
 	DOG_LOG_DISCOURSE_REQUESTS, DOG_LOG_GHOST_REQUESTS,
 	DOG_GHOST_MEMBER_WEBHOOKS_ENABLED,
-	DOG_GHOST_MEMBER_CREATED_WEBHOOK_ID, DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID, DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID,
+	DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID, DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID,
 } = process.env as IConfig;
 
 const HEX_24 = /^[\da-f]{24}$/;
@@ -127,31 +126,22 @@ if (DOG_GHOST_URL) {
 	success = false;
 }
 
-if (DOG_GHOST_MEMBER_CREATED_WEBHOOK_ID) {
-	if (!HEX_24.test(DOG_GHOST_MEMBER_CREATED_WEBHOOK_ID) || DOG_GHOST_MEMBER_CREATED_WEBHOOK_ID === EXAMPLE_HEX_24) {
-		logging.error(new errors.InternalServerError({message: messages.invalidGhostMemberWebhookId('created')}));
-		success = false;
-	}
-} else {
-	logging.error(new errors.InternalServerError({message: messages.missingGhostMemberWebhookId('created')}));
-}
-
 if (DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID) {
 	if (!HEX_24.test(DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID) || DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID === EXAMPLE_HEX_24) {
-		logging.error(new errors.InternalServerError({message: messages.invalidGhostMemberWebhookId('created')}));
+		logging.error(new errors.InternalServerError({message: messages.invalidGhostMemberWebhookId('updated')}));
 		success = false;
 	}
 } else {
-	logging.error(new errors.InternalServerError({message: messages.missingGhostMemberWebhookId('created')}));
+	logging.error(new errors.InternalServerError({message: messages.missingGhostMemberWebhookId('updated')}));
 }
 
 if (DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID) {
 	if (!HEX_24.test(DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID) || DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID === EXAMPLE_HEX_24) {
-		logging.error(new errors.InternalServerError({message: messages.invalidGhostMemberWebhookId('created')}));
+		logging.error(new errors.InternalServerError({message: messages.invalidGhostMemberWebhookId('deleted')}));
 		success = false;
 	}
 } else {
-	logging.error(new errors.InternalServerError({message: messages.missingGhostMemberWebhookId('created')}));
+	logging.error(new errors.InternalServerError({message: messages.missingGhostMemberWebhookId('deleted')}));
 }
 
 if (!success) {
@@ -179,6 +169,5 @@ export const ghostApiKey = DOG_GHOST_ADMIN_TOKEN!;
 export const logDiscourseRequests = coerceEnvToBoolean(DOG_LOG_DISCOURSE_REQUESTS, false);
 export const logGhostRequests = coerceEnvToBoolean(DOG_LOG_GHOST_REQUESTS, false);
 export const enableGhostWebhooks = coerceEnvToBoolean(DOG_GHOST_MEMBER_WEBHOOKS_ENABLED, false);
-export const ghostMemberCreatedRoute = DOG_GHOST_MEMBER_CREATED_WEBHOOK_ID!;
 export const ghostMemberUpdatedRoute = DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID!;
 export const ghostMemberDeletedRoute = DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID!;
