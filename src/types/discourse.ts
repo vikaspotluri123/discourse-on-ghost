@@ -12,3 +12,15 @@ export interface DiscourseGroup {
 	visibility_level: number;
 	members_visibility_level: number;
 }
+
+export interface DiscourseSSOUser {
+	nonce?: string;
+	name?: string;
+	email: string;
+	external_id: string;
+	avatar_url: string;
+}
+
+export interface DiscourseSSOResponse extends DiscourseSSOUser {
+	nonce: string;
+}
