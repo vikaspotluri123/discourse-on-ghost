@@ -182,7 +182,10 @@ export async function setMemberGroups(uuid: string, groups: MinimalGroup[]) {
 	const requestedGroups = new Map<string, string>();
 
 	if (!member) {
-		throw new errors.NotFoundError({message: `Unable to map ${uuid} to Discourse`});
+		// There's no need to throw an error here because either the user deleted their account, or just created their
+		// account. When they SSO with Discourse after creating an account, the group list will be set
+		logging.info(`Unable to set groups for ${uuid} - user not found`);
+		return false;
 	}
 
 	const {id, groups: currentGroups} = member;
