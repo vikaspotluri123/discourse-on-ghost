@@ -16,6 +16,7 @@ export interface DiscourseGroup {
 export interface DiscourseSSOUser {
 	nonce?: string;
 	name?: string;
+	add_groups?: string;
 	email: string;
 	external_id: string;
 	avatar_url: string;

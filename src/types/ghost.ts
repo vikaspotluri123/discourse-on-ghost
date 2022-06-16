@@ -24,8 +24,17 @@ export interface GhostTier {
 	yearly_price_id: string;
 }
 
+export interface GhostSubscription {
+	id: string;
+	tier: GhostTier;
+}
+
 export interface GhostMemberWithTiers extends GhostMember {
 	tiers: GhostTier[];
+}
+
+export interface GhostMemberWithSubscriptions extends GhostMember {
+	subscriptions: GhostSubscription[];
 }
 
 export interface MemberUpdated {
