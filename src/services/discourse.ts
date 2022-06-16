@@ -5,11 +5,10 @@ import logging from '@tryghost/logging';
 import {createFetch} from '../lib/request.js';
 import {Semaphore, withSemaphore} from '../lib/semaphore.js';
 import {DiscourseGroup, MinimalGroup} from '../types/discourse.js';
+import {JSON_MIME_TYPE} from '../lib/constants.js';
 import {discourseApiKey, discourseApiUser, discourseUrl, logDiscourseRequests} from './config.js';
 
 const fetch = createFetch('discourse', logDiscourseRequests);
-
-const JSON_MIME_TYPE = 'application/json';
 
 export const DEFAULT_MAX_DISCOURSE_REQUEST_CONCURRENCY = 3;
 export const DEFAULT_GROUP_MENTIONABLE_LEVEL = 3;
@@ -93,6 +92,40 @@ export async function idempotentlyCreateGroup(name: string, fullName: string): P
 	logging.error(error);
 
 	throw error;
+}
+
+export async function deleteGroup(id: number): Promise<void> {
+	const url = getDiscourseUrl(`/admin/groups/${id}.json`);
+	const options = getDiscourseHeaders();
+	options.method = 'DELETE';
+
+	const response = await fetch(url, options);
+
+	if (!response.ok) {
+		throw new errors.InternalServerError({
+			message: `Unable to delete group ${id} - response is not ok`,
+			errorDetails: await response.json(),
+		});
+	}
+
+	const body = await response.json() as {success?: string};
+
+	if (!body.success) {
+		throw new errors.InternalServerError({
+			message: `Unable to delete group ${id} - response does not contain "success" property`,
+			errorDetails: body,
+		});
+	}
+}
+
+export async function getAllGroups(): Promise<DiscourseGroup[]> {
+	const url = getDiscourseUrl('/groups.json');
+	const options = getDiscourseHeaders(true);
+
+	const response = await fetch(url, options);
+	const {groups} = await response.json() as {groups: DiscourseGroup[]};
+
+	return groups;
 }
 
 interface InternalGroup {
