@@ -1,9 +1,11 @@
 import path from 'node:path';
 import GhostAdminApi from '@tryghost/admin-api';
+import getToken from '@tryghost/admin-api/lib/token.js';
 import {RequestInit} from 'node-fetch';
-import {GhostMemberWithTiers} from '../types/ghost.js';
+import {GhostMemberWithTiers, GhostTier} from '../types/ghost.js';
 import {isObject} from '../lib/is-object.js';
 import {createFetch} from '../lib/request.js';
+import {JSON_MIME_TYPE} from '../lib/constants.js';
 import {ghostUrl, ghostApiKey, logGhostRequests} from './config.js';
 
 const fetch = createFetch('ghost', logGhostRequests);
@@ -47,6 +49,10 @@ const adminApi = new GhostAdminApi({
 	},
 });
 
+function getAuthHeader() {
+	return `Ghost ${getToken(ghostApiKey, '/admin')}`;
+}
+
 export function getGhostUrl(urlPath: string, hash = ''): string {
 	const base = new URL(ghostUrl);
 	base.pathname = path.resolve(base.pathname, urlPath);
@@ -65,4 +71,16 @@ export async function getMember(id: string): Promise<GhostMemberWithTiers | fals
 
 		throw error;
 	}
+}
+
+export async function getTiers(): Promise<GhostTier[]> {
+	const headers = {
+		authorization: getAuthHeader(),
+		accept: JSON_MIME_TYPE,
+	};
+
+	const response = await fetch(getGhostUrl('/ghost/api/admin/tiers'), {headers});
+
+	const {tiers} = await response.json() as {tiers: GhostTier[]};
+	return tiers;
 }
