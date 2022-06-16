@@ -4,8 +4,9 @@ import {Request, Response} from 'express';
 import fetch from 'node-fetch';
 import {getGhostUrl} from '../services/ghost.js';
 import {discourseSecret} from '../services/config.js';
-import {GhostMember} from '../types/ghost.js';
+import {GhostMember, GhostMemberWithSubscriptions} from '../types/ghost.js';
 import {DiscourseSSOResponse} from '../types/discourse.js';
+import {DEFAULT_GROUP_PREFIX} from '../services/discourse.js';
 
 const NOT_LOGGED_IN_ENDPOINT = getGhostUrl('/', '#/portal/account');
 const MEMBERS_WHOAMI_ENDPOINT = getGhostUrl('/members/api/member');
@@ -44,7 +45,7 @@ function addEncodedPayloadToDiscourseReturnUrl(payload: DiscourseSSOResponse, se
 	return parsedUrl.toString();
 }
 
-async function getMember(cookie: string): Promise<GhostMember | MemberError> {
+async function getMember(cookie: string): Promise<GhostMemberWithSubscriptions | MemberError> {
 	const proxyResponse = await fetch(MEMBERS_WHOAMI_ENDPOINT, {
 		headers: {cookie},
 	});
@@ -57,7 +58,7 @@ async function getMember(cookie: string): Promise<GhostMember | MemberError> {
 		return MemberError.InternalError;
 	}
 
-	return proxyResponse.json() as Promise<GhostMember>;
+	return proxyResponse.json() as Promise<GhostMemberWithSubscriptions>;
 }
 
 export async function securelyAuthorizeUser(request: Request, response: Response) {
@@ -95,7 +96,7 @@ export async function securelyAuthorizeUser(request: Request, response: Response
 
 	const nonce = rawDiscoursePayload.get('nonce')!;
 	const discourseRedirect = rawDiscoursePayload.get('return_sso_url')!;
-	const {email, uuid, name, avatar_image} = memberResponse;
+	const {email, uuid, name, avatar_image, subscriptions} = memberResponse;
 
 	const memberPayload: DiscourseSSOResponse = {
 		nonce,
@@ -106,6 +107,15 @@ export async function securelyAuthorizeUser(request: Request, response: Response
 
 	if (name) {
 		memberPayload.name = name;
+	}
+
+	if (subscriptions?.length > 0) {
+		// NOTE: if the group doesn't exist, Discourse won't create it. The likeliness of a new user SSOing with Discourse,
+		// and being the first person to be part of the tier is really low, and if that happens, they can re-auth after
+		// the group is manually created.
+		memberPayload.add_groups = subscriptions
+			.map(({tier: {slug}}) => `${DEFAULT_GROUP_PREFIX}${slug}`)
+			.join(',');
 	}
 
 	response.redirect(addEncodedPayloadToDiscourseReturnUrl(memberPayload, discourseSecret, discourseRedirect));
