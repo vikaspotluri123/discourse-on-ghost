@@ -15,6 +15,15 @@ export const DEFAULT_GROUP_MENTIONABLE_LEVEL = 3;
 export const DEFAULT_GROUP_VISIBILITY_LEVEL = 2;
 export const DEFAULT_GROUP_MEMBERS_VISIBILITY_LEVEL = 2;
 export const DEFAULT_GROUP_PREFIX = 'tier_';
+export const DEFAULT_GROUP_NAME_SUFFIX = ' Tier';
+
+export function getNiceName(ghostTierName: string) {
+	return `${ghostTierName}${DEFAULT_GROUP_NAME_SUFFIX}`;
+}
+
+export function getSlug(ghostTierSlug: string) {
+	return `${DEFAULT_GROUP_PREFIX}${ghostTierSlug}`;
+}
 
 const requestSemaphore = new Semaphore(DEFAULT_MAX_DISCOURSE_REQUEST_CONCURRENCY);
 

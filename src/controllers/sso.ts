@@ -4,9 +4,9 @@ import {Request, Response} from 'express';
 import fetch from 'node-fetch';
 import {getGhostUrl} from '../services/ghost.js';
 import {discourseSecret} from '../services/config.js';
-import {GhostMember, GhostMemberWithSubscriptions} from '../types/ghost.js';
+import {GhostMemberWithSubscriptions} from '../types/ghost.js';
 import {DiscourseSSOResponse} from '../types/discourse.js';
-import {DEFAULT_GROUP_PREFIX} from '../services/discourse.js';
+import {getSlug} from '../services/discourse.js';
 
 const NOT_LOGGED_IN_ENDPOINT = getGhostUrl('/', '#/portal/account');
 const MEMBERS_WHOAMI_ENDPOINT = getGhostUrl('/members/api/member');
@@ -114,7 +114,7 @@ export async function securelyAuthorizeUser(request: Request, response: Response
 		// and being the first person to be part of the tier is really low, and if that happens, they can re-auth after
 		// the group is manually created.
 		memberPayload.add_groups = subscriptions
-			.map(({tier: {slug}}) => `${DEFAULT_GROUP_PREFIX}${slug}`)
+			.map(({tier: {slug}}) => getSlug(slug))
 			.join(',');
 	}
 
