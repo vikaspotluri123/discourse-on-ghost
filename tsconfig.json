@@ -7,6 +7,7 @@
     "esModuleInterop": true,
     "module": "es2020",
     "moduleResolution": "node",
+    "target": "es2020",
     "noEmit": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
