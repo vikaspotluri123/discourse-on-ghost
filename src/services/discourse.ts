@@ -142,22 +142,23 @@ interface InternalGroup {
 	name: string;
 }
 
-export async function getMember(uuid: string): Promise<{id: number; groups: InternalGroup[]} | undefined> {
+export async function getMember(uuid: string): Promise<{id: number; groups: InternalGroup[]; username: string} | undefined> {
 	const url = getDiscourseUrl(`/u/by-external/${uuid}.json`);
 	const options = getDiscourseHeaders();
 
 	const response = await fetch(url, options);
 
 	if (response.ok) {
-		const {user} = await response.json() as {user: {id: number; groups: InternalGroup[]}};
+		const {user} = await response.json() as {user: {id: number; groups: InternalGroup[]; username: string}};
 		return {
 			id: user.id,
+			username: user.username,
 			groups: user.groups.map(({id, name}) => ({id, name})),
 		};
 	}
 
 	logging.error(new errors.InternalServerError({
-		message: `Unable to get member groups for ${uuid} - response is not ok`,
+		message: `Unable to get member ${uuid} - response is not ok`,
 		errorDetails: await response.json(),
 	}));
 
@@ -267,4 +268,114 @@ export async function setMemberGroups(uuid: string, groups: MinimalGroup[]) {
 	}
 
 	return changes;
+}
+
+export async function anonymizeExternalUser(uuid: string) {
+	const user = await getMember(uuid);
+
+	if (!user) {
+		return false;
+	}
+
+	const {id, username} = user;
+	const url = getDiscourseUrl(`/admin/users/${id}/anonymize.json`);
+	const options = getDiscourseHeaders();
+	options.method = 'PUT';
+	const response = await fetch(url, options, {username});
+
+	if (!response.ok) {
+		logging.error(new errors.InternalServerError({
+			message: `Unable to anonymize user ${id} - response is not ok`,
+			errorDetails: await response.json(),
+		}));
+
+		return false;
+	}
+
+	const {success, username: newUsername} = await response.json() as {success: string; username: string};
+
+	if (success.toLowerCase() !== 'ok') {
+		logging.info(`Unable to anonymize ${username} - success is "${success}"`);
+		return false;
+	}
+
+	logging.info(`Anonymized ${username} (${uuid}) to ${newUsername}`);
+	return true;
+}
+
+export async function suspendExternalUser(uuid: string) {
+	const user = await getMember(uuid);
+
+	if (!user) {
+		return false;
+	}
+
+	const {id, username} = user;
+	const url = getDiscourseUrl(`/admin/users/${id}/suspend.json`);
+	const today = new Date();
+	const tenYearsFromToday = new Date(today.getFullYear() + 10, today.getMonth(), today.getDate());
+	const [suspendUntil] = tenYearsFromToday.toISOString().split('T');
+
+	const response = await fetch(url, {
+		method: 'PUT',
+		body: JSON.stringify({
+			suspend_until: suspendUntil,
+			reason: 'Membership was deleted',
+		}),
+		...getDiscourseHeaders(true),
+	}, {username});
+
+	if (!response.ok) {
+		// CASE: User is already suspended
+		if (response.status === 409) {
+			await response.text();
+			return true;
+		}
+
+		logging.error(new errors.InternalServerError({
+			message: `Unable to suspend ${username} - response is not ok`,
+			errorDetails: await response.json(),
+		}));
+
+		return false;
+	}
+
+	const body = await response.json() as {suspension?: unknown};
+
+	logging.info(`Suspended ${username} (${uuid})`);
+	return 'suspension' in body;
+}
+
+export async function deleteExternalUser(uuid: string) {
+	const user = await getMember(uuid);
+
+	if (!user) {
+		logging.info(`No need to delete ${uuid} - user not found`);
+		return true;
+	}
+
+	const {id, username} = user;
+	const url = getDiscourseUrl(`/admin/users/${id}.json`);
+	const response = await fetch(url, {
+		method: 'DELETE',
+		body: JSON.stringify({
+			delete_posts: true,
+			block_email: false,
+			block_urls: false,
+			block_ip: false,
+		}),
+		...getDiscourseHeaders(true),
+	}, {username});
+
+	if (!response.ok) {
+		logging.error(new errors.InternalServerError({
+			message: `Unable to delete user ${username} - response is not ok`,
+			errorDetails: await response.json(),
+		}));
+
+		return false;
+	}
+
+	logging.info(`Deleted ${username} (${uuid})`);
+	return true;
 }

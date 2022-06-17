@@ -1,11 +1,11 @@
 import path from 'node:path';
-import {Application, NextFunction, Request, Response, json} from 'express';
+import {Application, NextFunction, Request, Response, json, Handler} from 'express';
 import logging from '@tryghost/logging';
 import {
-	mountedBasePath, enableGhostWebhooks, ghostMemberDeletedRoute, ghostMemberUpdatedRoute, ghostMemberDeleteDiscourseAction,
+	mountedBasePath, enableGhostWebhooks, ghostMemberDeletedRoute, ghostMemberUpdatedRoute, ghostMemberDeleteDiscourseAction as deleteAction,
 } from './services/config.js';
 import {securelyAuthorizeUser} from './controllers/sso.js';
-import {memberRemoved, memberUpdated} from './controllers/ghost-webhook.js';
+import {memberRemovedAnonymize, memberRemovedDelete, memberRemovedSuspend, memberRemovedSync, memberUpdated} from './controllers/ghost-webhook.js';
 
 export function route(routePath: string): string {
 	return path.resolve(mountedBasePath, routePath.replace(/^\//, ''));
@@ -21,25 +21,45 @@ function lazyJson(payload: Record<string, unknown>, statusCode = 200) {
 	};
 }
 
+function getDeleteHandler(): Handler | undefined {
+	if (deleteAction === 'anonymize') {
+		return memberRemovedAnonymize;
+	}
+
+	if (deleteAction === 'suspend') {
+		return memberRemovedSuspend;
+	}
+
+	if (deleteAction === 'sync') {
+		return memberRemovedSync;
+	}
+
+	if (deleteAction === 'delete') {
+		return memberRemovedDelete;
+	}
+
+	return undefined;
+}
+
 export function addRoutes(app: Application, includeCommon = false): void {
 	app.get(route('sso'), securelyAuthorizeUser);
 
 	if (enableGhostWebhooks) {
 		const fullMemberUpdatedRoute = route(`hook/${ghostMemberUpdatedRoute}`);
 		const fullMemberDeletedRoute = route(`hook/${ghostMemberDeletedRoute}`);
-		const mountDeletedRoute = ghostMemberDeleteDiscourseAction !== 'none';
+		const deleteHandler = getDeleteHandler();
 		const jsonParser = json();
 
 		app.post(fullMemberUpdatedRoute, jsonParser, memberUpdated);
 
-		if (mountDeletedRoute) {
-			app.post(fullMemberDeletedRoute, jsonParser, memberRemoved);
+		if (deleteHandler) {
+			app.post(fullMemberDeletedRoute, jsonParser, deleteHandler);
 		}
 
 		logging.info(''
 			+ 'Webhooks Mounted:\n'
 			+ ` - Member Updated @ ${fullMemberUpdatedRoute}`
-			+ (mountDeletedRoute ? '\n - Member Deleted @ ' + fullMemberDeletedRoute : ''),
+			+ (deleteHandler ? '\n - Member Deleted @ ' + fullMemberDeletedRoute : ''),
 		);
 	}
 
