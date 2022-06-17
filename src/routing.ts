@@ -2,7 +2,7 @@ import path from 'node:path';
 import {Application, NextFunction, Request, Response, json} from 'express';
 import logging from '@tryghost/logging';
 import {
-	mountedBasePath, enableGhostWebhooks, ghostMemberDeletedRoute, ghostMemberUpdatedRoute,
+	mountedBasePath, enableGhostWebhooks, ghostMemberDeletedRoute, ghostMemberUpdatedRoute, ghostMemberDeleteDiscourseAction,
 } from './services/config.js';
 import {securelyAuthorizeUser} from './controllers/sso.js';
 import {memberRemoved, memberUpdated} from './controllers/ghost-webhook.js';
@@ -27,14 +27,19 @@ export function addRoutes(app: Application, includeCommon = false): void {
 	if (enableGhostWebhooks) {
 		const fullMemberUpdatedRoute = route(`hook/${ghostMemberUpdatedRoute}`);
 		const fullMemberDeletedRoute = route(`hook/${ghostMemberDeletedRoute}`);
+		const mountDeletedRoute = ghostMemberDeleteDiscourseAction !== 'none';
 		const jsonParser = json();
 
 		app.post(fullMemberUpdatedRoute, jsonParser, memberUpdated);
-		app.post(fullMemberDeletedRoute, jsonParser, memberRemoved);
+
+		if (mountDeletedRoute) {
+			app.post(fullMemberDeletedRoute, jsonParser, memberRemoved);
+		}
+
 		logging.info(''
 			+ 'Webhooks Mounted:\n'
-			+ ` - Member Updated @ ${fullMemberUpdatedRoute}\n`
-			+ ` - Member Deleted @ ${fullMemberDeletedRoute}`,
+			+ ` - Member Updated @ ${fullMemberUpdatedRoute}`
+			+ (mountDeletedRoute ? '\n - Member Deleted @ ' + fullMemberDeletedRoute : ''),
 		);
 	}
 
