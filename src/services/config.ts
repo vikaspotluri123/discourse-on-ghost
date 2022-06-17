@@ -20,6 +20,7 @@ interface IConfig {
 	DOG_GHOST_MEMBER_WEBHOOKS_ENABLED?: string;
 	DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID?: string;
 	DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID?: string;
+	DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION?: string;
 }
 
 config();
@@ -33,6 +34,7 @@ const {
 	DOG_LOG_DISCOURSE_REQUESTS, DOG_LOG_GHOST_REQUESTS,
 	DOG_GHOST_MEMBER_WEBHOOKS_ENABLED,
 	DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID, DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID,
+	DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION,
 } = process.env as IConfig;
 
 const HEX_24 = /^[\da-f]{24}$/;
@@ -56,6 +58,9 @@ const messages = {
 	invalidGhostMemberWebhookId: (type: string) =>
 		`Invalid required environment variable: DOG_GHOST_MEMBER_${type.toUpperCase()}_WEBHOOK_ID must match [\\da-f]{24} `
 		+ `and not be the example (${EXAMPLE_HEX_24}). Try ${randomFillSync(Buffer.alloc(12)).toString('hex')}`,
+	missingGhostMemberDeleteDiscourseAction: 'Missing required environment variable: DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION',
+	invalidGhostMemberDeleteDiscourseAction: 'Invalid required environment variable: DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION'
+		+ 'must "none", "sync", "suspend", "anonymize", or "delete"',
 };
 
 if (!DOG_HOSTNAME) {
@@ -144,6 +149,22 @@ if (DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID) {
 	logging.error(new errors.InternalServerError({message: messages.missingGhostMemberWebhookId('deleted')}));
 }
 
+if (DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION) {
+	if (
+		DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION.toLowerCase() !== 'none'
+		&& DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION.toLowerCase() !== 'sync'
+		&& DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION.toLowerCase() !== 'suspend'
+		&& DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION.toLowerCase() !== 'anonymize'
+		&& DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION.toLowerCase() !== 'delete'
+	) {
+		logging.error(new errors.InternalServerError({message: messages.invalidGhostMemberDeleteDiscourseAction}));
+		success = false;
+	}
+} else {
+	logging.error(new errors.InternalServerError({message: messages.missingGhostMemberDeleteDiscourseAction}));
+	success = false;
+}
+
 if (!success) {
 	process.exit(1); // eslint-disable-line unicorn/no-process-exit
 }
@@ -155,6 +176,8 @@ function coerceEnvToBoolean(envVar: string | undefined, defaultValue: boolean): 
 
 	return envVar.toLowerCase() === 'true' || envVar === '1';
 }
+
+type DeleteAction = 'none' | 'sync' | 'suspend' | 'anonymize' | 'delete';
 
 export const hostname = DOG_HOSTNAME!;
 export const port = Number(DOG_PORT!);
@@ -171,3 +194,4 @@ export const logGhostRequests = coerceEnvToBoolean(DOG_LOG_GHOST_REQUESTS, false
 export const enableGhostWebhooks = coerceEnvToBoolean(DOG_GHOST_MEMBER_WEBHOOKS_ENABLED, false);
 export const ghostMemberUpdatedRoute = DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID!;
 export const ghostMemberDeletedRoute = DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID!;
+export const ghostMemberDeleteDiscourseAction = DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION!.toLowerCase() as DeleteAction;
