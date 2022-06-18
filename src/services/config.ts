@@ -22,6 +22,7 @@ interface IConfig {
 	DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID?: string;
 	DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION?: string;
 	DOG_DISCOURSE_SSO_TYPE?: string;
+	DOG_SSO_NO_AUTH_REDIRECT?: string;
 }
 
 config();
@@ -37,6 +38,7 @@ const {
 	DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID, DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID,
 	DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION,
 	DOG_DISCOURSE_SSO_TYPE,
+	DOG_SSO_NO_AUTH_REDIRECT,
 } = process.env as IConfig;
 
 const HEX_24 = /^[\da-f]{24}$/;
@@ -53,6 +55,7 @@ const messages = {
 	invalidGhostAdminApiKey: 'Invalid required environment variable: DOG_GHOST_ADMIN_TOKEN must match [\\da-f]{24}:[\\da-f]{64}',
 	missingDiscourseUrl: 'Missing required environment variable: DOG_DISCOURSE_URL',
 	invalidDiscourseUrl: 'Invalid required environment variable: DOG_DISCOURSE_URL must be a valid URL',
+	invalidSsoAuthRedirect: 'Invalid required environment variable: DOG_SSO_NO_AUTH_REDIRECT must be a valid URL',
 	missingDiscourseApiKey: 'Missing required environment variable: DOG_DISCOURSE_API_KEY',
 	invalidDiscourseApiKey: 'Invalid required environment variable: DOG_DISCOURSE_API_KEY must match [\\da-f]{64}',
 	missingDiscourseSsoType: 'Missing required environment variable: DOG_DISCOURSE_SSO_TYPE',
@@ -135,6 +138,16 @@ if (DOG_GHOST_URL) {
 	success = false;
 }
 
+if (DOG_SSO_NO_AUTH_REDIRECT) {
+	try {
+		// We're only checking that the URL is valid, and the constructor will throw if it's not.
+		new URL(DOG_SSO_NO_AUTH_REDIRECT); // eslint-disable-line no-new
+	} catch {
+		logging.error(new errors.InternalServerError({message: messages.invalidSsoAuthRedirect}));
+		success = false;
+	}
+}
+
 if (DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID) {
 	if (!HEX_24.test(DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID) || DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID === EXAMPLE_HEX_24) {
 		logging.error(new errors.InternalServerError({message: messages.invalidGhostMemberWebhookId('updated')}));
@@ -210,3 +223,4 @@ export const ghostMemberUpdatedRoute = DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID!;
 export const ghostMemberDeletedRoute = DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID!;
 export const ghostMemberDeleteDiscourseAction = DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION!.toLowerCase() as DeleteAction;
 export const ssoMethod = DOG_DISCOURSE_SSO_TYPE!;
+export const noAuthRedirect = DOG_SSO_NO_AUTH_REDIRECT;

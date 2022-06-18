@@ -3,12 +3,12 @@ import {createHmac, timingSafeEqual} from 'node:crypto';
 import {Request, Response} from 'express';
 import fetch from 'node-fetch';
 import {getGhostUrl, getMemberByUuid} from '../services/ghost.js';
-import {discourseSecret} from '../services/config.js';
+import {discourseSecret, noAuthRedirect} from '../services/config.js';
 import {GhostMemberWithSubscriptions} from '../types/ghost.js';
 import {DiscourseSSOResponse} from '../types/discourse.js';
 import {getSlug} from '../services/discourse.js';
 
-const NOT_LOGGED_IN_ENDPOINT = getGhostUrl('/', '#/portal/account');
+const NOT_LOGGED_IN_ENDPOINT = noAuthRedirect ?? getGhostUrl('/', '#/portal/account');
 const MEMBERS_WHOAMI_ENDPOINT = getGhostUrl('/members/api/member');
 
 const enum MemberError {
