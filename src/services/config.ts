@@ -21,6 +21,7 @@ interface IConfig {
 	DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID?: string;
 	DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID?: string;
 	DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION?: string;
+	DOG_DISCOURSE_SSO_TYPE?: string;
 }
 
 config();
@@ -35,6 +36,7 @@ const {
 	DOG_GHOST_MEMBER_WEBHOOKS_ENABLED,
 	DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID, DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID,
 	DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION,
+	DOG_DISCOURSE_SSO_TYPE,
 } = process.env as IConfig;
 
 const HEX_24 = /^[\da-f]{24}$/;
@@ -53,6 +55,8 @@ const messages = {
 	invalidDiscourseUrl: 'Invalid required environment variable: DOG_DISCOURSE_URL must be a valid URL',
 	missingDiscourseApiKey: 'Missing required environment variable: DOG_DISCOURSE_API_KEY',
 	invalidDiscourseApiKey: 'Invalid required environment variable: DOG_DISCOURSE_API_KEY must match [\\da-f]{64}',
+	missingDiscourseSsoType: 'Missing required environment variable: DOG_DISCOURSE_SSO_TYPE',
+	invalidDiscourseSsoType: 'Invalid required environment variable: DOG_DISCOURSE_SSO_TYPE must be "secure" or "obscure"',
 	missingGhostMemberWebhookId: (type: string) =>
 		`Missing required environment variable: DOG_GHOST_MEMBER_${type.toUpperCase()}_WEBHOOK_ID`,
 	invalidGhostMemberWebhookId: (type: string) =>
@@ -149,6 +153,16 @@ if (DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID) {
 	logging.error(new errors.InternalServerError({message: messages.missingGhostMemberWebhookId('deleted')}));
 }
 
+if (DOG_DISCOURSE_SSO_TYPE) {
+	if (DOG_DISCOURSE_SSO_TYPE !== 'secure' && DOG_DISCOURSE_SSO_TYPE !== 'obscure') {
+		logging.error(new errors.InternalServerError({message: messages.invalidDiscourseSsoType}));
+		success = false;
+	}
+} else {
+	logging.error(new errors.InternalServerError({message: messages.missingDiscourseSsoType}));
+	success = false;
+}
+
 if (DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION) {
 	if (
 		DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION.toLowerCase() !== 'none'
@@ -195,3 +209,4 @@ export const enableGhostWebhooks = coerceEnvToBoolean(DOG_GHOST_MEMBER_WEBHOOKS_
 export const ghostMemberUpdatedRoute = DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID!;
 export const ghostMemberDeletedRoute = DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID!;
 export const ghostMemberDeleteDiscourseAction = DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION!.toLowerCase() as DeleteAction;
+export const ssoMethod = DOG_DISCOURSE_SSO_TYPE!;
