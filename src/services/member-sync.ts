@@ -1,10 +1,10 @@
 import {GhostTier} from '../types/ghost.js';
 import {Queue} from '../lib/queue.js';
-import {getMember} from './ghost.js';
+import {ghostService} from './ghost.js';
 import {getNiceName, getSlug, setMemberGroups} from './discourse.js';
 
 export async function syncMemberGroups(ghostId: string) {
-	const user = await getMember(ghostId);
+	const user = await ghostService.getMember(ghostId);
 
 	if (!user) {
 		return false;
