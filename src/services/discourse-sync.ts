@@ -1,11 +1,11 @@
 import logging from '@tryghost/logging';
 import {DEFAULT_GROUP_PREFIX, deleteGroup, getAllGroups, getNiceName, getSlug, idempotentlyCreateGroup} from './discourse.js';
-import {getTiers} from './ghost.js';
+import {ghostService} from './ghost.js';
 
 const LOG_PREFIX = '[discourse:sync]';
 
 export async function syncTiersToGroups(removeUnmappedTiers = false) {
-	const tiers = await getTiers();
+	const tiers = await ghostService.getTiers();
 	const rawGroups = await getAllGroups();
 	const groups = new Map<string, number>();
 

@@ -2,7 +2,7 @@ import {Buffer} from 'node:buffer';
 import {createHmac, timingSafeEqual} from 'node:crypto';
 import {Request, Response} from 'express';
 import fetch from 'node-fetch';
-import {getGhostUrl, getMemberByUuid} from '../services/ghost.js';
+import {ghostService} from '../services/ghost.js';
 import {config} from '../services/config.js';
 import {GhostMemberWithSubscriptions} from '../types/ghost.js';
 import {DiscourseSSOResponse} from '../types/discourse.js';
@@ -10,8 +10,8 @@ import {getSlug} from '../services/discourse.js';
 
 const {discourseSecret, noAuthRedirect} = config;
 
-const NOT_LOGGED_IN_ENDPOINT = noAuthRedirect ?? getGhostUrl('/', '#/portal/account');
-const MEMBERS_WHOAMI_ENDPOINT = getGhostUrl('/members/api/member');
+const NOT_LOGGED_IN_ENDPOINT = noAuthRedirect ?? ghostService.resolve('/', '#/portal/account');
+const MEMBERS_WHOAMI_ENDPOINT = ghostService.resolve('/members/api/member');
 
 const enum MemberError {
 	NotLoggedIn = 'NotLoggedIn',
@@ -152,7 +152,7 @@ export async function obscurelyAuthorizeUser(request: Request, response: Respons
 		return;
 	}
 
-	const member = await getMemberByUuid(uuid);
+	const member = await ghostService.getMemberByUuid(uuid);
 
 	if (!member || member.email !== email) {
 		response.status(404).json({message: 'Unable to authenticate member'});
