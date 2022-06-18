@@ -2,225 +2,69 @@ import {Buffer} from 'node:buffer';
 import {randomFillSync} from 'node:crypto';
 import path from 'node:path';
 import process from 'node:process';
-import {config} from 'dotenv';
-import logging from '@tryghost/logging';
-import errors from '@tryghost/errors';
+import {config as loadEnv} from 'dotenv';
+import {Configuration} from '../types/config.js';
+import {ConfigValidator} from '../lib/config-validation.js';
 
-interface IConfig {
-	DOG_HOSTNAME?: string;
-	DOG_PORT?: string;
-	DOG_GHOST_URL?: string;
-	DOG_DISCOURSE_SHARED_SECRET?: string;
-	DOG_GHOST_ADMIN_TOKEN?: string;
-	DOG_DISCOURSE_URL?: string;
-	DOG_DISCOURSE_API_KEY?: string;
-	DOG_DISCOURSE_API_USER?: string;
-	DOG_LOG_DISCOURSE_REQUESTS?: string;
-	DOG_LOG_GHOST_REQUESTS?: string;
-	DOG_GHOST_MEMBER_WEBHOOKS_ENABLED?: string;
-	DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID?: string;
-	DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID?: string;
-	DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION?: string;
-	DOG_DISCOURSE_SSO_TYPE?: string;
-	DOG_SSO_NO_AUTH_REDIRECT?: string;
-}
-
-config();
-let success = true;
-const {
-	DOG_HOSTNAME, DOG_PORT,
-	DOG_GHOST_URL,
-	DOG_DISCOURSE_SHARED_SECRET,
-	DOG_GHOST_ADMIN_TOKEN,
-	DOG_DISCOURSE_API_KEY, DOG_DISCOURSE_URL, DOG_DISCOURSE_API_USER,
-	DOG_LOG_DISCOURSE_REQUESTS, DOG_LOG_GHOST_REQUESTS,
-	DOG_GHOST_MEMBER_WEBHOOKS_ENABLED,
-	DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID, DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID,
-	DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION,
-	DOG_DISCOURSE_SSO_TYPE,
-	DOG_SSO_NO_AUTH_REDIRECT,
-} = process.env as IConfig;
+loadEnv();
 
 const HEX_24 = /^[\da-f]{24}$/;
 const EXAMPLE_HEX_24 = 'BAFF1EDBEADEDCAFEBABB1ED';
+const getRandomHex = () => randomFillSync(Buffer.alloc(12)).toString('hex');
 
-const messages = {
-	missingHostname: 'Missing required environment variable: DOG_HOSTNAME',
-	missingPort: 'Missing required environment variable: DOG_PORT',
-	invalidPort: 'Invalid required environment variable: DOG_PORT must be a number',
-	missingGhostUrl: 'Missing required environment variable: DOG_GHOST_URL',
-	invalidGhostUrl: 'Invalid required environment variable: DOG_GHOST_URL must be a valid URL',
-	missingSharedSecret: 'Missing required environment variable: DOG_DISCOURSE_SHARED_SECRET',
-	missingGhostAdminApiKey: 'Missing required environment variable: DOG_GHOST_ADMIN_TOKEN',
-	invalidGhostAdminApiKey: 'Invalid required environment variable: DOG_GHOST_ADMIN_TOKEN must match [\\da-f]{24}:[\\da-f]{64}',
-	missingDiscourseUrl: 'Missing required environment variable: DOG_DISCOURSE_URL',
-	invalidDiscourseUrl: 'Invalid required environment variable: DOG_DISCOURSE_URL must be a valid URL',
-	invalidSsoAuthRedirect: 'Invalid required environment variable: DOG_SSO_NO_AUTH_REDIRECT must be a valid URL',
-	missingDiscourseApiKey: 'Missing required environment variable: DOG_DISCOURSE_API_KEY',
-	invalidDiscourseApiKey: 'Invalid required environment variable: DOG_DISCOURSE_API_KEY must match [\\da-f]{64}',
-	missingDiscourseSsoType: 'Missing required environment variable: DOG_DISCOURSE_SSO_TYPE',
-	invalidDiscourseSsoType: 'Invalid required environment variable: DOG_DISCOURSE_SSO_TYPE must be "secure" or "obscure"',
-	missingGhostMemberWebhookId: (type: string) =>
-		`Missing required environment variable: DOG_GHOST_MEMBER_${type.toUpperCase()}_WEBHOOK_ID`,
-	invalidGhostMemberWebhookId: (type: string) =>
-		`Invalid required environment variable: DOG_GHOST_MEMBER_${type.toUpperCase()}_WEBHOOK_ID must match [\\da-f]{24} `
-		+ `and not be the example (${EXAMPLE_HEX_24}). Try ${randomFillSync(Buffer.alloc(12)).toString('hex')}`,
-	missingGhostMemberDeleteDiscourseAction: 'Missing required environment variable: DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION',
-	invalidGhostMemberDeleteDiscourseAction: 'Invalid required environment variable: DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION'
-		+ 'must "none", "sync", "suspend", "anonymize", or "delete"',
+const envToConfigMapping: Record<keyof Configuration, string> = {
+	hostname: 'DOG_HOSTNAME',
+	port: 'DOG_PORT',
+	discourseSecret: 'DOG_DISCOURSE_SHARED_SECRET',
+	discourseUrl: 'DOG_DISCOURSE_URL',
+	discourseApiKey: 'DOG_DISCOURSE_API_KEY',
+	discourseApiUser: 'DOG_DISCOURSE_API_USER',
+	ghostUrl: 'DOG_GHOST_URL',
+	mountedPublicUrl: 'DOG_GHOST_URL',
+	mountedBasePath: 'DOG_GHOST_URL',
+	ghostApiKey: 'DOG_GHOST_ADMIN_TOKEN',
+	logDiscourseRequests: 'DOG_LOG_DISCOURSE_REQUESTS',
+	logGhostRequests: 'DOG_LOG_GHOST_REQUESTS',
+	enableGhostWebhooks: 'DOG_GHOST_MEMBER_WEBHOOKS_ENABLED',
+	ghostMemberUpdatedRoute: 'DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID',
+	ghostMemberDeletedRoute: 'DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID',
+	ghostMemberDeleteDiscourseAction: 'DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION',
+	ssoMethod: 'DOG_DISCOURSE_SSO_TYPE',
+	noAuthRedirect: 'DOG_SSO_NO_AUTH_REDIRECT',
+} as const;
+
+const validator = new ConfigValidator<Configuration>(process.env, envToConfigMapping);
+
+const getMountedUrl = (value: string) => {
+	const parsed = new URL(value);
+	parsed.pathname = path.resolve(parsed.pathname, './ghost/api/external_discourse_on_ghost');
+	return parsed;
 };
 
-if (!DOG_HOSTNAME) {
-	logging.error(new errors.InternalServerError({message: messages.missingHostname}));
-	success = false;
-}
+const possibleConfig = validator.add(
+	validator.for('hostname').optional('127.0.0.1'),
+	validator.for('port').optional(3286).numeric({min: 0, max: 65_535}),
+	validator.for('ghostUrl').url(),
+	validator.for('discourseSecret'),
+	validator.for('ghostApiKey').matches(/^[\da-f]{24}:[\da-f]{64}$/),
+	validator.for('discourseUrl').url(),
+	validator.for('discourseApiKey').matches(/^[\da-f]{64}$/),
+	validator.for('discourseApiUser').optional('system'),
+	validator.for('logDiscourseRequests').boolean(false),
+	validator.for('logGhostRequests').boolean(false),
+	validator.for('enableGhostWebhooks').boolean(false),
+	validator.for('ghostMemberUpdatedRoute').matches(HEX_24).not(EXAMPLE_HEX_24).suggests(getRandomHex),
+	validator.for('ghostMemberDeletedRoute').matches(HEX_24).not(EXAMPLE_HEX_24).suggests(getRandomHex),
+	validator.for('ghostMemberDeleteDiscourseAction')
+		.enum('none', 'sync', 'suspend', 'anonymize', 'delete'),
+	validator.for('mountedPublicUrl').url().transforms(value => getMountedUrl(value).pathname),
+	validator.for('mountedBasePath').url().transforms(value => getMountedUrl(value).toString()),
+	validator.for('ssoMethod').optional('secure').enum('secure', 'obscure'),
+	validator.for('noAuthRedirect').optional('').url(),
+).finalize();
 
-if (!DOG_PORT) {
-	logging.error(new errors.InternalServerError({message: messages.missingPort}));
-	success = false;
-}
-
-if (Number.isNaN(Number(DOG_PORT)) || Number(DOG_PORT) < 0 || Number(DOG_PORT) > 65_535) {
-	logging.error(new errors.InternalServerError({message: messages.invalidPort}));
-	success = false;
-}
-
-if (!DOG_DISCOURSE_SHARED_SECRET) {
-	logging.error(new errors.InternalServerError({message: messages.missingSharedSecret}));
-	success = false;
-}
-
-if (DOG_GHOST_ADMIN_TOKEN) {
-	if (!/^[\da-f]{24}:[\da-f]{64}$/.test(DOG_GHOST_ADMIN_TOKEN)) {
-		logging.error(new errors.InternalServerError({message: messages.invalidGhostAdminApiKey}));
-		success = false;
-	}
-} else {
-	logging.error(new errors.InternalServerError({message: messages.missingGhostAdminApiKey}));
-	success = false;
-}
-
-if (DOG_DISCOURSE_URL) {
-	try {
-		// We're only checking that the URL is valid, and the constructor will throw if it's not.
-		new URL(DOG_DISCOURSE_URL); // eslint-disable-line no-new
-	} catch {
-		logging.error(new errors.InternalServerError({message: messages.invalidDiscourseUrl}));
-		success = false;
-	}
-} else {
-	logging.error(new errors.InternalServerError({message: messages.missingDiscourseUrl}));
-	success = false;
-}
-
-if (DOG_DISCOURSE_API_KEY) {
-	if (!/^[\da-f]{64}$/.test(DOG_DISCOURSE_API_KEY)) {
-		logging.error(new errors.InternalServerError({message: messages.invalidDiscourseApiKey}));
-		success = false;
-	}
-} else {
-	logging.error(new errors.InternalServerError({message: messages.missingDiscourseApiKey}));
-	success = false;
-}
-
-let parsedMountUrl: URL;
-
-if (DOG_GHOST_URL) {
-	try {
-		parsedMountUrl = new URL(DOG_GHOST_URL);
-		parsedMountUrl.pathname = path.resolve(parsedMountUrl.pathname, './ghost/api/external_discourse_on_ghost');
-	} catch {
-		logging.error(new errors.InternalServerError({message: messages.invalidGhostUrl}));
-		success = false;
-	}
-} else {
-	logging.error(new errors.InternalServerError({message: messages.missingGhostUrl}));
-	success = false;
-}
-
-if (DOG_SSO_NO_AUTH_REDIRECT) {
-	try {
-		// We're only checking that the URL is valid, and the constructor will throw if it's not.
-		new URL(DOG_SSO_NO_AUTH_REDIRECT); // eslint-disable-line no-new
-	} catch {
-		logging.error(new errors.InternalServerError({message: messages.invalidSsoAuthRedirect}));
-		success = false;
-	}
-}
-
-if (DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID) {
-	if (!HEX_24.test(DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID) || DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID === EXAMPLE_HEX_24) {
-		logging.error(new errors.InternalServerError({message: messages.invalidGhostMemberWebhookId('updated')}));
-		success = false;
-	}
-} else {
-	logging.error(new errors.InternalServerError({message: messages.missingGhostMemberWebhookId('updated')}));
-}
-
-if (DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID) {
-	if (!HEX_24.test(DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID) || DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID === EXAMPLE_HEX_24) {
-		logging.error(new errors.InternalServerError({message: messages.invalidGhostMemberWebhookId('deleted')}));
-		success = false;
-	}
-} else {
-	logging.error(new errors.InternalServerError({message: messages.missingGhostMemberWebhookId('deleted')}));
-}
-
-if (DOG_DISCOURSE_SSO_TYPE) {
-	if (DOG_DISCOURSE_SSO_TYPE !== 'secure' && DOG_DISCOURSE_SSO_TYPE !== 'obscure') {
-		logging.error(new errors.InternalServerError({message: messages.invalidDiscourseSsoType}));
-		success = false;
-	}
-} else {
-	logging.error(new errors.InternalServerError({message: messages.missingDiscourseSsoType}));
-	success = false;
-}
-
-if (DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION) {
-	if (
-		DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION.toLowerCase() !== 'none'
-		&& DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION.toLowerCase() !== 'sync'
-		&& DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION.toLowerCase() !== 'suspend'
-		&& DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION.toLowerCase() !== 'anonymize'
-		&& DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION.toLowerCase() !== 'delete'
-	) {
-		logging.error(new errors.InternalServerError({message: messages.invalidGhostMemberDeleteDiscourseAction}));
-		success = false;
-	}
-} else {
-	logging.error(new errors.InternalServerError({message: messages.missingGhostMemberDeleteDiscourseAction}));
-	success = false;
-}
-
-if (!success) {
+if (!possibleConfig) {
 	process.exit(1); // eslint-disable-line unicorn/no-process-exit
 }
 
-function coerceEnvToBoolean(envVar: string | undefined, defaultValue: boolean): boolean {
-	if (envVar === undefined || envVar === '') {
-		return defaultValue;
-	}
-
-	return envVar.toLowerCase() === 'true' || envVar === '1';
-}
-
-type DeleteAction = 'none' | 'sync' | 'suspend' | 'anonymize' | 'delete';
-
-export const hostname = DOG_HOSTNAME!;
-export const port = Number(DOG_PORT!);
-export const discourseSecret = DOG_DISCOURSE_SHARED_SECRET!;
-export const discourseUrl = DOG_DISCOURSE_URL!;
-export const discourseApiKey = DOG_DISCOURSE_API_KEY!;
-export const discourseApiUser = DOG_DISCOURSE_API_USER ?? 'system';
-export const ghostUrl = DOG_GHOST_URL!;
-export const mountedPublicUrl = parsedMountUrl!.toString();
-export const mountedBasePath = parsedMountUrl!.pathname;
-export const ghostApiKey = DOG_GHOST_ADMIN_TOKEN!;
-export const logDiscourseRequests = coerceEnvToBoolean(DOG_LOG_DISCOURSE_REQUESTS, false);
-export const logGhostRequests = coerceEnvToBoolean(DOG_LOG_GHOST_REQUESTS, false);
-export const enableGhostWebhooks = coerceEnvToBoolean(DOG_GHOST_MEMBER_WEBHOOKS_ENABLED, false);
-export const ghostMemberUpdatedRoute = DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID!;
-export const ghostMemberDeletedRoute = DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID!;
-export const ghostMemberDeleteDiscourseAction = DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION!.toLowerCase() as DeleteAction;
-export const ssoMethod = DOG_DISCOURSE_SSO_TYPE!;
-export const noAuthRedirect = DOG_SSO_NO_AUTH_REDIRECT;
+export const config = possibleConfig;
