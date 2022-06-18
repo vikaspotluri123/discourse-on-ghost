@@ -7,7 +7,7 @@ import type {Application, Request, Response} from 'express';
 export async function load(dogHome: string, app: Application) {
 	const currentCwd = process.cwd();
 	process.chdir(dogHome.replace('~', homedir())); // Set the CWD so dotenv can pick up the config
-	const {hostname, port, mountedBasePath} = await import('../services/config.js');
+	const {config: {hostname, port, mountedBasePath}} = await import('../services/config.js');
 	process.chdir(currentCwd);
 
 	console.log('DoG proxy enabled for', mountedBasePath); // eslint-disable-line no-console

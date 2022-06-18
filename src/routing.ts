@@ -1,12 +1,14 @@
 import path from 'node:path';
 import {Application, NextFunction, Request, Response, json, Handler} from 'express';
 import logging from '@tryghost/logging';
-import {
-	mountedBasePath, enableGhostWebhooks, ghostMemberDeletedRoute, ghostMemberUpdatedRoute, ghostMemberDeleteDiscourseAction as deleteAction,
-	ssoMethod,
-} from './services/config.js';
+import {config} from './services/config.js';
 import {obscurelyAuthorizeUser, securelyAuthorizeUser} from './controllers/sso.js';
 import {memberRemovedAnonymize, memberRemovedDelete, memberRemovedSuspend, memberRemovedSync, memberUpdated} from './controllers/ghost-webhook.js';
+
+const {
+	mountedBasePath, enableGhostWebhooks, ghostMemberDeletedRoute, ghostMemberUpdatedRoute, ghostMemberDeleteDiscourseAction: deleteAction,
+	ssoMethod,
+} = config;
 
 export function route(routePath: string): string {
 	return path.resolve(mountedBasePath, routePath.replace(/^\//, ''));

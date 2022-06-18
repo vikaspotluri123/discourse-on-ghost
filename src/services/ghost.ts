@@ -2,11 +2,13 @@ import path from 'node:path';
 import GhostAdminApi from '@tryghost/admin-api';
 import getToken from '@tryghost/admin-api/lib/token.js';
 import {RequestInit} from 'node-fetch';
-import {GhostMember, GhostMemberWithSubscriptions, GhostMemberWithTiers, GhostTier} from '../types/ghost.js';
+import {GhostMemberWithSubscriptions, GhostMemberWithTiers, GhostTier} from '../types/ghost.js';
 import {isObject} from '../lib/is-object.js';
 import {createFetch} from '../lib/request.js';
 import {JSON_MIME_TYPE} from '../lib/constants.js';
-import {ghostUrl, ghostApiKey, logGhostRequests} from './config.js';
+import {config} from './config.js';
+
+const {ghostUrl, ghostApiKey, logGhostRequests} = config;
 
 const fetch = createFetch('ghost', logGhostRequests);
 
