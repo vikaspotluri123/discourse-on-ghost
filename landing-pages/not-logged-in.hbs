@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Login Required | {{@site.title}}</title>
+	<style>
+		.ns {display: none}
+		body {
+			margin: 0;
+			background: #f5f5f5;
+			font-family: 'Open Sans', sans-serif;
+			min-height: 100vh;
+			display: grid;
+			place-items: center;
+		}
+
+		.login-container {
+			max-width: 550px;
+			background: #fff;
+			padding: 2rem 1.5rem;
+			border-radius: 15px;
+			box-shadow: 0 0 10px rgba(0,0,0,0.1);
+		}
+
+		h1 { text-align: center; }
+		p { line-height: 1.5rem; margin: 3rem auto;}
+
+		.actions {
+			display: flex;
+			flex-direction: column;
+			gap: 0.5rem;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.primary {
+			display: inline-block;
+			width: fit-content;
+			background: #39f933;
+			color: #fff;
+			padding: 0.5rem 1rem;
+			border-radius: 10px;
+			text-decoration: none;
+			font-size: 1.2rem;
+		}
+	</style>
+	<noscript>
+		.login-container {
+			display: none;
+		}
+
+		.ns {
+			display: block;
+		}
+	</noscript>
+</head>
+<body>
+	<div class="ns">
+		<p>You must be a member to access the forum. Log in to {{@site.title}} before continuing to the forum.</p>
+	</div>
+	<div class="login-container">
+		<h1>Login Required</h1>
+		<p>You must be a member (it's free!) of {{@site.title}} to access the forum. Click the button below to log in, and after logging in, come back to this page to continue to the forum.</p>
+
+		<div class="actions">
+			<a class="primary" href="{{@site.title}}/#/portal/signin" target="_blank">Log In</a>
+			<a class="secondary" href="#/">Access Forum</a>
+		</div>
+	</div>
+</body>
+<script>
+	const primaryButton = document.querySelector('.primary');
+	const secondaryButton = document.querySelector('.secondary');
+
+	const loginUrl = '{{@site.title}}/#/portal/signin';
+
+	const discourseOnGhostUrl = 'https://dog.example.com';
+	const searchParams = new URLSearchParams(window.location.search);
+	const redirectUrl = new URL('/sso', discourseOnGhostUrl);
+	redirectUrl.searchParams.set('sso', searchParams.get('sso'));
+	redirectUrl.searchParams.set('sig', searchParams.get('sig'));
+	redirectUrl.searchParams.set('signedIn', 'true');
+	secondaryButton.href = redirectUrl.href;
+
+	function swapButtons() {
+		const secondaryHref = primaryButton.href;
+		const secondaryText = primaryButton.textContent;
+
+		primaryButton.href = secondaryButton.href;
+		secondaryButton.href = secondaryHref;
+
+		primaryButton.textContent = secondaryButton.textContent;
+		secondaryButton.textContent = secondaryText;
+
+		primaryButton.setAttribute('target', '');
+		secondaryButton.setAttribute('target', '_blank');
+
+		primaryButton.focus();
+	}
+
+	primaryButton.addEventListener(
+		'click', () => window.addEventListener('focusout', swapButtons, {once: true}), {once: true}
+	);
+</script>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Logging you in to {{@site.title}} Forum</title>
+</head>
+<body>
+	<p>Logging you in, please wait...</p>
+	<script>
+		const memberUuid = '{{@member.uuid}}';
+		const memberEmail = '{{@member.email}}';
+		const discourseOnGhostUrl = 'https://dog.example.com';
+		const searchParams = new URLSearchParams(window.location.search);
+		const redirectUrl = new URL('/sso', discourseOnGhostUrl);
+		redirectUrl.searchParams.set('sso', searchParams.get('sso'));
+		redirectUrl.searchParams.set('sig', searchParams.get('sig'));
+		redirectUrl.searchParams.set('uuid', memberUuid);
+		redirectUrl.searchParams.set('email', memberEmail);
+		window.location.href = redirectUrl.href;
+	</script>
+</body>
+</html>
