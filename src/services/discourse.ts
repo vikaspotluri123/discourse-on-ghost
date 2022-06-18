@@ -6,7 +6,9 @@ import {createFetch} from '../lib/request.js';
 import {Semaphore, withSemaphore} from '../lib/semaphore.js';
 import {DiscourseGroup, MinimalGroup} from '../types/discourse.js';
 import {JSON_MIME_TYPE} from '../lib/constants.js';
-import {discourseApiKey, discourseApiUser, discourseUrl, logDiscourseRequests} from './config.js';
+import {config} from './config.js';
+
+const {discourseApiKey, discourseApiUser, discourseUrl, logDiscourseRequests} = config;
 
 const fetch = createFetch('discourse', logDiscourseRequests);
 
