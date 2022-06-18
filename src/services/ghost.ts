@@ -2,7 +2,7 @@ import path from 'node:path';
 import GhostAdminApi from '@tryghost/admin-api';
 import getToken from '@tryghost/admin-api/lib/token.js';
 import {RequestInit} from 'node-fetch';
-import {GhostMemberWithTiers, GhostTier} from '../types/ghost.js';
+import {GhostMember, GhostMemberWithSubscriptions, GhostMemberWithTiers, GhostTier} from '../types/ghost.js';
 import {isObject} from '../lib/is-object.js';
 import {createFetch} from '../lib/request.js';
 import {JSON_MIME_TYPE} from '../lib/constants.js';
@@ -64,6 +64,23 @@ export function getGhostUrl(urlPath: string, hash = ''): string {
 export async function getMember(id: string): Promise<GhostMemberWithTiers | false> {
 	try {
 		return await adminApi.members.read({id}, {include: 'tiers'}) as unknown as GhostMemberWithTiers;
+	} catch (error: unknown) {
+		if (isObject(error) && error.type === 'NotFoundError') {
+			return false;
+		}
+
+		throw error;
+	}
+}
+
+export async function getMemberByUuid(uuid: string): Promise<GhostMemberWithSubscriptions | false> {
+	try {
+		const response = await adminApi.members.browse({filter: `uuid:${uuid}`});
+		if (response?.length !== 1) {
+			return false;
+		}
+
+		return response[0] as unknown as GhostMemberWithSubscriptions;
 	} catch (error: unknown) {
 		if (isObject(error) && error.type === 'NotFoundError') {
 			return false;

@@ -2,7 +2,7 @@ import {Buffer} from 'node:buffer';
 import {createHmac, timingSafeEqual} from 'node:crypto';
 import {Request, Response} from 'express';
 import fetch from 'node-fetch';
-import {getGhostUrl} from '../services/ghost.js';
+import {getGhostUrl, getMemberByUuid} from '../services/ghost.js';
 import {discourseSecret} from '../services/config.js';
 import {GhostMemberWithSubscriptions} from '../types/ghost.js';
 import {DiscourseSSOResponse} from '../types/discourse.js';
@@ -29,6 +29,32 @@ function getDiscoursePayload(encodedPayload: string, signature: string): URLSear
 	return new URLSearchParams(payload);
 }
 
+function convertGhostMemberToDiscourseSSO(member: GhostMemberWithSubscriptions, nonce: string): DiscourseSSOResponse {
+	const {email, uuid, name, avatar_image, subscriptions} = member;
+
+	const memberPayload: DiscourseSSOResponse = {
+		nonce,
+		email,
+		external_id: uuid,
+		avatar_url: avatar_image,
+	};
+
+	if (name) {
+		memberPayload.name = name;
+	}
+
+	if (subscriptions?.length > 0) {
+		// NOTE: if the group doesn't exist, Discourse won't create it. The likeliness of a new user SSOing with Discourse,
+		// and being the first person to be part of the tier is really low, and if that happens, they can re-auth after
+		// the group is manually created.
+		memberPayload.add_groups = subscriptions
+			.map(({tier: {slug}}) => getSlug(slug))
+			.join(',');
+	}
+
+	return memberPayload;
+}
+
 function addEncodedPayloadToDiscourseReturnUrl(payload: DiscourseSSOResponse, secret: string, urlBase: string) {
 	// @ts-expect-error all values of DiscourseSSOResponse are strings
 	const typeSafePayload = payload as Record<string, string>;
@@ -45,7 +71,7 @@ function addEncodedPayloadToDiscourseReturnUrl(payload: DiscourseSSOResponse, se
 	return parsedUrl.toString();
 }
 
-async function getMember(cookie: string): Promise<GhostMemberWithSubscriptions | MemberError> {
+async function getMemberWithCookie(cookie: string): Promise<GhostMemberWithSubscriptions | MemberError> {
 	const proxyResponse = await fetch(MEMBERS_WHOAMI_ENDPOINT, {
 		headers: {cookie},
 	});
@@ -82,7 +108,7 @@ export async function securelyAuthorizeUser(request: Request, response: Response
 		return;
 	}
 
-	const memberResponse = await getMember(cookie);
+	const memberResponse = await getMemberWithCookie(cookie);
 
 	if (memberResponse === MemberError.NotLoggedIn) {
 		response.redirect(NOT_LOGGED_IN_ENDPOINT);
@@ -94,29 +120,45 @@ export async function securelyAuthorizeUser(request: Request, response: Response
 		return;
 	}
 
-	const nonce = rawDiscoursePayload.get('nonce')!;
 	const discourseRedirect = rawDiscoursePayload.get('return_sso_url')!;
-	const {email, uuid, name, avatar_image, subscriptions} = memberResponse;
+	const memberPayload = convertGhostMemberToDiscourseSSO(memberResponse, rawDiscoursePayload.get('nonce')!);
 
-	const memberPayload: DiscourseSSOResponse = {
-		nonce,
-		email,
-		external_id: uuid,
-		avatar_url: avatar_image,
-	};
+	response.redirect(addEncodedPayloadToDiscourseReturnUrl(memberPayload, discourseSecret, discourseRedirect));
+}
 
-	if (name) {
-		memberPayload.name = name;
+export async function obscurelyAuthorizeUser(request: Request, response: Response) {
+	const {sso, sig, email, uuid} = request.query;
+
+	if (!sso || !sig || Array.isArray(sso) || Array.isArray(sig) || typeof sso !== 'string' || typeof sig !== 'string') {
+		response.status(400).json({message: 'SSO and signature are required and must not be arrays'});
+		return;
 	}
 
-	if (subscriptions?.length > 0) {
-		// NOTE: if the group doesn't exist, Discourse won't create it. The likeliness of a new user SSOing with Discourse,
-		// and being the first person to be part of the tier is really low, and if that happens, they can re-auth after
-		// the group is manually created.
-		memberPayload.add_groups = subscriptions
-			.map(({tier: {slug}}) => getSlug(slug))
-			.join(',');
+	if (
+		!email || !uuid
+		|| Array.isArray(email) || Array.isArray(uuid)
+		|| typeof email !== 'string' || typeof uuid !== 'string'
+	) {
+		response.status(400).json({message: 'Email and UUID are required and must not be arrays'});
+		return;
 	}
+
+	const rawDiscoursePayload = getDiscoursePayload(sso, sig);
+
+	if (!rawDiscoursePayload) {
+		response.status(400).json({message: 'Unable to verify signature'});
+		return;
+	}
+
+	const member = await getMemberByUuid(uuid);
+
+	if (!member || member.email !== email) {
+		response.status(404).json({message: 'Unable to authenticate member'});
+		return;
+	}
+
+	const discourseRedirect = rawDiscoursePayload.get('return_sso_url')!;
+	const memberPayload = convertGhostMemberToDiscourseSSO(member, rawDiscoursePayload.get('nonce')!);
 
 	response.redirect(addEncodedPayloadToDiscourseReturnUrl(memberPayload, discourseSecret, discourseRedirect));
 }
