@@ -1,5 +1,6 @@
 import {Buffer} from 'node:buffer';
 import {webcrypto} from 'node:crypto';
+import fetch from 'node-fetch';
 import logging from '@tryghost/logging';
 import {CryptoService, WebCrypto} from '../services/crypto.js';
 import {Configuration} from '../types/config.js';
@@ -27,6 +28,7 @@ export const envToConfigMapping: Record<keyof Configuration, string> = {
 } as const;
 
 export const core: IsomporphicCore = {
+	fetch,
 	crypto: new CryptoService(webcrypto as unknown as WebCrypto),
 	logger: logging,
 	encoding: {

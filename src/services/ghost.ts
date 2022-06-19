@@ -1,6 +1,6 @@
 import GhostAdminApi from '@tryghost/admin-api';
 import getToken from '@tryghost/admin-api/lib/token.js';
-import {RequestInit} from 'node-fetch';
+import type {RequestInit} from 'node-fetch';
 import type {GhostMemberWithSubscriptions, GhostMemberWithTiers, GhostTier} from '../types/ghost.js';
 import {isObject} from '../lib/is-object.js';
 import {FetchInjector} from '../lib/request.js';

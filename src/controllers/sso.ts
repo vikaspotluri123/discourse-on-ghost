@@ -1,5 +1,4 @@
 import {Request, Response} from 'express';
-import fetch from 'node-fetch';
 import type {GhostService} from '../services/ghost.js';
 import {GhostMemberWithSubscriptions} from '../types/ghost.js';
 import {DiscourseSSOResponse} from '../types/discourse.js';
@@ -35,7 +34,7 @@ export class SSOController {
 	}
 
 	async getMemberWithCookie(cookie: string): Promise<GhostMemberWithSubscriptions | MemberError> {
-		const proxyResponse = await fetch(this._ghostService.resolve('/members/api/member'), {
+		const proxyResponse = await this.core.fetch(this._ghostService.resolve('/members/api/member'), {
 			headers: {cookie},
 		});
 

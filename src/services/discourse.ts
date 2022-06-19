@@ -1,4 +1,4 @@
-import {type RequestInit} from 'node-fetch';
+import type {RequestInit} from 'node-fetch';
 import errors from '@tryghost/errors';
 import {FetchInjector} from '../lib/request.js';
 import {Semaphore, withSemaphore} from '../lib/semaphore.js';

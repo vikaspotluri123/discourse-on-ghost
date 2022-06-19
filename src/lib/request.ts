@@ -1,11 +1,12 @@
-import fetch, {RequestInfo, RequestInit, Response} from 'node-fetch';
+import type {RequestInfo, RequestInit, Response} from 'node-fetch';
+import {IsomporphicCore} from '../types/isomorph.js';
 import {Logger} from '../types/logger.js';
 
 type WrappedFetch = (url: RequestInfo, options?: RequestInit, context?: Record<string, string>) => Promise<Response>;
 
 export type FetchInjector = (serviceName: string, enableLogging: boolean) => WrappedFetch;
 
-export function createFetchInjector(logger: Logger) {
+export function createFetchInjector({fetch}: IsomporphicCore, logger: Logger) {
 	return (serviceName: string, enableLogging: boolean): WrappedFetch => {
 		if (!enableLogging) {
 			return fetch;
