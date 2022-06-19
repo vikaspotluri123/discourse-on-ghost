@@ -1,4 +1,9 @@
+import {Buffer} from 'node:buffer';
+import {webcrypto} from 'node:crypto';
+import logging from '@tryghost/logging';
+import {CryptoService, WebCrypto} from '../services/crypto.js';
 import {Configuration} from '../types/config.js';
+import {IsomporphicCore} from '../types/isomorph.js';
 
 export const envToConfigMapping: Record<keyof Configuration, string> = {
 	hostname: 'DOG_HOSTNAME',
@@ -20,3 +25,12 @@ export const envToConfigMapping: Record<keyof Configuration, string> = {
 	ssoMethod: 'DOG_DISCOURSE_SSO_TYPE',
 	noAuthRedirect: 'DOG_SSO_NO_AUTH_REDIRECT',
 } as const;
+
+export const core: IsomporphicCore = {
+	crypto: new CryptoService(webcrypto as unknown as WebCrypto),
+	logger: logging,
+	encoding: {
+		atob: (text: string) => Buffer.from(text, 'base64').toString('utf8'),
+		btoa: (binary: string) => Buffer.from(binary, 'utf8').toString('base64'),
+	},
+};
