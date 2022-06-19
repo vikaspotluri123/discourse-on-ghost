@@ -1,7 +1,6 @@
 // Used to proxy requests from Ghost to DoG
 import {homedir} from 'node:os';
 import process from 'node:process';
-import fetch from 'node-fetch';
 import type {Application, Request, Response} from 'express';
 import type {Logger} from '../types/logger.js';
 
@@ -29,7 +28,7 @@ export async function load(dogHome: string, app: Application) {
 
 	app.use(mountedBasePath, (request: Request, response: Response) => {
 		logger.info(`Proxying ${request.method} ${request.originalUrl} to DoG`);
-		void fetch(`http://${hostname}:${port}${request.originalUrl}`, {
+		void core.fetch(`http://${hostname}:${port}${request.originalUrl}`, {
 			method: request.method,
 			headers: request.headers as Record<string, string>,
 			body: request.body, // eslint-disable-line @typescript-eslint/no-unsafe-assignment
