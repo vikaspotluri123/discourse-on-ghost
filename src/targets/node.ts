@@ -6,21 +6,20 @@ import logging from '@tryghost/logging';
 import {getConfig} from '../services/config.js';
 import {useRequestLogging} from '../controllers/middleware.js';
 import {getRoutingManager} from '../services/dependency-injection.js';
-import {WebCrypto} from '../services/crypto.js';
+import {CryptoService, WebCrypto} from '../services/crypto.js';
 import {envToConfigMapping} from './config-node.js';
 
 loadEnv();
 
-// @ts-expect-error node is able to getRandomValues but types aren't properly configured
-const coercedWebcrypto: WebCrypto = webcrypto;
+const cryptoService = new CryptoService(webcrypto as unknown as WebCrypto);
 
-const config = getConfig(logging, coercedWebcrypto, process.env, envToConfigMapping);
+const config = getConfig(logging, cryptoService, process.env, envToConfigMapping);
 
 if (!config) {
 	process.exit(1); // eslint-disable-line unicorn/no-process-exit
 }
 
-const routingManager = getRoutingManager(logging, config, coercedWebcrypto);
+const routingManager = getRoutingManager(logging, config, cryptoService);
 
 export const app = express();
 
