@@ -6,6 +6,7 @@ import fetch from 'node-fetch';
 import type {Application, Request, Response} from 'express';
 import type {Logger} from '../types/logger.js';
 import {CryptoService, WebCrypto} from '../services/crypto.js';
+import {IsomporphicCore} from '../types/isomorph.js';
 
 export async function load(dogHome: string, app: Application) {
 	const currentCwd = process.cwd();
@@ -16,9 +17,13 @@ export async function load(dogHome: string, app: Application) {
 	const {envToConfigMapping} = await import('../targets/config-node.js');
 	process.chdir(currentCwd);
 
-	const crypto = new CryptoService(webcrypto as unknown as WebCrypto);
+	const core: IsomporphicCore = {
+		logger,
+		crypto: new CryptoService(webcrypto as unknown as WebCrypto),
+		encoding: {} as any, // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+	};
 
-	const config = getConfig(logger, crypto, process.env, envToConfigMapping);
+	const config = getConfig(core, process.env, envToConfigMapping);
 
 	if (!config) {
 		logger.info('Failed loading DoG config. CWD:' + requestedCwd);

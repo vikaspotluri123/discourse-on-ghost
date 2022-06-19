@@ -2,14 +2,13 @@ import {RoutingManager} from '../routing.js';
 import {GhostWebhookController} from '../controllers/ghost-webhook.js';
 import {DiscourseService} from '../services/discourse.js';
 import {createFetchInjector} from '../lib/request.js';
+import {IsomporphicCore} from '../types/isomorph.js';
 import {MemberSyncService} from '../services/member-sync.js';
 import {GhostService} from '../services/ghost.js';
 import {SSOController} from '../controllers/sso.js';
 import {Configuration} from '../types/config.js';
-import {Logger} from '../types/logger.js';
-import {CryptoService} from './crypto.js';
 
-export function getRoutingManager(logger: Logger, config: Configuration, crypto: CryptoService) {
+export function getRoutingManager({logger, crypto}: IsomporphicCore, config: Configuration): RoutingManager {
 	const fetchInjector = createFetchInjector(logger);
 	const ghostService = new GhostService(config, fetchInjector);
 	const discourseService = new DiscourseService(logger, config, fetchInjector);
