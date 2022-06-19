@@ -1,4 +1,3 @@
-import {Buffer} from 'node:buffer';
 import {Request, Response} from 'express';
 import fetch from 'node-fetch';
 import type {GhostService} from '../services/ghost.js';
@@ -7,6 +6,7 @@ import {DiscourseSSOResponse} from '../types/discourse.js';
 import {getSlug} from '../services/discourse.js';
 import {Configuration} from '../types/config.js';
 import {CryptoService} from '../services/crypto.js';
+import {IsomporphicCore} from '../types/isomorph.js';
 
 const enum MemberError {
 	NotLoggedIn = 'NotLoggedIn',
@@ -19,11 +19,11 @@ export class SSOController {
 
 	constructor(
 		config: Configuration,
-		private readonly crypto: CryptoService,
+		private readonly core: IsomporphicCore,
 		private readonly _ghostService: GhostService,
 	) {
 		this._login = config.noAuthRedirect ?? _ghostService.resolve('/', '#/portal/account');
-		this.key = crypto.secretToKey(config.discourseSecret);
+		this.key = core.crypto.secretToKey(config.discourseSecret);
 	}
 
 	controllerFor(ssoMethod: Configuration['ssoMethod']) {
@@ -129,23 +129,22 @@ export class SSOController {
 	private async addEncodedPayloadToDiscourseReturnUrl(payload: DiscourseSSOResponse, urlBase: string) {
 		// @ts-expect-error all values of DiscourseSSOResponse are strings
 		const typeSafePayload = payload as Record<string, string>;
-		const encodedPayload = Buffer.from(new URLSearchParams(typeSafePayload).toString(), 'utf8')
-			.toString('base64');
+		const encodedPayload = this.core.encoding.btoa(new URLSearchParams(typeSafePayload).toString());
 
 		const key = await this.key;
 
 		const parsedUrl = new URL(urlBase);
 		parsedUrl.searchParams.set('sso', encodedPayload);
-		parsedUrl.searchParams.set('sig', await this.crypto.sign(key, encodedPayload));
+		parsedUrl.searchParams.set('sig', await this.core.crypto.sign(key, encodedPayload));
 		return parsedUrl.toString();
 	}
 
 	private async decodeDiscoursePayload(encodedPayload: string, hexSignature: string): Promise<URLSearchParams | false> {
-		if (!await this.crypto.verify(await this.key, hexSignature, encodedPayload)) {
+		if (!await this.core.crypto.verify(await this.key, hexSignature, encodedPayload)) {
 			return false;
 		}
 
-		const payload = Buffer.from(encodedPayload, 'base64').toString('binary');
+		const payload = this.core.encoding.atob(encodedPayload);
 		return new URLSearchParams(payload);
 	}
 
