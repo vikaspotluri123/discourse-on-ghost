@@ -1,4 +1,3 @@
-import path from 'node:path';
 import {type RequestInit} from 'node-fetch';
 import errors from '@tryghost/errors';
 import logging from '@tryghost/logging';
@@ -6,6 +5,7 @@ import {createFetch} from '../lib/request.js';
 import {Semaphore, withSemaphore} from '../lib/semaphore.js';
 import {DiscourseGroup, MinimalGroup} from '../types/discourse.js';
 import {JSON_MIME_TYPE} from '../lib/constants.js';
+import {uResolve} from '../lib/u-resolve.js';
 import {Configuration} from '../types/config.js';
 import {config} from './config.js';
 
@@ -51,7 +51,7 @@ export class DiscourseService {
 
 	resolve(urlPath: string, query: Record<string, string> = {}): string {
 		const base = new URL(this._endpoint);
-		base.pathname = path.resolve(base.pathname, urlPath);
+		base.pathname = uResolve(base.pathname, urlPath);
 		base.search = new URLSearchParams(query).toString();
 
 		return base.toString();
