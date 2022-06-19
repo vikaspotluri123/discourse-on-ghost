@@ -8,12 +8,12 @@ import {GhostService} from '../services/ghost.js';
 import {SSOController} from '../controllers/sso.js';
 import {Configuration} from '../types/config.js';
 
-export function getRoutingManager({logger, crypto}: IsomporphicCore, config: Configuration): RoutingManager {
-	const fetchInjector = createFetchInjector(logger);
+export function getRoutingManager(core: IsomporphicCore, config: Configuration): RoutingManager {
+	const fetchInjector = createFetchInjector(core.logger);
 	const ghostService = new GhostService(config, fetchInjector);
-	const discourseService = new DiscourseService(logger, config, fetchInjector);
-	const memberSyncService = new MemberSyncService(logger, discourseService, ghostService);
-	const webhookController = new GhostWebhookController(logger, discourseService, memberSyncService);
-	const ssoController = new SSOController(config, crypto, ghostService);
-	return new RoutingManager(logger, config, webhookController, ssoController);
+	const discourseService = new DiscourseService(core.logger, config, fetchInjector);
+	const memberSyncService = new MemberSyncService(core.logger, discourseService, ghostService);
+	const webhookController = new GhostWebhookController(core.logger, discourseService, memberSyncService);
+	const ssoController = new SSOController(config, core, ghostService);
+	return new RoutingManager(core.logger, config, webhookController, ssoController);
 }
