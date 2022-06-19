@@ -1,7 +1,7 @@
 import {GhostTier} from '../types/ghost.js';
 import {Queue} from '../lib/queue.js';
 import {ghostService} from './ghost.js';
-import {getNiceName, getSlug, setMemberGroups} from './discourse.js';
+import {getNiceName, getSlug, discourseService} from './discourse.js';
 
 export async function syncMemberGroups(ghostId: string) {
 	const user = await ghostService.getMember(ghostId);
@@ -19,7 +19,7 @@ export async function setDiscourseGroupsFromGhostTiers(uuid: string, tiers: Ghos
 		niceName: getNiceName(tier.name),
 	}));
 
-	return setMemberGroups(uuid, mappedGroups);
+	return discourseService.setMemberGroups(uuid, mappedGroups);
 }
 
 export const memberSyncQueue = new Queue();

@@ -1,12 +1,12 @@
 import logging from '@tryghost/logging';
-import {DEFAULT_GROUP_PREFIX, deleteGroup, getAllGroups, getNiceName, getSlug, idempotentlyCreateGroup} from './discourse.js';
+import {DEFAULT_GROUP_PREFIX, getNiceName, getSlug, discourseService} from './discourse.js';
 import {ghostService} from './ghost.js';
 
 const LOG_PREFIX = '[discourse:sync]';
 
 export async function syncTiersToGroups(removeUnmappedTiers = false) {
 	const tiers = await ghostService.getTiers();
-	const rawGroups = await getAllGroups();
+	const rawGroups = await discourseService.getAllGroups();
 	const groups = new Map<string, number>();
 
 	for (const group of rawGroups) {
@@ -24,7 +24,7 @@ export async function syncTiersToGroups(removeUnmappedTiers = false) {
 		if (groups.has(groupSlug)) {
 			groups.delete(groupSlug);
 		} else {
-			work.push(idempotentlyCreateGroup(groupSlug, getNiceName(tier.name))
+			work.push(discourseService.idempotentlyCreateGroup(groupSlug, getNiceName(tier.name))
 				.then(({created}) => {
 					if (created) {
 						logging.info(`${LOG_PREFIX} Created group ${groupSlug}`);
@@ -42,7 +42,7 @@ export async function syncTiersToGroups(removeUnmappedTiers = false) {
 
 	if (removeUnmappedTiers) {
 		for (const [name, id] of groups.entries()) {
-			work.push(deleteGroup(id)
+			work.push(discourseService.deleteGroup(id)
 				.then(() => {
 					logging.info(`${LOG_PREFIX} Deleted group ${name} (${id})`);
 				})
