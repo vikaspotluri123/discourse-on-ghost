@@ -24,10 +24,10 @@ export class SSOController {
 
 	controllerFor(ssoMethod: Configuration['ssoMethod']) {
 		if (ssoMethod === 'obscure') {
-			return this.obscurelyAuthorizeUser;
+			return this.obscurelyAuthorizeUser.bind(this);
 		}
 
-		return this.securelyAuthorizeUser;
+		return this.securelyAuthorizeUser.bind(this);
 	}
 
 	async getMemberWithCookie(cookie: string): Promise<GhostMemberWithSubscriptions | MemberError> {
