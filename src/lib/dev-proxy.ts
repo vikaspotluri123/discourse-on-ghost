@@ -1,9 +1,11 @@
 // Used to proxy requests from Ghost to DoG
 import {homedir} from 'node:os';
 import process from 'node:process';
+import {webcrypto} from 'node:crypto';
 import fetch from 'node-fetch';
 import type {Application, Request, Response} from 'express';
 import type {Logger} from '../types/logger.js';
+import {WebCrypto} from '../services/crypto.js';
 
 export async function load(dogHome: string, app: Application) {
 	const currentCwd = process.cwd();
@@ -11,10 +13,13 @@ export async function load(dogHome: string, app: Application) {
 	const requestedCwd = dogHome.replace('~', homedir());
 	process.chdir(requestedCwd); // Set the CWD so dotenv can pick up the config
 	const {getConfig} = await import('../services/config.js');
-	const {envToConfigMapping, getRandomHex} = await import('../targets/config-node.js');
+	const {envToConfigMapping} = await import('../targets/config-node.js');
 	process.chdir(currentCwd);
 
-	const config = getConfig(logger, process.env, envToConfigMapping, getRandomHex);
+	// @ts-expect-error node is able to getRandomValues but types aren't properly configured
+	const safeWebCrypto: WebCrypto = webcrypto;
+
+	const config = getConfig(logger, safeWebCrypto, process.env, envToConfigMapping);
 
 	if (!config) {
 		logger.info('Failed loading DoG config. CWD:' + requestedCwd);
