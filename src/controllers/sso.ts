@@ -1,5 +1,4 @@
 import {Buffer} from 'node:buffer';
-import {createHmac, timingSafeEqual} from 'node:crypto';
 import {Request, Response} from 'express';
 import fetch from 'node-fetch';
 import type {GhostService} from '../services/ghost.js';
@@ -7,6 +6,7 @@ import {GhostMemberWithSubscriptions} from '../types/ghost.js';
 import {DiscourseSSOResponse} from '../types/discourse.js';
 import {getSlug} from '../services/discourse.js';
 import {Configuration} from '../types/config.js';
+import {secretToKey, sign, verify, WebCrypto} from '../services/crypto.js';
 
 const enum MemberError {
 	NotLoggedIn = 'NotLoggedIn',
@@ -14,12 +14,12 @@ const enum MemberError {
 }
 
 export class SSOController {
-	private readonly _secret: string;
+	private readonly key: ReturnType<typeof secretToKey>;
 	private readonly _login: string;
 
-	constructor(config: Configuration, private readonly _ghostService: GhostService) {
-		this._secret = config.discourseSecret;
+	constructor(config: Configuration, private readonly crypto: WebCrypto, private readonly _ghostService: GhostService) {
 		this._login = config.noAuthRedirect ?? _ghostService.resolve('/', '#/portal/account');
+		this.key = secretToKey(crypto, config.discourseSecret);
 	}
 
 	controllerFor(ssoMethod: Configuration['ssoMethod']) {
@@ -60,7 +60,7 @@ export class SSOController {
 			return;
 		}
 
-		const rawDiscoursePayload = this.decodeDiscoursePayload(sso, sig);
+		const rawDiscoursePayload = await this.decodeDiscoursePayload(sso, sig);
 
 		if (!rawDiscoursePayload) {
 			response.status(400).json({message: 'Unable to verify signature'});
@@ -82,7 +82,7 @@ export class SSOController {
 		const discourseRedirect = rawDiscoursePayload.get('return_sso_url')!;
 		const memberPayload = this.convertGhostMemberToDiscourseSSO(memberResponse, rawDiscoursePayload.get('nonce')!);
 
-		response.redirect(this.addEncodedPayloadToDiscourseReturnUrl(memberPayload, this._secret, discourseRedirect));
+		response.redirect(await this.addEncodedPayloadToDiscourseReturnUrl(memberPayload, discourseRedirect));
 	}
 
 	async obscurelyAuthorizeUser(request: Request, response: Response) {
@@ -102,7 +102,7 @@ export class SSOController {
 			return;
 		}
 
-		const rawDiscoursePayload = this.decodeDiscoursePayload(sso, sig);
+		const rawDiscoursePayload = await this.decodeDiscoursePayload(sso, sig);
 
 		if (!rawDiscoursePayload) {
 			response.status(400).json({message: 'Unable to verify signature'});
@@ -119,35 +119,29 @@ export class SSOController {
 		const discourseRedirect = rawDiscoursePayload.get('return_sso_url')!;
 		const memberPayload = this.convertGhostMemberToDiscourseSSO(member, rawDiscoursePayload.get('nonce')!);
 
-		response.redirect(this.addEncodedPayloadToDiscourseReturnUrl(memberPayload, this._secret, discourseRedirect));
+		response.redirect(await this.addEncodedPayloadToDiscourseReturnUrl(memberPayload, discourseRedirect));
 	}
 
-	private addEncodedPayloadToDiscourseReturnUrl(payload: DiscourseSSOResponse, secret: string, urlBase: string) {
+	private async addEncodedPayloadToDiscourseReturnUrl(payload: DiscourseSSOResponse, urlBase: string) {
 		// @ts-expect-error all values of DiscourseSSOResponse are strings
 		const typeSafePayload = payload as Record<string, string>;
 		const encodedPayload = Buffer.from(new URLSearchParams(typeSafePayload).toString(), 'utf8')
 			.toString('base64');
 
-		const signature = createHmac('sha256', secret)
-			.update(encodedPayload)
-			.digest('hex');
+		const key = await this.key;
 
 		const parsedUrl = new URL(urlBase);
 		parsedUrl.searchParams.set('sso', encodedPayload);
-		parsedUrl.searchParams.set('sig', signature);
+		parsedUrl.searchParams.set('sig', await sign(this.crypto, key, encodedPayload));
 		return parsedUrl.toString();
 	}
 
-	private decodeDiscoursePayload(encodedPayload: string, signature: string): URLSearchParams | false {
-		const payload = Buffer.from(encodedPayload, 'base64').toString('utf8');
-		const expectedSignature = createHmac('sha256', this._secret)
-			.update(encodedPayload)
-			.digest();
-
-		if (!timingSafeEqual(Buffer.from(signature, 'hex'), expectedSignature)) {
+	private async decodeDiscoursePayload(encodedPayload: string, hexSignature: string): Promise<URLSearchParams | false> {
+		if (!await verify(this.crypto, await this.key, hexSignature, encodedPayload)) {
 			return false;
 		}
 
+		const payload = Buffer.from(encodedPayload, 'base64').toString('binary');
 		return new URLSearchParams(payload);
 	}
 
