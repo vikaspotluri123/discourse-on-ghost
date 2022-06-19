@@ -1,22 +1,23 @@
 import {NextFunction, Request, Response} from 'express';
-import logging from '@tryghost/logging';
 import errors from '@tryghost/errors';
 import {Configuration} from '../types/config.js';
 import {MemberRemoved, MemberUpdated} from '../types/ghost.js';
 import type {MemberSyncService} from '../services/member-sync.js';
 import type {DiscourseService} from '../services/discourse.js';
+import {Logger} from '../types/logger.js';
 
 type SafeMemberRemoved = MemberRemoved['member']['previous'] & {id: string};
 type DeleteHandler = (payload: SafeMemberRemoved) => Parameters<MemberSyncService['queue']['add']>;
 
 export class GhostWebhookController {
 	constructor(
+		private readonly logger: Logger,
 		private readonly _discourseService: DiscourseService,
 		private readonly _memberSyncService: MemberSyncService,
 	) {}
 
 	memberUpdated(request: Request, response: Response, next: NextFunction) {
-		logging.info('Processing member updated event');
+		this.logger.info('Processing member updated event');
 		const body: MemberUpdated = request.body as unknown as MemberUpdated;
 
 		if (!body.member?.current.id) {
@@ -70,7 +71,7 @@ export class GhostWebhookController {
 
 	private createWrappedDeleteHandler(handler: DeleteHandler) {
 		return (request: Request, response: Response, next: NextFunction) => {
-			logging.info('Processing member removed event');
+			this.logger.info('Processing member removed event');
 			const body: MemberRemoved = request.body as unknown as MemberRemoved;
 
 			if (!body.member?.previous.id) {

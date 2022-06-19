@@ -1,9 +1,9 @@
 import {Application, NextFunction, Request, Response, json} from 'express';
-import logging from '@tryghost/logging';
 import {uResolve} from './lib/u-resolve.js';
 import {type SSOController} from './controllers/sso.js';
 import {type GhostWebhookController} from './controllers/ghost-webhook.js';
 import {Configuration} from './types/config.js';
+import {Logger} from './types/logger.js';
 
 function lazyJson(payload: Record<string, unknown>, statusCode = 200) {
 	return (_: Request, response: Response) => {
@@ -17,6 +17,7 @@ function lazyJson(payload: Record<string, unknown>, statusCode = 200) {
 
 export class RoutingManager {
 	constructor(
+		private readonly logger: Logger,
 		private readonly config: Configuration,
 		private readonly ghostWebhookController: GhostWebhookController,
 		private readonly sso: SSOController,
@@ -40,7 +41,7 @@ export class RoutingManager {
 		app.get(this.resolve('/health'), lazyJson({message: 'Howdy!'}));
 		app.use(lazyJson({error: 'Not Found'}, 404));
 		app.use((error: unknown, request: Request, response: Response, ___: NextFunction) => {
-			logging.error(error);
+			this.logger.error(error);
 			sendError(request, response);
 		});
 	}
@@ -61,7 +62,7 @@ export class RoutingManager {
 			app.post(fullMemberDeletedRoute, jsonParser, deleteHandler);
 		}
 
-		logging.info(''
+		this.logger.info(''
 			+ 'Webhooks Mounted:\n'
 			+ ` - Member Updated @ ${fullMemberUpdatedRoute}`
 			+ (deleteHandler ? '\n - Member Deleted @ ' + fullMemberDeletedRoute : ''),

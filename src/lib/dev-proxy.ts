@@ -3,28 +3,30 @@ import {homedir} from 'node:os';
 import process from 'node:process';
 import fetch from 'node-fetch';
 import type {Application, Request, Response} from 'express';
+import type {Logger} from '../types/logger.js';
 
 export async function load(dogHome: string, app: Application) {
 	const currentCwd = process.cwd();
+	const logger: Logger = console;
 	const requestedCwd = dogHome.replace('~', homedir());
 	process.chdir(requestedCwd); // Set the CWD so dotenv can pick up the config
 	const {getConfig} = await import('../services/config.js');
 	const {envToConfigMapping, getRandomHex} = await import('../targets/config-node.js');
 	process.chdir(currentCwd);
 
-	const config = getConfig(process.env, envToConfigMapping, getRandomHex);
+	const config = getConfig(logger, process.env, envToConfigMapping, getRandomHex);
 
 	if (!config) {
-		console.log('Failed loading DoG config. CWD:' + requestedCwd); // eslint-disable-line no-console
+		logger.info('Failed loading DoG config. CWD:' + requestedCwd);
 		return;
 	}
 
 	const {hostname, port, mountedBasePath} = config;
 
-	console.log('DoG proxy enabled for', mountedBasePath); // eslint-disable-line no-console
+	logger.info('DoG proxy enabled for', mountedBasePath);
 
 	app.use(mountedBasePath, (request: Request, response: Response) => {
-		console.log(`Proxying ${request.method} ${request.originalUrl} to DoG`); // eslint-disable-line no-console
+		logger.info(`Proxying ${request.method} ${request.originalUrl} to DoG`);
 		void fetch(`http://${hostname}:${port}${request.originalUrl}`, {
 			method: request.method,
 			headers: request.headers as Record<string, string>,
@@ -40,7 +42,7 @@ export async function load(dogHome: string, app: Application) {
 		}).then(body => {
 			response.send(body);
 		}).catch(error => {
-			console.error(error); // eslint-disable-line no-console
+			logger.error(error);
 			response.status(500).send(error?.message ?? 'Unknown error');
 		});
 	});

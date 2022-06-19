@@ -1,12 +1,12 @@
 import {type RequestInit} from 'node-fetch';
 import errors from '@tryghost/errors';
-import logging from '@tryghost/logging';
-import {createFetch} from '../lib/request.js';
+import {FetchInjector} from '../lib/request.js';
 import {Semaphore, withSemaphore} from '../lib/semaphore.js';
 import {DiscourseGroup, MinimalGroup} from '../types/discourse.js';
 import {JSON_MIME_TYPE} from '../lib/constants.js';
 import {uResolve} from '../lib/u-resolve.js';
 import {Configuration} from '../types/config.js';
+import {Logger} from '../types/logger.js';
 
 export const DEFAULT_MAX_DISCOURSE_REQUEST_CONCURRENCY = 3;
 export const DEFAULT_GROUP_MENTIONABLE_LEVEL = 3;
@@ -38,9 +38,9 @@ export class DiscourseService {
 	private readonly _endpoint: string;
 	private readonly _apiKey: string;
 	private readonly _apiUser: string;
-	private readonly _fetch: ReturnType<typeof createFetch>;
+	private readonly _fetch: ReturnType<FetchInjector>;
 
-	constructor(readonly config: Configuration, makeFetch: typeof createFetch) {
+	constructor(readonly logger: Logger, readonly config: Configuration, makeFetch: FetchInjector) {
 		this._requestSemaphore = new Semaphore(DEFAULT_MAX_DISCOURSE_REQUEST_CONCURRENCY);
 		this._endpoint = config.discourseUrl;
 		this._apiKey = config.discourseApiKey;
@@ -114,7 +114,7 @@ export class DiscourseService {
 			errorDetails: await creationResponse.json(),
 		});
 
-		logging.error(error);
+		this.logger.error(error);
 
 		throw error;
 	}
@@ -168,7 +168,7 @@ export class DiscourseService {
 			};
 		}
 
-		logging.error(new errors.InternalServerError({
+		this.logger.error(new errors.InternalServerError({
 			message: `Unable to get member ${uuid} - response is not ok`,
 			errorDetails: await response.json(),
 		}));
@@ -187,7 +187,7 @@ export class DiscourseService {
 		}, {discourseId: discourseId.toString()});
 
 		if (!response.ok) {
-			logging.error(new errors.InternalServerError({
+			this.logger.error(new errors.InternalServerError({
 				message: `Unable to add user ${discourseId} to group ${name} - response is not ok`,
 				errorDetails: await response.json(),
 			}));
@@ -219,7 +219,7 @@ export class DiscourseService {
 		const body = await response.json() as {errors?: string[]};
 
 		if (!response.ok) {
-			logging.error(new errors.InternalServerError({
+			this.logger.error(new errors.InternalServerError({
 				message: `Unable to remove user ${discourseId} from group ${name} - response is not ok`,
 				errorDetails: body,
 			}));
@@ -238,7 +238,7 @@ export class DiscourseService {
 		if (!member) {
 		// There's no need to throw an error here because either the user deleted their account, or just created their
 		// account. When they SSO with Discourse after creating an account, the group list will be set
-			logging.info(`Unable to set groups for ${uuid} - user not found`);
+			this.logger.info(`Unable to set groups for ${uuid} - user not found`);
 			return false;
 		}
 
@@ -295,7 +295,7 @@ export class DiscourseService {
 		const response = await this._fetch(url, options, {username});
 
 		if (!response.ok) {
-			logging.error(new errors.InternalServerError({
+			this.logger.error(new errors.InternalServerError({
 				message: `Unable to anonymize user ${id} - response is not ok`,
 				errorDetails: await response.json(),
 			}));
@@ -306,11 +306,11 @@ export class DiscourseService {
 		const {success, username: newUsername} = await response.json() as {success: string; username: string};
 
 		if (success.toLowerCase() !== 'ok') {
-			logging.info(`Unable to anonymize ${username} - success is "${success}"`);
+			this.logger.info(`Unable to anonymize ${username} - success is "${success}"`);
 			return false;
 		}
 
-		logging.info(`Anonymized ${username} (${uuid}) to ${newUsername}`);
+		this.logger.info(`Anonymized ${username} (${uuid}) to ${newUsername}`);
 		return true;
 	}
 
@@ -343,7 +343,7 @@ export class DiscourseService {
 				return true;
 			}
 
-			logging.error(new errors.InternalServerError({
+			this.logger.error(new errors.InternalServerError({
 				message: `Unable to suspend ${username} - response is not ok`,
 				errorDetails: await response.json(),
 			}));
@@ -353,7 +353,7 @@ export class DiscourseService {
 
 		const body = await response.json() as {suspension?: unknown};
 
-		logging.info(`Suspended ${username} (${uuid})`);
+		this.logger.info(`Suspended ${username} (${uuid})`);
 		return 'suspension' in body;
 	}
 
@@ -361,7 +361,7 @@ export class DiscourseService {
 		const user = await this.getMember(uuid);
 
 		if (!user) {
-			logging.info(`No need to delete ${uuid} - user not found`);
+			this.logger.info(`No need to delete ${uuid} - user not found`);
 			return true;
 		}
 
@@ -379,7 +379,7 @@ export class DiscourseService {
 		}, {username});
 
 		if (!response.ok) {
-			logging.error(new errors.InternalServerError({
+			this.logger.error(new errors.InternalServerError({
 				message: `Unable to delete user ${username} - response is not ok`,
 				errorDetails: await response.json(),
 			}));
@@ -387,7 +387,7 @@ export class DiscourseService {
 			return false;
 		}
 
-		logging.info(`Deleted ${username} (${uuid})`);
+		this.logger.info(`Deleted ${username} (${uuid})`);
 		return true;
 	}
 }
