@@ -1,15 +1,13 @@
 import {ConfigValidator} from '../lib/config-validation.js';
+import {IsomporphicCore} from '../types/isomorph.js';
 import {uResolve} from '../lib/u-resolve.js';
 import {Configuration} from '../types/config.js';
-import {Logger} from '../types/logger.js';
-import {CryptoService} from './crypto.js';
 
 const HEX_24 = /^[\da-f]{24}$/;
 const EXAMPLE_HEX_24 = 'BAFF1EDBEADEDCAFEBABB1ED';
 
 export function getConfig(
-	logger: Logger,
-	crypto: CryptoService,
+	{crypto, logger}: IsomporphicCore,
 	rawConfig: Record<string, string | undefined>,
 	mapping: Record<keyof Configuration, string>,
 ) {
