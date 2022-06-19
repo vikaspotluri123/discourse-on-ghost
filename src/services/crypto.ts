@@ -41,22 +41,26 @@ export function fromHex(source: string) {
 	return container.buffer;
 }
 
-export function getRandomHex(crypto: WebCrypto, length: number) {
-	const container = new Uint8Array(length);
-	crypto.getRandomValues(container);
+export class CryptoService {
+	constructor(private readonly crypto: WebCrypto) {}
 
-	return toHex(container);
-}
+	getRandomHex(length: number) {
+		const container = new Uint8Array(length);
+		this.crypto.getRandomValues(container);
 
-export async function secretToKey(crypto: WebCrypto, secret: string) {
-	return crypto.subtle.importKey('raw', encoder.encode(secret), {name: 'HMAC', hash: 'SHA-256'}, false, ['verify', 'sign']);
-}
+		return toHex(container);
+	}
 
-export async function verify(crypto: WebCrypto, key: CryptoKey, hexSignature: string, data: string) {
-	return crypto.subtle.verify('HMAC', key, fromHex(hexSignature), encoder.encode(data));
-}
+	async secretToKey(secret: string) {
+		return this.crypto.subtle.importKey('raw', encoder.encode(secret), {name: 'HMAC', hash: 'SHA-256'}, false, ['verify', 'sign']);
+	}
 
-export async function sign(crypto: WebCrypto, key: CryptoKey, data: string) {
-	const raw = await crypto.subtle.sign('HMAC', key, encoder.encode(data));
-	return toHex(raw);
+	async verify(key: CryptoKey, hexSignature: string, data: string) {
+		return this.crypto.subtle.verify('HMAC', key, fromHex(hexSignature), encoder.encode(data));
+	}
+
+	async sign(key: CryptoKey, data: string) {
+		const raw = await this.crypto.subtle.sign('HMAC', key, encoder.encode(data));
+		return toHex(raw);
+	}
 }

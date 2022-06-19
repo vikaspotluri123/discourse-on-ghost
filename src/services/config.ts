@@ -2,19 +2,19 @@ import {ConfigValidator} from '../lib/config-validation.js';
 import {uResolve} from '../lib/u-resolve.js';
 import {Configuration} from '../types/config.js';
 import {Logger} from '../types/logger.js';
-import {WebCrypto, getRandomHex as coreRandom} from './crypto.js';
+import {CryptoService} from './crypto.js';
 
 const HEX_24 = /^[\da-f]{24}$/;
 const EXAMPLE_HEX_24 = 'BAFF1EDBEADEDCAFEBABB1ED';
 
 export function getConfig(
 	logger: Logger,
-	crypto: WebCrypto,
+	crypto: CryptoService,
 	rawConfig: Record<string, string | undefined>,
 	mapping: Record<keyof Configuration, string>,
 ) {
 	const validator = new ConfigValidator<Configuration>(logger, rawConfig, mapping);
-	const getRandomHex = () => coreRandom(crypto, 12);
+	const getRandomHex = () => crypto.getRandomHex(12);
 
 	const getMountedUrl = (value: string) => {
 		const parsed = new URL(value);

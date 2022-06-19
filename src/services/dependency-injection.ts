@@ -7,9 +7,9 @@ import {GhostService} from '../services/ghost.js';
 import {SSOController} from '../controllers/sso.js';
 import {Configuration} from '../types/config.js';
 import {Logger} from '../types/logger.js';
-import {WebCrypto} from './crypto.js';
+import {CryptoService} from './crypto.js';
 
-export function getRoutingManager(logger: Logger, config: Configuration, crypto: WebCrypto) {
+export function getRoutingManager(logger: Logger, config: Configuration, crypto: CryptoService) {
 	const fetchInjector = createFetchInjector(logger);
 	const ghostService = new GhostService(config, fetchInjector);
 	const discourseService = new DiscourseService(logger, config, fetchInjector);

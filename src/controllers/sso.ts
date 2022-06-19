@@ -6,7 +6,7 @@ import {GhostMemberWithSubscriptions} from '../types/ghost.js';
 import {DiscourseSSOResponse} from '../types/discourse.js';
 import {getSlug} from '../services/discourse.js';
 import {Configuration} from '../types/config.js';
-import {secretToKey, sign, verify, WebCrypto} from '../services/crypto.js';
+import {CryptoService} from '../services/crypto.js';
 
 const enum MemberError {
 	NotLoggedIn = 'NotLoggedIn',
@@ -14,12 +14,16 @@ const enum MemberError {
 }
 
 export class SSOController {
-	private readonly key: ReturnType<typeof secretToKey>;
+	private readonly key: ReturnType<CryptoService['secretToKey']>;
 	private readonly _login: string;
 
-	constructor(config: Configuration, private readonly crypto: WebCrypto, private readonly _ghostService: GhostService) {
+	constructor(
+		config: Configuration,
+		private readonly crypto: CryptoService,
+		private readonly _ghostService: GhostService,
+	) {
 		this._login = config.noAuthRedirect ?? _ghostService.resolve('/', '#/portal/account');
-		this.key = secretToKey(crypto, config.discourseSecret);
+		this.key = crypto.secretToKey(config.discourseSecret);
 	}
 
 	controllerFor(ssoMethod: Configuration['ssoMethod']) {
@@ -132,12 +136,12 @@ export class SSOController {
 
 		const parsedUrl = new URL(urlBase);
 		parsedUrl.searchParams.set('sso', encodedPayload);
-		parsedUrl.searchParams.set('sig', await sign(this.crypto, key, encodedPayload));
+		parsedUrl.searchParams.set('sig', await this.crypto.sign(key, encodedPayload));
 		return parsedUrl.toString();
 	}
 
 	private async decodeDiscoursePayload(encodedPayload: string, hexSignature: string): Promise<URLSearchParams | false> {
-		if (!await verify(this.crypto, await this.key, hexSignature, encodedPayload)) {
+		if (!await this.crypto.verify(await this.key, hexSignature, encodedPayload)) {
 			return false;
 		}
 
