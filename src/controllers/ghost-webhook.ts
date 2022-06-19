@@ -3,7 +3,7 @@ import logging from '@tryghost/logging';
 import errors from '@tryghost/errors';
 import {MemberRemoved, MemberUpdated} from '../types/ghost.js';
 import {memberSyncQueue, syncMemberGroups, setDiscourseGroupsFromGhostTiers as setGroups} from '../services/member-sync.js';
-import {anonymizeExternalUser, deleteExternalUser, suspendExternalUser} from '../services/discourse.js';
+import {discourseService as ds} from '../services/discourse.js';
 
 type SafeMemberRemoved = MemberRemoved['member']['previous'] & {id: string};
 
@@ -47,6 +47,6 @@ export function memberUpdated(request: Request, response: Response, next: NextFu
 }
 
 export const memberRemovedSync = wrapRemoveOption(member => [member.id, setGroups, member.uuid, []]);
-export const memberRemovedSuspend = wrapRemoveOption(member => [member.id, suspendExternalUser, member.uuid]);
-export const memberRemovedAnonymize = wrapRemoveOption(member => [member.id, anonymizeExternalUser, member.uuid]);
-export const memberRemovedDelete = wrapRemoveOption(member => [member.id, deleteExternalUser, member.uuid]);
+export const memberRemovedSuspend = wrapRemoveOption(member => [member.id, ds.suspendExternalUser, member.uuid]);
+export const memberRemovedAnonymize = wrapRemoveOption(member => [member.id, ds.anonymizeExternalUser, member.uuid]);
+export const memberRemovedDelete = wrapRemoveOption(member => [member.id, ds.deleteExternalUser, member.uuid]);
