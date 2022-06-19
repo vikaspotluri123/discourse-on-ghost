@@ -38,8 +38,8 @@ export function getConfig(
 		validator.for('ghostMemberDeletedRoute').matches(HEX_24).not(EXAMPLE_HEX_24).suggests(getRandomHex),
 		validator.for('ghostMemberDeleteDiscourseAction')
 			.enum('none', 'sync', 'suspend', 'anonymize', 'delete'),
-		validator.for('mountedPublicUrl').url().transforms(value => getMountedUrl(value).pathname),
-		validator.for('mountedBasePath').url().transforms(value => getMountedUrl(value).toString()),
+		validator.for('mountedPublicUrl').url().transforms(value => getMountedUrl(value).toString()),
+		validator.for('mountedBasePath').url().transforms(value => getMountedUrl(value).pathname),
 		validator.for('ssoMethod').optional('secure').enum('secure', 'obscure'),
 		validator.for('noAuthRedirect').optional('').url(),
 	).finalize();
