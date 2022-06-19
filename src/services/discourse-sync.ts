@@ -1,66 +1,75 @@
 import logging from '@tryghost/logging';
-import {DEFAULT_GROUP_PREFIX, getNiceName, getSlug, discourseService} from './discourse.js';
-import {ghostService} from './ghost.js';
+import {DEFAULT_GROUP_PREFIX, getNiceName, getSlug, DiscourseService, discourseService} from './discourse.js';
+import {ghostService, GhostService} from './ghost.js';
 
 const LOG_PREFIX = '[discourse:sync]';
 
-export async function syncTiersToGroups(removeUnmappedTiers = false) {
-	const tiers = await ghostService.getTiers();
-	const rawGroups = await discourseService.getAllGroups();
-	const groups = new Map<string, number>();
+export class DiscourseSyncService {
+	constructor(
+		readonly _discourseService: DiscourseService,
+		readonly _ghostService: GhostService,
+	) {}
 
-	for (const group of rawGroups) {
-		if (group.automatic || !group.name.toLowerCase().startsWith(DEFAULT_GROUP_PREFIX)) {
-			continue;
+	async syncTiersToGroups(removeUnmappedTiers = false) {
+		const tiers = await this._ghostService.getTiers();
+		const rawGroups = await this._discourseService.getAllGroups();
+		const groups = new Map<string, number>();
+
+		for (const group of rawGroups) {
+			if (group.automatic || !group.name.toLowerCase().startsWith(DEFAULT_GROUP_PREFIX)) {
+				continue;
+			}
+
+			groups.set(group.name, group.id);
 		}
 
-		groups.set(group.name, group.id);
-	}
+		const work = [];
 
-	const work = [];
+		for (const tier of tiers) {
+			const groupSlug = getSlug(tier.slug);
+			if (groups.has(groupSlug)) {
+				groups.delete(groupSlug);
+			} else {
+				work.push(this._discourseService.idempotentlyCreateGroup(groupSlug, getNiceName(tier.name))
+					.then(({created}) => {
+						if (created) {
+							logging.info(`${LOG_PREFIX} Created group ${groupSlug}`);
+						}
+					})
+					.catch((error: unknown) => {
+						logging.error({
+							message: `${LOG_PREFIX} Unable to create group ${groupSlug}`,
+							err: error,
+						});
+					}),
+				);
+			}
+		}
 
-	for (const tier of tiers) {
-		const groupSlug = getSlug(tier.slug);
-		if (groups.has(groupSlug)) {
-			groups.delete(groupSlug);
+		if (removeUnmappedTiers) {
+			for (const [name, id] of groups.entries()) {
+				work.push(this._discourseService.deleteGroup(id)
+					.then(() => {
+						logging.info(`${LOG_PREFIX} Deleted group ${name} (${id})`);
+					})
+					.catch((error: unknown) => {
+						logging.error({
+							message: `${LOG_PREFIX} Unable to delete group ${name} (${id})`,
+							err: error,
+						});
+					}),
+				);
+			}
 		} else {
-			work.push(discourseService.idempotentlyCreateGroup(groupSlug, getNiceName(tier.name))
-				.then(({created}) => {
-					if (created) {
-						logging.info(`${LOG_PREFIX} Created group ${groupSlug}`);
-					}
-				})
-				.catch((error: unknown) => {
-					logging.error({
-						message: `${LOG_PREFIX} Unable to create group ${groupSlug}`,
-						err: error,
-					});
-				}),
-			);
+			logging.info(`${LOG_PREFIX} Not removing unmapped groups: ${Array.from(groups.keys()).join(', ')}`);
 		}
-	}
 
-	if (removeUnmappedTiers) {
-		for (const [name, id] of groups.entries()) {
-			work.push(discourseService.deleteGroup(id)
-				.then(() => {
-					logging.info(`${LOG_PREFIX} Deleted group ${name} (${id})`);
-				})
-				.catch((error: unknown) => {
-					logging.error({
-						message: `${LOG_PREFIX} Unable to delete group ${name} (${id})`,
-						err: error,
-					});
-				}),
-			);
+		await Promise.all(work);
+
+		if (work.length === 0) {
+			logging.info(`${LOG_PREFIX} Nothing to do here 🧹`);
 		}
-	} else {
-		logging.info(`${LOG_PREFIX} Not removing unmapped groups: ${Array.from(groups.keys()).join(', ')}`);
-	}
-
-	await Promise.all(work);
-
-	if (work.length === 0) {
-		logging.info(`${LOG_PREFIX} Nothing to do here 🧹`);
 	}
 }
+
+export const discourseSyncService = new DiscourseSyncService(discourseService, ghostService);
