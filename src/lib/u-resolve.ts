@@ -7,7 +7,11 @@ export function uResolve(basePath: string, relativePath: string) {
 		throw new Error('Invalid relative path');
 	}
 
-	const root = (basePath ?? '/').replace(/(\/|\\)+/g, '/');
+	if (basePath === '/') {
+		basePath = '';
+	}
+
+	const root = (basePath ?? '').replace(/(\/|\\)+/g, '/');
 	const relative = relativePath
 		.replace(/(\/|\\)+/g, '/') // Remove multiple slashes + convert backslashes to forward slashes
 		.replace(/^\.\//, '') // Remove leading ./

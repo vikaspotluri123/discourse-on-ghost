@@ -6,6 +6,7 @@ import {uResolve} from '../../../dist/lib/u-resolve.js';
 describe('Unit > Lib > MicroResolver', function () {
 	it('No base path', function () {
 		expect(uResolve('', '/path/a')).to.equal('/path/a');
+		expect(uResolve('/', '/path/a')).to.equal('/path/a');
 	});
 
 	it('With base path', function () {
@@ -16,6 +17,7 @@ describe('Unit > Lib > MicroResolver', function () {
 		expect(uResolve('/base/path', 'path/a')).to.equal('/base/path/path/a');
 		expect(uResolve('/base/path', './path/a')).to.equal('/base/path/path/a');
 		expect(uResolve('/base/path', '.path/a')).to.equal('/base/path/.path/a');
+		expect(uResolve('/', './path/a')).to.equal('/path/a');
 	});
 
 	it('Does not deal with traversal', function () {
@@ -35,5 +37,6 @@ describe('Unit > Lib > MicroResolver', function () {
 		expect(uResolve('/base/path', '///path/a')).to.equal('/base/path/path/a');
 		expect(uResolve('/base//path', '/path/a')).to.equal('/base/path/path/a');
 		expect(uResolve('/base///path', '/path/a')).to.equal('/base/path/path/a');
+		expect(uResolve('/', '/path/a')).to.equal('/path/a');
 	});
 });
