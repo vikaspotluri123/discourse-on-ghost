@@ -1,4 +1,4 @@
-import logging from '@tryghost/logging';
+import {Logger} from '../types/logger.js';
 import {Semaphore} from './semaphore.js';
 
 export class Queue {
@@ -6,7 +6,7 @@ export class Queue {
 	private readonly _jobs = new Set<string>();
 	private _jobId = 0;
 
-	constructor(delay = 1000) {
+	constructor(private readonly logger: Logger, delay = 1000) {
 		this._semaphore = new Semaphore(1, delay);
 	}
 
@@ -16,7 +16,7 @@ export class Queue {
 		this._jobs.add(name);
 		this._jobId++;
 		const unsubscribe = await this._semaphore.acquire();
-		logging.info(`Running job ${this._jobId} (${func.name ?? '<anonymous>'}). ${this._jobs.size} jobs in queue.`);
+		this.logger.info(`Running job ${this._jobId} (${func.name ?? '<anonymous>'}). ${this._jobs.size} jobs in queue.`);
 
 		try {
 			// We want to immediately remove the job from the list of jobs in case

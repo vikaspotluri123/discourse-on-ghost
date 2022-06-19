@@ -1,16 +1,18 @@
 import {ConfigValidator} from '../lib/config-validation.js';
 import {uResolve} from '../lib/u-resolve.js';
 import {Configuration} from '../types/config.js';
+import {Logger} from '../types/logger.js';
 
 const HEX_24 = /^[\da-f]{24}$/;
 const EXAMPLE_HEX_24 = 'BAFF1EDBEADEDCAFEBABB1ED';
 
 export function getConfig(
+	logger: Logger,
 	rawConfig: Record<string, string | undefined>,
 	mapping: Record<keyof Configuration, string>,
 	getRandomHex: () => string,
 ) {
-	const validator = new ConfigValidator<Configuration>(rawConfig, mapping);
+	const validator = new ConfigValidator<Configuration>(logger, rawConfig, mapping);
 
 	const getMountedUrl = (value: string) => {
 		const parsed = new URL(value);

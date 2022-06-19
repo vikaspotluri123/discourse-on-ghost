@@ -1,4 +1,4 @@
-import logging from '@tryghost/logging';
+import {Logger} from '../types/logger.js';
 import {DEFAULT_GROUP_PREFIX, getNiceName, getSlug, type DiscourseService} from './discourse.js';
 import type {GhostService} from './ghost.js';
 
@@ -6,6 +6,7 @@ const LOG_PREFIX = '[discourse:sync]';
 
 export class DiscourseSyncService {
 	constructor(
+		private readonly logger: Logger,
 		readonly _discourseService: DiscourseService,
 		readonly _ghostService: GhostService,
 	) {}
@@ -33,11 +34,11 @@ export class DiscourseSyncService {
 				work.push(this._discourseService.idempotentlyCreateGroup(groupSlug, getNiceName(tier.name))
 					.then(({created}) => {
 						if (created) {
-							logging.info(`${LOG_PREFIX} Created group ${groupSlug}`);
+							this.logger.info(`${LOG_PREFIX} Created group ${groupSlug}`);
 						}
 					})
 					.catch((error: unknown) => {
-						logging.error({
+						this.logger.error({
 							message: `${LOG_PREFIX} Unable to create group ${groupSlug}`,
 							err: error,
 						});
@@ -50,10 +51,10 @@ export class DiscourseSyncService {
 			for (const [name, id] of groups.entries()) {
 				work.push(this._discourseService.deleteGroup(id)
 					.then(() => {
-						logging.info(`${LOG_PREFIX} Deleted group ${name} (${id})`);
+						this.logger.info(`${LOG_PREFIX} Deleted group ${name} (${id})`);
 					})
 					.catch((error: unknown) => {
-						logging.error({
+						this.logger.error({
 							message: `${LOG_PREFIX} Unable to delete group ${name} (${id})`,
 							err: error,
 						});
@@ -61,13 +62,13 @@ export class DiscourseSyncService {
 				);
 			}
 		} else {
-			logging.info(`${LOG_PREFIX} Not removing unmapped groups: ${Array.from(groups.keys()).join(', ')}`);
+			this.logger.info(`${LOG_PREFIX} Not removing unmapped groups: ${Array.from(groups.keys()).join(', ')}`);
 		}
 
 		await Promise.all(work);
 
 		if (work.length === 0) {
-			logging.info(`${LOG_PREFIX} Nothing to do here 🧹`);
+			this.logger.info(`${LOG_PREFIX} Nothing to do here 🧹`);
 		}
 	}
 }

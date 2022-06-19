@@ -1,4 +1,4 @@
-import logging from '@tryghost/logging';
+import {Logger} from '../types/logger.js';
 
 function coerceToBoolean(envVar: string | undefined, defaultValue: boolean): boolean {
 	if (envVar === undefined || envVar === '') {
@@ -155,6 +155,7 @@ export class ConfigValidator<
 	private readonly _externalToInternalKeyMap: Record<string, Array<keyof FinalShape>> = {};
 
 	constructor(
+		private readonly logger: Logger,
 		private readonly _unsafeConfig: Record<string, string | undefined>,
 		private readonly _internalToExternalKeyMap: Record<keyof FinalShape, string>,
 	) {}
@@ -196,7 +197,7 @@ export class ConfigValidator<
 			try {
 				config[internalKey] = validator.coerce();
 			} catch (error: unknown) {
-				logging.error(error);
+				this.logger.error(error);
 				successful = false;
 			}
 		}

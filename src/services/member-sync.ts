@@ -1,12 +1,14 @@
 import {GhostTier} from '../types/ghost.js';
 import {Queue} from '../lib/queue.js';
+import {Logger} from '../types/logger.js';
 import type {GhostService} from './ghost.js';
 import {getNiceName, getSlug, type DiscourseService} from './discourse.js';
 
 export class MemberSyncService {
-	public readonly queue = new Queue();
+	public readonly queue = new Queue(this.logger);
 
 	constructor(
+		readonly logger: Logger,
 		readonly _discourseService: DiscourseService,
 		readonly _ghostService: GhostService,
 	) {}
