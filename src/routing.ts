@@ -2,7 +2,7 @@ import path from 'node:path';
 import {Application, NextFunction, Request, Response, json, Handler} from 'express';
 import logging from '@tryghost/logging';
 import {config} from './services/config.js';
-import {obscurelyAuthorizeUser, securelyAuthorizeUser} from './controllers/sso.js';
+import {ssoController} from './controllers/sso.js';
 import {memberRemovedAnonymize, memberRemovedDelete, memberRemovedSuspend, memberRemovedSync, memberUpdated} from './controllers/ghost-webhook.js';
 
 const {
@@ -45,7 +45,7 @@ function getDeleteHandler(): Handler | undefined {
 }
 
 export function addRoutes(app: Application, includeCommon = false): void {
-	app.get(route('sso'), ssoMethod === 'secure' ? securelyAuthorizeUser : obscurelyAuthorizeUser);
+	app.get(route('sso'), ssoController.controllerFor(ssoMethod));
 
 	if (enableGhostWebhooks) {
 		const fullMemberUpdatedRoute = route(`hook/${ghostMemberUpdatedRoute}`);
