@@ -6,9 +6,20 @@ import type {Application, Request, Response} from 'express';
 
 export async function load(dogHome: string, app: Application) {
 	const currentCwd = process.cwd();
-	process.chdir(dogHome.replace('~', homedir())); // Set the CWD so dotenv can pick up the config
-	const {config: {hostname, port, mountedBasePath}} = await import('../services/config.js');
+	const requestedCwd = dogHome.replace('~', homedir());
+	process.chdir(requestedCwd); // Set the CWD so dotenv can pick up the config
+	const {getConfig} = await import('../services/config.js');
+	const {envToConfigMapping, getRandomHex} = await import('../targets/config-node.js');
 	process.chdir(currentCwd);
+
+	const config = getConfig(process.env, envToConfigMapping, getRandomHex);
+
+	if (!config) {
+		console.log('Failed loading DoG config. CWD:' + requestedCwd); // eslint-disable-line no-console
+		return;
+	}
+
+	const {hostname, port, mountedBasePath} = config;
 
 	console.log('DoG proxy enabled for', mountedBasePath); // eslint-disable-line no-console
 
