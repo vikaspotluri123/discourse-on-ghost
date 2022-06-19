@@ -1,4 +1,4 @@
-import path from 'node:path';
+import {uResolve} from './lib/u-resolve.js';
 import {Application, NextFunction, Request, Response, json} from 'express';
 import logging from '@tryghost/logging';
 import {config} from './services/config.js';
@@ -24,7 +24,7 @@ export class RoutingManager {
 	) {}
 
 	resolve(route: string) {
-		return path.resolve(this.config.mountedBasePath, route.replace(/^\//, ''));
+		return uResolve(this.config.mountedBasePath, route.replace(/^\//, ''));
 	}
 
 	addCoreRoutes(app: Application) {

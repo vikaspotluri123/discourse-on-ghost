@@ -1,10 +1,10 @@
 import {Buffer} from 'node:buffer';
 import {randomFillSync} from 'node:crypto';
-import path from 'node:path';
 import process from 'node:process';
 import {config as loadEnv} from 'dotenv';
 import {Configuration} from '../types/config.js';
 import {ConfigValidator} from '../lib/config-validation.js';
+import {uResolve} from '../lib/u-resolve.js';
 
 loadEnv();
 
@@ -37,7 +37,7 @@ const validator = new ConfigValidator<Configuration>(process.env, envToConfigMap
 
 const getMountedUrl = (value: string) => {
 	const parsed = new URL(value);
-	parsed.pathname = path.resolve(parsed.pathname, './ghost/api/external_discourse_on_ghost');
+	parsed.pathname = uResolve(parsed.pathname, './ghost/api/external_discourse_on_ghost');
 	return parsed;
 };
 

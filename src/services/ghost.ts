@@ -1,4 +1,3 @@
-import path from 'node:path';
 import GhostAdminApi from '@tryghost/admin-api';
 import getToken from '@tryghost/admin-api/lib/token.js';
 import {RequestInit} from 'node-fetch';
@@ -6,6 +5,7 @@ import type {GhostMemberWithSubscriptions, GhostMemberWithTiers, GhostTier} from
 import {isObject} from '../lib/is-object.js';
 import {createFetch} from '../lib/request.js'; // @TODO: make this a type-only import
 import {JSON_MIME_TYPE} from '../lib/constants.js';
+import {uResolve} from '../lib/u-resolve.js';
 import {Configuration} from '../types/config.js';
 import {config} from './config.js';
 
@@ -74,7 +74,7 @@ export class GhostService {
 
 	resolve(urlPath: string, hash = ''): string {
 		const base = new URL(this._baseUrl);
-		base.pathname = path.resolve(base.pathname, urlPath);
+		base.pathname = uResolve(base.pathname, urlPath);
 		base.hash = hash;
 
 		return base.toString();
