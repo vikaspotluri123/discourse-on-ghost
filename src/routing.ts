@@ -1,9 +1,9 @@
 import path from 'node:path';
-import {Application, NextFunction, Request, Response, json, Handler} from 'express';
+import {Application, NextFunction, Request, Response, json} from 'express';
 import logging from '@tryghost/logging';
 import {config} from './services/config.js';
 import {ssoController} from './controllers/sso.js';
-import {memberRemovedAnonymize, memberRemovedDelete, memberRemovedSuspend, memberRemovedSync, memberUpdated} from './controllers/ghost-webhook.js';
+import {ghostWebhookController} from './controllers/ghost-webhook.js';
 
 const {
 	mountedBasePath, enableGhostWebhooks, ghostMemberDeletedRoute, ghostMemberUpdatedRoute, ghostMemberDeleteDiscourseAction: deleteAction,
@@ -24,36 +24,16 @@ function lazyJson(payload: Record<string, unknown>, statusCode = 200) {
 	};
 }
 
-function getDeleteHandler(): Handler | undefined {
-	if (deleteAction === 'anonymize') {
-		return memberRemovedAnonymize;
-	}
-
-	if (deleteAction === 'suspend') {
-		return memberRemovedSuspend;
-	}
-
-	if (deleteAction === 'sync') {
-		return memberRemovedSync;
-	}
-
-	if (deleteAction === 'delete') {
-		return memberRemovedDelete;
-	}
-
-	return undefined;
-}
-
 export function addRoutes(app: Application, includeCommon = false): void {
 	app.get(route('sso'), ssoController.controllerFor(ssoMethod));
 
 	if (enableGhostWebhooks) {
 		const fullMemberUpdatedRoute = route(`hook/${ghostMemberUpdatedRoute}`);
 		const fullMemberDeletedRoute = route(`hook/${ghostMemberDeletedRoute}`);
-		const deleteHandler = getDeleteHandler();
+		const deleteHandler = ghostWebhookController.deleteController(deleteAction);
 		const jsonParser = json();
 
-		app.post(fullMemberUpdatedRoute, jsonParser, memberUpdated);
+		app.post(fullMemberUpdatedRoute, jsonParser, ghostWebhookController.memberUpdated);
 
 		if (deleteHandler) {
 			app.post(fullMemberDeletedRoute, jsonParser, deleteHandler);
