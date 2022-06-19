@@ -1,9 +1,8 @@
-import {uResolve} from './lib/u-resolve.js';
 import {Application, NextFunction, Request, Response, json} from 'express';
 import logging from '@tryghost/logging';
-import {config} from './services/config.js';
-import {SSOController, ssoController} from './controllers/sso.js';
-import {GhostWebhookController, ghostWebhookController} from './controllers/ghost-webhook.js';
+import {uResolve} from './lib/u-resolve.js';
+import {type SSOController} from './controllers/sso.js';
+import {type GhostWebhookController} from './controllers/ghost-webhook.js';
 import {Configuration} from './types/config.js';
 
 function lazyJson(payload: Record<string, unknown>, statusCode = 200) {
@@ -69,5 +68,3 @@ export class RoutingManager {
 		);
 	}
 }
-
-export const routingManager = new RoutingManager(config, ghostWebhookController, ssoController);

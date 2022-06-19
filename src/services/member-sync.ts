@@ -1,7 +1,7 @@
 import {GhostTier} from '../types/ghost.js';
 import {Queue} from '../lib/queue.js';
-import {ghostService, GhostService} from './ghost.js';
-import {getNiceName, getSlug, DiscourseService, discourseService} from './discourse.js';
+import type {GhostService} from './ghost.js';
+import {getNiceName, getSlug, type DiscourseService} from './discourse.js';
 
 export class MemberSyncService {
 	public readonly queue = new Queue();
@@ -30,5 +30,3 @@ export class MemberSyncService {
 		return this._discourseService.setMemberGroups(uuid, mappedGroups);
 	}
 }
-
-export const memberSyncService = new MemberSyncService(discourseService, ghostService);

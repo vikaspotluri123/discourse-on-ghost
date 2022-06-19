@@ -1,6 +1,6 @@
 import logging from '@tryghost/logging';
-import {DEFAULT_GROUP_PREFIX, getNiceName, getSlug, DiscourseService, discourseService} from './discourse.js';
-import {ghostService, GhostService} from './ghost.js';
+import {DEFAULT_GROUP_PREFIX, getNiceName, getSlug, type DiscourseService} from './discourse.js';
+import type {GhostService} from './ghost.js';
 
 const LOG_PREFIX = '[discourse:sync]';
 
@@ -71,5 +71,3 @@ export class DiscourseSyncService {
 		}
 	}
 }
-
-export const discourseSyncService = new DiscourseSyncService(discourseService, ghostService);
