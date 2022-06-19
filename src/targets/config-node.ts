@@ -1,8 +1,4 @@
-import {Buffer} from 'node:buffer';
-import {randomFillSync} from 'node:crypto';
 import {Configuration} from '../types/config.js';
-
-export const getRandomHex = () => randomFillSync(Buffer.alloc(12)).toString('hex');
 
 export const envToConfigMapping: Record<keyof Configuration, string> = {
 	hostname: 'DOG_HOSTNAME',
