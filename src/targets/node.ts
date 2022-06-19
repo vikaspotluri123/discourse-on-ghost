@@ -20,7 +20,7 @@ if (!config) {
 	process.exit(1); // eslint-disable-line unicorn/no-process-exit
 }
 
-const routingManager = getRoutingManager(logging, config);
+const routingManager = getRoutingManager(logging, config, coercedWebcrypto);
 
 export const app = express();
 
