@@ -3,11 +3,11 @@ import logging from '@tryghost/logging';
 import errors from '@tryghost/errors';
 import {Configuration} from '../types/config.js';
 import {MemberRemoved, MemberUpdated} from '../types/ghost.js';
-import {MemberSyncService, memberSyncService} from '../services/member-sync.js';
-import {DiscourseService, discourseService} from '../services/discourse.js';
+import type {MemberSyncService} from '../services/member-sync.js';
+import type {DiscourseService} from '../services/discourse.js';
 
 type SafeMemberRemoved = MemberRemoved['member']['previous'] & {id: string};
-type DeleteHandler = (payload: SafeMemberRemoved) => Parameters<typeof memberSyncService.queue['add']>;
+type DeleteHandler = (payload: SafeMemberRemoved) => Parameters<MemberSyncService['queue']['add']>;
 
 export class GhostWebhookController {
 	constructor(
@@ -25,18 +25,18 @@ export class GhostWebhookController {
 		}
 
 		const {id, uuid, tiers} = body.member.current;
-		if (memberSyncService.queue.has(id)) {
+		if (this._memberSyncService.queue.has(id)) {
 			response.status(202).json({message: 'Syncing member'});
 			return;
 		}
 
 		if (!tiers) {
-			void memberSyncService.queue.add(id, memberSyncService.syncGroups, id);
+			void this._memberSyncService.queue.add(id, this._memberSyncService.syncGroups, id);
 			response.status(202).json({message: 'Syncing member'});
 			return;
 		}
 
-		void memberSyncService.queue.add(id, memberSyncService.setDiscourseGroupsFromTiers, uuid, tiers);
+		void this._memberSyncService.queue.add(id, this._memberSyncService.setDiscourseGroupsFromTiers, uuid, tiers);
 		response.status(202).json({message: 'Syncing member'});
 	}
 
@@ -83,5 +83,3 @@ export class GhostWebhookController {
 		};
 	}
 }
-
-export const ghostWebhookController = new GhostWebhookController(discourseService, memberSyncService);

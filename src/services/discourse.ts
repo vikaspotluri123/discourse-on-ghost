@@ -7,7 +7,6 @@ import {DiscourseGroup, MinimalGroup} from '../types/discourse.js';
 import {JSON_MIME_TYPE} from '../lib/constants.js';
 import {uResolve} from '../lib/u-resolve.js';
 import {Configuration} from '../types/config.js';
-import {config} from './config.js';
 
 export const DEFAULT_MAX_DISCOURSE_REQUEST_CONCURRENCY = 3;
 export const DEFAULT_GROUP_MENTIONABLE_LEVEL = 3;
@@ -392,5 +391,3 @@ export class DiscourseService {
 		return true;
 	}
 }
-
-export const discourseService = new DiscourseService(config, createFetch);

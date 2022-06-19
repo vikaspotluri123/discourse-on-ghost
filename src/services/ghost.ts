@@ -3,11 +3,10 @@ import getToken from '@tryghost/admin-api/lib/token.js';
 import {RequestInit} from 'node-fetch';
 import type {GhostMemberWithSubscriptions, GhostMemberWithTiers, GhostTier} from '../types/ghost.js';
 import {isObject} from '../lib/is-object.js';
-import {createFetch} from '../lib/request.js'; // @TODO: make this a type-only import
+import type {createFetch} from '../lib/request.js';
 import {JSON_MIME_TYPE} from '../lib/constants.js';
 import {uResolve} from '../lib/u-resolve.js';
 import {Configuration} from '../types/config.js';
-import {config} from './config.js';
 
 type GhostFetchCreator = (
 	fetch: ReturnType<typeof createFetch>
@@ -121,5 +120,3 @@ export class GhostService {
 		return tiers;
 	}
 }
-
-export const ghostService = new GhostService(config, createFetch);

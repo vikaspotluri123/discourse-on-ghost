@@ -2,12 +2,11 @@ import {Buffer} from 'node:buffer';
 import {createHmac, timingSafeEqual} from 'node:crypto';
 import {Request, Response} from 'express';
 import fetch from 'node-fetch';
-import {ghostService, GhostService} from '../services/ghost.js';
+import type {GhostService} from '../services/ghost.js';
 import {GhostMemberWithSubscriptions} from '../types/ghost.js';
 import {DiscourseSSOResponse} from '../types/discourse.js';
 import {getSlug} from '../services/discourse.js';
 import {Configuration} from '../types/config.js';
-import {config} from '../services/config.js';
 
 const enum MemberError {
 	NotLoggedIn = 'NotLoggedIn',
@@ -178,5 +177,3 @@ export class SSOController {
 		return memberPayload;
 	}
 }
-
-export const ssoController = new SSOController(config, ghostService);
