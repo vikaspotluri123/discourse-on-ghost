@@ -1,25 +1,34 @@
 import {GhostTier} from '../types/ghost.js';
 import {Queue} from '../lib/queue.js';
-import {ghostService} from './ghost.js';
-import {getNiceName, getSlug, discourseService} from './discourse.js';
+import {ghostService, GhostService} from './ghost.js';
+import {getNiceName, getSlug, DiscourseService, discourseService} from './discourse.js';
 
-export async function syncMemberGroups(ghostId: string) {
-	const user = await ghostService.getMember(ghostId);
+export class MemberSyncService {
+	public readonly queue = new Queue();
 
-	if (!user) {
-		return false;
+	constructor(
+		readonly _discourseService: DiscourseService,
+		readonly _ghostService: GhostService,
+	) {}
+
+	async syncGroups(ghostId: string) {
+		const user = await this._ghostService.getMember(ghostId);
+
+		if (!user) {
+			return false;
+		}
+
+		return this.setDiscourseGroupsFromTiers(user.uuid, user.tiers);
 	}
 
-	return setDiscourseGroupsFromGhostTiers(user.uuid, user.tiers);
+	async setDiscourseGroupsFromTiers(uuid: string, tiers: GhostTier[]) {
+		const mappedGroups = tiers.map(tier => ({
+			name: getSlug(tier.slug),
+			niceName: getNiceName(tier.name),
+		}));
+
+		return this._discourseService.setMemberGroups(uuid, mappedGroups);
+	}
 }
 
-export async function setDiscourseGroupsFromGhostTiers(uuid: string, tiers: GhostTier[]) {
-	const mappedGroups = tiers.map(tier => ({
-		name: getSlug(tier.slug),
-		niceName: getNiceName(tier.name),
-	}));
-
-	return discourseService.setMemberGroups(uuid, mappedGroups);
-}
-
-export const memberSyncQueue = new Queue();
+export const memberSyncService = new MemberSyncService(discourseService, ghostService);
