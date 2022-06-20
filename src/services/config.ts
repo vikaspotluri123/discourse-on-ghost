@@ -13,6 +13,7 @@ export function getConfig(
 ) {
 	const validator = new ConfigValidator<Configuration>(logger, rawConfig, mapping);
 	const getRandomHex = () => crypto.getRandomHex(12);
+	const getDiscourseSecret = () => crypto.getRandomHex(32);
 
 	const getMountedUrl = (value: string) => {
 		const parsed = new URL(value);
@@ -24,7 +25,7 @@ export function getConfig(
 		validator.for('hostname').optional('127.0.0.1'),
 		validator.for('port').optional(3286).numeric({min: 0, max: 65_535}),
 		validator.for('ghostUrl').url(),
-		validator.for('discourseSecret'),
+		validator.for('discourseSecret').suggests(getDiscourseSecret),
 		validator.for('ghostApiKey').matches(/^[\da-f]{24}:[\da-f]{64}$/),
 		validator.for('discourseUrl').url(),
 		validator.for('discourseApiKey').matches(/^[\da-f]{64}$/),
