@@ -62,6 +62,10 @@ tr td:first-child {
 
 DoG has several configuration options which should be included in your `.env` file, using the `{key}="{value}"` syntax.
 
+For optional values, it's recommended to **not** include them in your `.env` file as the default value might change for improved functionality or compatibility.
+
+You can comment out values by prefixing them with a `#`. (e.g. `# DOG_KEY="value"`)
+
 | Name | Type | Default Value (**Yes**=required) | Description |
 | ---- | ---- | -------------------------------- | ----------- |
 |DOG_HOSTNAME | IP Address | 127.0.0.1 | The hostname for DoG to listen |
@@ -70,18 +74,18 @@ DoG has several configuration options which should be included in your `.env` fi
 |DOG_DISCOURSE_SHARED_SECRET | string | **Yes**\* | The shared secret for Discourse SSO |
 |DOG_GHOST_ADMIN_TOKEN | string | **Yes** | Admin token for your Ghost installation - [Ghost Docs](https://ghost.org/integrations/custom-integrations/) (needs to be an API+webhook integration) |
 |DOG_DISCOURSE_URL | URL | **Yes** | The URL of your Discourse installation |
-|DOG_DISCOURSE_API_KEY | string | **Yes** | The API key for your Discourse installation - `https://your.discourse.example/admin/api/keys`. User Level is `All Users`, and `Scope` is Global |
+|DOG_DISCOURSE_API_KEY | string | **Yes** | The API key for your Discourse installation - create one at `https://your.discourse.example/admin/api/keys`. <br/> User Level: `All Users`, Scope: `Global` |
 |DOG_DISCOURSE_API_USER | username | system | The username for the user that performs actions when using the Discourse API |
 |DOG_LOG_DISCOURSE_REQUESTS | boolean | false | Whether to log requests made to Discourse. _There could be some user-specific information in the logs_ |
 |DOG_LOG_GHOST_REQUESTS | boolean | false | Whether to log requests made to Ghost. _There could be some user-specific information  in the logs_ |
-|DOG_GHOST_MEMBER_WEBHOOKS_ENABLED | boolean | false | Whether to enable the Ghost member webhooks. This is used to sync membership tiers |
+|DOG_GHOST_MEMBER_WEBHOOKS_ENABLED | boolean | false | Whether to enable the Ghost member webhooks (used to sync membership tiers) |
 |DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID | string | **Yes**\* | The endpoint to listen for Ghost Member Updated webhooks. |
 |DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID | string | **Yes**\* | The endpoint to listen for Ghost Member Deleted webhooks. |
 |DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION | [enum](#dog_ghost_member_delete_discourse_action) | **Yes** | The action to take on Discourse when a Ghost member is deleted |
 |DOG_DISCOURSE_SSO_TYPE | [enum](#dog_discourse_sso_type) | **Yes** | The type of SSO to use for Discourse (see `Pick your Path`) |
 |DOG_SSO_NO_AUTH_REDIRECT | URL | {ghost_url} /#/portal/account | A custom landing page to redirect to if the user is not authenticated |
 
-*These values shared with either Discourse or Ghost. If you don't specify a value, DoG will suggest one for you.
+*These values are shared with either Discourse or Ghost. If you don't specify a value, DoG will suggest one for you.
 
 ## Enums
 
