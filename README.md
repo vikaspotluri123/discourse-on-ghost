@@ -1,4 +1,7 @@
+<center>
+
 # Discourse on Ghost
+</center>
 
 > Add Ghost-based SSO to Discourse
 
