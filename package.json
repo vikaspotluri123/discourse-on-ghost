@@ -6,6 +6,7 @@
   "authors": [
     "Vikas Potluri <vikaspotluri123.github@gmail.com>"
   ],
+  "license": "MIT",
   "type": "module",
   "module": "dist/index.js",
   "scripts": {
