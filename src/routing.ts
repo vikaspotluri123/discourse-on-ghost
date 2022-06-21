@@ -62,9 +62,11 @@ export class RoutingManager {
 			app.post(fullMemberDeletedRoute, jsonParser, deleteHandler);
 		}
 
+		const domain = this.config.ssoMethod === 'secure' ? this.config.ghostUrl : '';
+
 		this.logger.info(''
 			+ 'Webhooks Mounted:\n'
-			+ ` - Member Updated @ ${fullMemberUpdatedRoute}`
+			+ ` - Member Updated @ ${domain}${fullMemberUpdatedRoute}`
 			+ (deleteHandler ? '\n - Member Deleted @ ' + fullMemberDeletedRoute : ''),
 		);
 	}
