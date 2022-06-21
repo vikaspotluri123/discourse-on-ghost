@@ -3,7 +3,7 @@ layout: default
 title: Home
 nav_order: 0
 ---
-# Discourse, meet Ghost.
+# Ghost, meet Discourse.
 
 **Discourse on Ghost** is the glue to seamlessly integrate Discourse into your Ghost site.
 
@@ -18,6 +18,7 @@ nav_order: 0
 
 ## Getting Started
 
+_Feel like something's missing? [File an issue](https://github.com/vikaspotluri123/discourse-on-ghost/issues)!_
 
 ### Step 1: Pick your Path
 
