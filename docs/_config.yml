@@ -17,6 +17,9 @@ gh_edit_branch: master
 gh_edit_source: docs
 plugins:
  - jekyll-seo-tag
+kramdown:
+  parse_block_html: true
+
 
 # Things you can enable when working locally
 # theme: just-the-docs
