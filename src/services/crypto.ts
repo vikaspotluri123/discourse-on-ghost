@@ -26,7 +26,7 @@ export function toHex(buffer: ArrayBuffer): string {
 	const container = new Uint8Array(buffer);
 	let response = '';
 	for (const element of container) {
-		response += element.toString(16);
+		response += element.toString(16).padStart(2, '0');
 	}
 
 	return response;
