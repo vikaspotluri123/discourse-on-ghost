@@ -28,12 +28,16 @@ export async function load(dogHome: string, app: Application) {
 
 	logger.info('DoG proxy enabled for', mountedBasePath);
 
-	app.use(mountedBasePath, (request: Request, response: Response) => {
+	app.use(mountedBasePath, json(), (request: Request, response: Response) => {
 		logger.info(`Proxying ${request.method} ${request.originalUrl} to DoG`);
+		const body
+			= request.method !== 'GET' && request.method !== 'HEAD' && Object.keys(request.body).length > 0
+				? JSON.stringify(request.body)
+				: undefined;
 		void core.fetch(`http://${hostname}:${port}${request.originalUrl}`, {
 			method: request.method,
 			headers: request.headers as Record<string, string>,
-			body: request.body, // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+			body,
 		}).then(proxyResponse => { // eslint-disable-line @typescript-eslint/promise-function-async
 			response.status(proxyResponse.status);
 
