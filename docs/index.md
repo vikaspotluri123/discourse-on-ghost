@@ -168,9 +168,9 @@ Head to the *Login Settings* of your Discourse installation (`https://your.forum
 
 Scroll to the option `enable discourse connect`
 
-1. Ensure `enable discourse connect` is checked / enabled
-1. Enter the Discourse Connect URL in the `discourse connect url` field
-  - For `secure` mode, this will be `https://your.ghost.blog/subdir/ghost/api/external_discourse_on_ghost/sso`
+1. Before you can enable Discourse Connect (SSO), you need to specify the URL. Enter the Discourse Connect URL in the `discourse connect url` field
+1. Check the `enable discourse connect` option (above `discourse connect url`)
+  - For `secure` mode, this will be `https://your.ghost.blog/subdir/ghost/api/external_discourse_on_ghost/sso`. `subdir` will be the path your blog is installed on - if you don't have a path, remove it from the url.
 1. Enter the `DOG_DISCOURSE_SHARED_SECRET` value from your configuration into `discourse connect secret`
 
 ### Step 7: Configure Ghost Webhooks
