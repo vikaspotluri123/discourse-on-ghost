@@ -16,7 +16,7 @@ export class GhostWebhookController {
 		private readonly _memberSyncService: MemberSyncService,
 	) {}
 
-	memberUpdated(request: Request, response: Response, next: NextFunction) {
+	memberUpdated = (request: Request, response: Response, next: NextFunction) => {
 		this.logger.info('Processing member updated event');
 		const body: MemberUpdated = request.body as unknown as MemberUpdated;
 
