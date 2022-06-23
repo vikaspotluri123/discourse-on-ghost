@@ -138,9 +138,12 @@ Documentation=https://github.vikaspotluri.me/discourse-on-ghost
 
 [Service]
 Type=simple
+# Don't forget to update this!
 WorkingDirectory=/path/to/discourse-on-ghost
-User=ghost # This might be different for `obscure` mode
+# The user might be different for `obscure` mode
+User=ghost
 Environment="NODE_ENV=production"
+# You can get your node path by running `which node`
 ExecStart=/path/to/node index.js
 Restart=always
 
@@ -152,6 +155,42 @@ WantedBy=multi-user.target
 1. run `sudo systemctl daemon-reload`
 1. run `sudo systemctl enable discourse_on_ghost.service`
 1. run `sudo systemctl start discourse_on_ghost.service`
+1. confirm you did everything correctly by
 
 *[SSO]: Single Sign On
 *[DoG]: Discourse on Ghost
+
+### Step 6: Configure Discourse for SSO
+
+_Note: You should already have created an API key for DoG in the configuration step_
+
+Head to the *Login Settings* of your Discourse installation (`https://your.forum/admin/site_settings/category/login`)
+
+Scroll to the option `enable discourse connect`
+
+1. Ensure `enable discourse connect` is checked / enabled
+1. Enter the Discourse Connect URL in the `discourse connect url` field
+  - For `secure` mode, this will be `https://your.ghost.blog/subdir/ghost/api/external_discourse_on_ghost/sso`
+1. Enter the `DOG_DISCOURSE_SHARED_SECRET` value from your configuration into `discourse connect secret`
+
+### Step 7: Configure Ghost Webhooks
+
+Head to the *Integrations* page of your Ghost installation (`https://your.blog/ghost/#/settings/integrations/`)
+
+Go to your DoG integration (should have been created in the configuration step)
+
+Scroll to the `Webhooks` section
+
+Add your `Member Updated` Webhook
+- Name can be whatever you want!
+- Event should be `Member Updated`
+- Target URL should be `https://your.blog/ghost/api/external_discourse_on_ghost/DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID` (replace `DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID` with the config value)
+
+Add your `Member Deleted` Webhook
+- Name can be whatever you want!
+- Event should be `Member Deleted`
+- Target URL should be `https://your.blog/ghost/api/external_discourse_on_ghost/DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID` (replace `DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID` with the config value)
+
+### Step 8: You're done!
+
+It might have been a journey, but you made it 🎉 Test out Discourse SSO, and member tier sync, it should work now!
