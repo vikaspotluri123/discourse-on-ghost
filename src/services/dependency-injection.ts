@@ -9,7 +9,7 @@ import {SSOController} from '../controllers/sso.js';
 import {Configuration} from '../types/config.js';
 
 export function getRoutingManager(core: IsomporphicCore, config: Configuration): RoutingManager {
-	const fetchInjector = createFetchInjector(core.logger);
+	const fetchInjector = createFetchInjector(core);
 	const ghostService = new GhostService(config, fetchInjector);
 	const discourseService = new DiscourseService(core.logger, config, fetchInjector);
 	const memberSyncService = new MemberSyncService(core.logger, discourseService, ghostService);
