@@ -1,17 +1,19 @@
 // Used to proxy requests from Ghost to DoG
 import {homedir} from 'node:os';
+import path from 'node:path';
 import process from 'node:process';
 import type {Application, Request, Response} from 'express';
 import type {Logger} from '../types/logger.js';
 
 export async function load(dogHome: string, app: Application) {
-	const currentCwd = process.cwd();
 	const logger: Logger = console;
 	const requestedCwd = dogHome.replace('~', homedir());
-	process.chdir(requestedCwd); // Set the CWD so dotenv can pick up the config
+	const {config: loadEnv} = await import('dotenv');
+	loadEnv({path: path.resolve(requestedCwd, '.env')});
+
 	const {getConfig} = await import('../services/config.js');
 	const {core, envToConfigMapping} = await import('./shared-node.js');
-	process.chdir(currentCwd);
+	const {json} = await import('express');
 
 	core.logger = logger;
 
