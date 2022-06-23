@@ -21,7 +21,8 @@ export class SSOController {
 		private readonly core: IsomporphicCore,
 		private readonly _ghostService: GhostService,
 	) {
-		this._login = config.noAuthRedirect ?? _ghostService.resolve('/', '#/portal/account');
+		// Don't use nullish coalescing here since the default value for `noAuthRedirect` is an empty string
+		this._login = config.noAuthRedirect || _ghostService.resolve('/', '#/portal/account');
 		this.key = core.crypto.secretToKey(config.discourseSecret);
 	}
 
