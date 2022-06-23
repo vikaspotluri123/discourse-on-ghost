@@ -3,16 +3,14 @@ import errors from '@tryghost/errors';
 import {Configuration} from '../types/config.js';
 import {MemberRemoved, MemberUpdated} from '../types/ghost.js';
 import type {MemberSyncService} from '../services/member-sync.js';
-import type {DiscourseService} from '../services/discourse.js';
 import {Logger} from '../types/logger.js';
 
 type SafeMemberRemoved = MemberRemoved['member']['previous'] & {id: string};
-type DeleteHandler = (payload: SafeMemberRemoved) => Parameters<MemberSyncService['queue']['add']>;
+type DeleteHandler = (payload: SafeMemberRemoved) => Parameters<MemberSyncService['queue']>;
 
 export class GhostWebhookController {
 	constructor(
 		private readonly logger: Logger,
-		private readonly _discourseService: DiscourseService,
 		private readonly _memberSyncService: MemberSyncService,
 	) {}
 
@@ -26,44 +24,36 @@ export class GhostWebhookController {
 		}
 
 		const {id, uuid, tiers} = body.member.current;
-		if (this._memberSyncService.queue.has(id)) {
+		if (this._memberSyncService.has(id)) {
 			response.status(202).json({message: 'Syncing member'});
 			return;
 		}
 
 		if (!tiers) {
-			void this._memberSyncService.queue.add(id, this._memberSyncService.syncGroups, id);
+			this._memberSyncService.queue(id, 'syncGroups', id);
 			response.status(202).json({message: 'Syncing member'});
 			return;
 		}
 
-		void this._memberSyncService.queue.add(id, this._memberSyncService.setDiscourseGroupsFromTiers, uuid, tiers);
+		this._memberSyncService.queue(id, 'setDiscourseGroupsFromTiers', uuid, tiers);
 		response.status(202).json({message: 'Syncing member'});
-	}
+	};
 
 	deleteController(deleteAction: Configuration['ghostMemberDeleteDiscourseAction']) {
 		if (deleteAction === 'anonymize') {
-			return this.createWrappedDeleteHandler(
-				member => [member.id, this._discourseService.anonymizeExternalUser, member.uuid],
-			);
+			return this.createWrappedDeleteHandler(member => [member.id, 'anonymizeDiscourseUser', member.uuid]);
 		}
 
 		if (deleteAction === 'suspend') {
-			return this.createWrappedDeleteHandler(
-				member => [member.id, this._discourseService.suspendExternalUser, member.uuid],
-			);
+			return this.createWrappedDeleteHandler(member => [member.id, 'suspendDiscourseUser', member.uuid]);
 		}
 
 		if (deleteAction === 'sync') {
-			return this.createWrappedDeleteHandler(
-				member => [member.id, this._memberSyncService.setDiscourseGroupsFromTiers, member.uuid, []],
-			);
+			return this.createWrappedDeleteHandler(member => [member.id, 'setDiscourseGroupsFromTiers', member.uuid, []]);
 		}
 
 		if (deleteAction === 'delete') {
-			return this.createWrappedDeleteHandler(
-				member => [member.id, this._discourseService.deleteExternalUser, member.uuid],
-			);
+			return this.createWrappedDeleteHandler(member => [member.id, 'deleteDiscourseUser', member.uuid]);
 		}
 
 		return undefined;
@@ -79,7 +69,8 @@ export class GhostWebhookController {
 				return;
 			}
 
-			void this._memberSyncService.queue.add(...handler(body.member.previous as SafeMemberRemoved));
+			// @ts-expect-error Handler returns Parameters<queue> which is what we're calling `queue` with
+			this._memberSyncService.queue(...handler(body.member.previous as SafeMemberRemoved));
 			response.status(202).json({message: 'Syncing member'});
 		};
 	}

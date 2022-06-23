@@ -13,7 +13,7 @@ export function getRoutingManager(core: IsomporphicCore, config: Configuration):
 	const ghostService = new GhostService(config, fetchInjector);
 	const discourseService = new DiscourseService(core.logger, config, fetchInjector);
 	const memberSyncService = new MemberSyncService(core.logger, discourseService, ghostService);
-	const webhookController = new GhostWebhookController(core.logger, discourseService, memberSyncService);
+	const webhookController = new GhostWebhookController(core.logger, memberSyncService);
 	const ssoController = new SSOController(config, core, ghostService);
 	return new RoutingManager(core.logger, config, webhookController, ssoController);
 }
