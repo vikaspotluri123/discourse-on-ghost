@@ -61,7 +61,7 @@ export class DiscourseSyncService {
 					}),
 				);
 			}
-		} else {
+		} else if (groups.size > 0) {
 			this.logger.info(`${LOG_PREFIX} Not removing unmapped groups: ${Array.from(groups.keys()).join(', ')}`);
 		}
 
