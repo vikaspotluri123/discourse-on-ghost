@@ -4,6 +4,7 @@ import {type SSOController} from './controllers/sso.js';
 import {type GhostWebhookController} from './controllers/ghost-webhook.js';
 import {Configuration} from './types/config.js';
 import {Logger} from './types/logger.js';
+import {AdminController} from './controllers/admin.js';
 
 function lazyJson(payload: Record<string, unknown>, statusCode = 200) {
 	return (_: Request, response: Response) => {
@@ -21,6 +22,7 @@ export class RoutingManager {
 		private readonly config: Configuration,
 		private readonly ghostWebhookController: GhostWebhookController,
 		private readonly sso: SSOController,
+		private readonly adminController: AdminController,
 	) {}
 
 	resolve(route: string) {
@@ -33,6 +35,8 @@ export class RoutingManager {
 		if (this.config.enableGhostWebhooks) {
 			this.addGhostWebhookRoutes(app);
 		}
+
+		this.addAdminRoutes(app);
 	}
 
 	addAllRoutes(app: Application) {
@@ -69,5 +73,10 @@ export class RoutingManager {
 			+ ` - Member Updated @ ${domain}${fullMemberUpdatedRoute}`
 			+ (deleteHandler ? '\n - Member Deleted @ ' + domain + fullMemberDeletedRoute : ''),
 		);
+	}
+
+	private addAdminRoutes(app: Application) {
+		const [syncTiers] = this.adminController.get(this.config.ssoMethod);
+		app.get(this.resolve('admin/sync-tiers'), syncTiers);
 	}
 }
