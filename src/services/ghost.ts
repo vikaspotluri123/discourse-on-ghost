@@ -12,6 +12,14 @@ type GhostFetchCreator = (
 	fetch: ReturnType<FetchInjector>
 ) => ConstructorParameters<typeof GhostAdminApi>[0]['makeRequest'];
 
+interface StaffUsers {
+	users: Array<{
+		roles: Array<{
+			name: string;
+		}>;
+	}>;
+}
+
 const createMakeRequest: GhostFetchCreator = fetch => async ({url, method, headers, params, data}) => {
 	if (params && Object.keys(params).length > 0) {
 		const parsedUrl = new URL(url);
@@ -71,10 +79,16 @@ export class GhostService {
 		return `Ghost ${getToken(this._apiKey, '/admin')}`;
 	}
 
-	resolve(urlPath: string, hash = ''): string {
+	resolve(urlPath: string, hash = '', query?: Record<string, string>): string {
 		const base = new URL(this._baseUrl);
 		base.pathname = uResolve(base.pathname, urlPath);
 		base.hash = hash;
+
+		if (query) {
+			for (const [key, value] of Object.entries(query)) {
+				base.searchParams.set(key, value);
+			}
+		}
 
 		return base.toString();
 	}
@@ -114,9 +128,23 @@ export class GhostService {
 			accept: JSON_MIME_TYPE,
 		};
 
-		const response = await fetch(this.resolve('/ghost/api/admin/tiers'), {headers});
+		const response = await this._fetch(this.resolve('/ghost/api/admin/tiers'), {headers});
 
 		const {tiers} = await response.json() as {tiers: GhostTier[]};
 		return tiers;
+	}
+
+	async authenticateStaffFromCookie(cookie: string) {
+		const response = await this._fetch(this.resolve('/ghost/api/admin/users/me/', '', {include: 'roles'}), {
+			headers: {cookie},
+		});
+
+		if (!response.ok) {
+			return false;
+		}
+
+		const {users: [user]} = await response.json() as StaffUsers;
+
+		return user.roles.some(role => role.name === 'Owner' || role.name === 'Administrator');
 	}
 }
