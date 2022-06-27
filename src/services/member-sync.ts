@@ -8,6 +8,7 @@ type Queable = 'syncGroups' | 'setDiscourseGroupsFromTiers' | 'deleteDiscourseUs
 
 export class MemberSyncService {
 	private readonly _queue = new Queue(this.logger);
+	private readonly _knownGroups = new Set<string>();
 
 	constructor(
 		readonly logger: Logger,
@@ -19,6 +20,10 @@ export class MemberSyncService {
 		this.deleteDiscourseUser = this.deleteDiscourseUser.bind(this);
 		this.anonymizeDiscourseUser = this.anonymizeDiscourseUser.bind(this);
 		this.suspendDiscourseUser = this.suspendDiscourseUser.bind(this);
+	}
+
+	resetKnownGroups() {
+		this._knownGroups.clear();
 	}
 
 	async syncGroups(ghostId: string) {
@@ -37,7 +42,19 @@ export class MemberSyncService {
 			niceName: getNiceName(tier.name),
 		}));
 
-		return this._discourseService.setMemberGroups(uuid, mappedGroups);
+		const success = await this._discourseService.setMemberGroups(uuid, mappedGroups);
+
+		if (!success) {
+			return Promise.all(mappedGroups.map(async ({name, niceName}) => this.maybeCreateGroup(name, niceName)));
+		}
+
+		for (const group of success) {
+			if (group.success) {
+				this._knownGroups.add(group.name);
+			}
+		}
+
+		return success;
 	}
 
 	async deleteDiscourseUser(uuid: string) {
@@ -58,5 +75,19 @@ export class MemberSyncService {
 
 	queue<T extends Queable>(id: string, action: T, ...args: Parameters<MemberSyncService[T]>) {
 		void this._queue.add(id, this[action], ...args);
+	}
+
+	private async maybeCreateGroup(name: string, fullName: string) {
+		if (this._knownGroups.has(name)) {
+			return true;
+		}
+
+		try {
+			await this._discourseService.idempotentlyCreateGroup(name, fullName);
+			this._knownGroups.add(name);
+			return true;
+		} catch {
+			return false;
+		}
 	}
 }

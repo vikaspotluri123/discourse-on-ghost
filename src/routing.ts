@@ -76,7 +76,8 @@ export class RoutingManager {
 	}
 
 	private addAdminRoutes(app: Application) {
-		const [syncTiers] = this.adminController.get(this.config.ssoMethod);
+		const [syncTiers, clearCaches] = this.adminController.get(this.config.ssoMethod);
 		app.get(this.resolve('admin/sync-tiers'), syncTiers);
+		app.get(this.resolve('admin/clear-caches'), clearCaches);
 	}
 }

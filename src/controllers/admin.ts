@@ -2,10 +2,11 @@ import {Handler, Request, Response} from 'express';
 import {Queue} from '../lib/queue.js';
 import {DiscourseSyncService} from '../services/discourse-sync.js';
 import {GhostService} from '../services/ghost.js';
+import {MemberSyncService} from '../services/member-sync.js';
 import {SsoMethod} from '../types/config.js';
 import {Logger} from '../types/logger.js';
 
-type Controllers = [syncTiers: Handler];
+type Controllers = [syncTiers: Handler, clearCaches: Handler];
 
 const MINIMUM_SYNC_WAIT = 60_000; // 1 Minute
 
@@ -16,10 +17,12 @@ export class AdminController {
 	constructor(
 		private readonly _logger: Logger,
 		private readonly _discourse: DiscourseSyncService,
+		private readonly _member: MemberSyncService,
 		private readonly _ghost: GhostService,
 	) {
 		this.syncTiers = this.syncTiers.bind(this);
 		this._syncTiers = this._syncTiers.bind(this);
+		this.clearCaches = this.clearCaches.bind(this);
 	}
 
 	never(_: Request, response: Response) {
@@ -28,10 +31,19 @@ export class AdminController {
 
 	get(ssoMethod: SsoMethod): Controllers {
 		if (ssoMethod === 'obscure') {
-			return [this.never];
+			return [this.never, this.never];
 		}
 
-		return [this.syncTiers];
+		return [this.syncTiers, this.clearCaches];
+	}
+
+	private async clearCaches(request: Request, response: Response) {
+		if (!await this._assertLoggedIn(request, response)) {
+			return;
+		}
+
+		this._member.resetKnownGroups();
+		response.status(200).json({message: 'Caches cleared'});
 	}
 
 	private async syncTiers(request: Request, response: Response) {
