@@ -173,6 +173,8 @@ Scroll to the option `enable discourse connect`
   - For `secure` mode, this will be `https://your.ghost.blog/subdir/ghost/api/external_discourse_on_ghost/sso`. `subdir` will be the path your blog is installed on - if you don't have a path, remove it from the url.
 1. Enter the `DOG_DISCOURSE_SHARED_SECRET` value from your configuration into `discourse connect secret`
 
+Once you enable Discourse Connect, forum members will only be able to log in by being a member in Ghost. Forum admins can log in using a magic link via `https://your.forum/u/admin-login`
+
 #### Allow longer usernames
 
 Ghost's default tier names can get pretty long, and this can cause Discourse Groups to fail being created. You might want to increase the `max username length` setting to 30 since username and group lengths are both controlled by this. Here's a [Discourse discussion for reference](https://meta.discourse.org/t/group-name-character-limitation/31229)
