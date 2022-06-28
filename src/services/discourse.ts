@@ -272,12 +272,12 @@ export class DiscourseService {
 		const unsettledResults = [];
 
 		for (const {name} of groupsToRemove) {
-			unsettledResults.push(withSemaphore(this._requestSemaphore, this.removeMemberFromGroup, id, name));
+			unsettledResults.push(withSemaphore(this._requestSemaphore, this.logger, this.removeMemberFromGroup, id, name));
 			changes.push({type: 'removed', name, success: true});
 		}
 
 		for (const [name, niceName] of requestedGroups.entries()) {
-			unsettledResults.push(withSemaphore(this._requestSemaphore, this.addMemberToGroup, id, name, niceName));
+			unsettledResults.push(withSemaphore(this._requestSemaphore, this.logger, this.addMemberToGroup, id, name, niceName));
 			changes.push({type: 'added', name, success: true});
 		}
 

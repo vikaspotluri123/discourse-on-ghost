@@ -1,3 +1,5 @@
+import {Logger} from '../types/logger.js';
+
 type Unsubscriber = () => void;
 
 export class Semaphore {
@@ -30,10 +32,13 @@ export class Semaphore {
 
 export async function withSemaphore<
 	Func extends (...args: any[]) => Promise<any>,
->(semaphore: Semaphore, fn: Func, ...args: Parameters<Func>): Promise<ReturnType<Func>> {
+>(semaphore: Semaphore, logger: Logger, fn: Func, ...args: Parameters<Func>): Promise<ReturnType<Func>> {
 	const unsubscribe = await semaphore.acquire();
 	try {
 		return await fn(...args); // eslint-disable-line @typescript-eslint/no-unsafe-return
+	} catch (error: unknown) {
+		logger.error(error);
+		throw error;
 	} finally {
 		unsubscribe();
 	}
