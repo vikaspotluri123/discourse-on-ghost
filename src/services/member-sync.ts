@@ -45,6 +45,11 @@ export class MemberSyncService {
 		const success = await this._discourseService.setMemberGroups(uuid, mappedGroups);
 
 		if (!success) {
+			if (tiers.length === 0) {
+				this.logger.info(`Member ${uuid} belongs to no tiers`);
+				return false;
+			}
+
 			return Promise.all(mappedGroups.map(async ({name, niceName}) => this.maybeCreateGroup(name, niceName)));
 		}
 
