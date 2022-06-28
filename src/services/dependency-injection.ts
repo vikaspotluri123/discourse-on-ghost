@@ -16,7 +16,7 @@ export function getRoutingManager(core: IsomporphicCore, config: Configuration):
 	const discourseService = new DiscourseService(core.logger, config, fetchInjector);
 	const discourseSyncService = new DiscourseSyncService(core.logger, discourseService, ghostService);
 	const memberSyncService = new MemberSyncService(core.logger, discourseService, ghostService);
-	const adminController = new AdminController(core.logger, discourseSyncService, ghostService);
+	const adminController = new AdminController(core.logger, discourseSyncService, memberSyncService, ghostService);
 	const webhookController = new GhostWebhookController(core.logger, memberSyncService);
 	const ssoController = new SSOController(config, core, ghostService);
 	return new RoutingManager(core.logger, config, webhookController, ssoController, adminController);
