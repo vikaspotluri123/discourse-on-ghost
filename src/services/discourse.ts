@@ -45,7 +45,7 @@ export class DiscourseService {
 		this._endpoint = config.discourseUrl;
 		this._apiKey = config.discourseApiKey;
 		this._apiUser = config.discourseApiUser;
-		this._fetch = makeFetch(config.discourseUrl, config.logDiscourseRequests);
+		this._fetch = makeFetch('discourse', config.logDiscourseRequests);
 	}
 
 	resolve(urlPath: string, query: Record<string, string> = {}): string {
