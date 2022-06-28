@@ -153,7 +153,7 @@ export class SSOController {
 
 		const parsedAvatar = new URL(avatar_image);
 
-		if (parsedAvatar.hostname === 'gravatar.com') {
+		if (parsedAvatar.hostname.endsWith('gravatar.com')) {
 			// @see https://en.gravatar.com/site/implement/images/#default-image
 			const invalidDefaultType = 'blank';
 			const defaultReplacement = 'identicon';
