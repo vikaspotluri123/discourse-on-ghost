@@ -16,7 +16,9 @@ export class Queue {
 		this._jobs.add(name);
 		this._jobId++;
 		const unsubscribe = await this._semaphore.acquire();
-		this.logger.info(`Running job ${this._jobId} (${func.name || '<anonymous>'}). ${this._jobs.size} jobs in queue.`);
+		const functionName = (func.name || '<anonymous>').replace('bound ', '');
+		const jobs = this._jobs.size === 1 ? 'job' : 'jobs';
+		this.logger.info(`Running job ${this._jobId} (${functionName}). ${this._jobs.size} ${jobs} in queue.`);
 
 		try {
 			// We want to immediately remove the job from the list of jobs in case
