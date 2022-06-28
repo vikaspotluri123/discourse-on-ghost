@@ -151,11 +151,26 @@ export class SSOController {
 	private convertGhostMemberToDiscourseSSO(member: GhostMemberWithSubscriptions, nonce: string): DiscourseSSOResponse {
 		const {email, uuid, name, avatar_image, subscriptions} = member;
 
+		const parsedAvatar = new URL(avatar_image);
+
+		if (parsedAvatar.hostname === 'gravatar.com') {
+			// @see https://en.gravatar.com/site/implement/images/#default-image
+			const invalidDefaultType = 'blank';
+			const defaultReplacement = 'identicon';
+			if (parsedAvatar.searchParams.get('d')?.toLowerCase() === invalidDefaultType) {
+				parsedAvatar.searchParams.set('d', defaultReplacement);
+			}
+
+			if (parsedAvatar.searchParams.get('default')?.toLowerCase() === invalidDefaultType) {
+				parsedAvatar.searchParams.set('default', defaultReplacement);
+			}
+		}
+
 		const memberPayload: DiscourseSSOResponse = {
 			nonce,
 			email,
 			external_id: uuid,
-			avatar_url: avatar_image,
+			avatar_url: parsedAvatar.toString(),
 		};
 
 		if (name) {
