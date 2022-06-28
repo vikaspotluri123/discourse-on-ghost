@@ -73,7 +73,7 @@ export class SSOController {
 
 		const memberResponse = await this.getMemberWithCookie(cookie);
 
-		if (memberResponse === MemberError.NotLoggedIn) {
+		if (memberResponse === MemberError.NotLoggedIn || !memberResponse) {
 			response.redirect(this._login);
 			return;
 		}
