@@ -79,9 +79,11 @@ export class MemberSyncService {
 
 	private async maybeCreateGroup(name: string, fullName: string) {
 		if (this._knownGroups.has(name)) {
+			this.logger.info(`Not creating group ${name}`);
 			return true;
 		}
 
+		this.logger.info(`Attempting to create group ${name}/${fullName}`);
 		try {
 			await this._discourseService.idempotentlyCreateGroup(name, fullName);
 			this._knownGroups.add(name);

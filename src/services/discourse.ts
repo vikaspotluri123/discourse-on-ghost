@@ -168,10 +168,15 @@ export class DiscourseService {
 			};
 		}
 
-		this.logger.error(new errors.InternalServerError({
-			message: `Unable to get member ${uuid} - response is not ok`,
-			errorDetails: await response.json(),
-		}));
+		if (response.status === 404) {
+			this.logger.error(`Unable to get member ${uuid} - member not found`);
+		} else {
+			this.logger.error(new errors.InternalServerError({
+				message: `Unable to get member ${uuid} - response is not ok`,
+				statusCode: response.status,
+				errorDetails: await response.json(),
+			}));
+		}
 
 		return undefined;
 	}
@@ -238,7 +243,7 @@ export class DiscourseService {
 		if (!member) {
 		// There's no need to throw an error here because either the user deleted their account, or just created their
 		// account. When they SSO with Discourse after creating an account, the group list will be set
-			this.logger.info(`Unable to set groups for ${uuid} - user not found`);
+			this.logger.info(`Unable to set groups for member ${uuid}`);
 			return false;
 		}
 
