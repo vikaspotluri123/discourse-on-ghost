@@ -46,6 +46,9 @@ export class DiscourseService {
 		this._apiKey = config.discourseApiKey;
 		this._apiUser = config.discourseApiUser;
 		this._fetch = makeFetch('discourse', config.logDiscourseRequests);
+
+		this.addMemberToGroup = this.addMemberToGroup.bind(this);
+		this.removeMemberFromGroup = this.removeMemberFromGroup.bind(this);
 	}
 
 	resolve(urlPath: string, query: Record<string, string> = {}): string {
