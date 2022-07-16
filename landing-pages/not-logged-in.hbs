@@ -47,13 +47,15 @@
 		}
 	</style>
 	<noscript>
-		.login-container {
-			display: none;
-		}
+		<style>
+			.login-container {
+				display: none;
+			}
 
-		.ns {
-			display: block;
-		}
+			.ns {
+				display: block;
+			}
+		</style>
 	</noscript>
 </head>
 <body>
@@ -62,19 +64,22 @@
 	</div>
 	<div class="login-container">
 		<h1>Login Required</h1>
-		<p>You must be a member (it's free!) of {{@site.title}} to access the forum. Click the button below to log in, and after logging in, come back to this page to continue to the forum.</p>
+		<p>You must be a member (it's free!) of {{@site.title}} to access the forum. Click the button below to log in.</p>
 
 		<div class="actions">
-			<a class="primary" href="{{@site.title}}/#/portal/signin" target="_blank">Log In</a>
+			<a class="primary" data-portal>Log In</a>
 			<a class="secondary" href="#/">Access Forum</a>
 		</div>
 	</div>
+	<div class="logged-in-container" hidden>
+		<p>Logging you in, please wait...</p>
+	</div>
 </body>
 <script>
+	const loginWrapper = document.querySelector('.login-container');
+	const loggedInWrapper = document.querySelector('.logged-in-container');
 	const primaryButton = document.querySelector('.primary');
 	const secondaryButton = document.querySelector('.secondary');
-
-	const loginUrl = '{{@site.title}}/#/portal/signin';
 
 	const discourseOnGhostUrl = 'https://dog.example.com';
 	const searchParams = new URLSearchParams(window.location.search);
@@ -82,26 +87,32 @@
 	redirectUrl.searchParams.set('sso', searchParams.get('sso'));
 	redirectUrl.searchParams.set('sig', searchParams.get('sig'));
 	redirectUrl.searchParams.set('signedIn', 'true');
-	secondaryButton.href = redirectUrl.href;
+
+	if (searchParams.get('success') === 'true' && searchParams.has('sso') && searchParams.has('sig')) {
+		window.window.location.href = redirectUrl.href;
+		loginWrapper.hidden = true;
+		loggedInWrapper.hidden = false;
+	} else {
+		secondaryButton.href = redirectUrl.href;
+
+		primaryButton.addEventListener(
+			'click', () => window.addEventListener('focusout', swapButtons, {once: true}), {once: true}
+		);
+	}
 
 	function swapButtons() {
-		const secondaryHref = primaryButton.href;
 		const secondaryText = primaryButton.textContent;
 
 		primaryButton.href = secondaryButton.href;
-		secondaryButton.href = secondaryHref;
+		secondaryButton.dataset.portal = true;
+
+		delete primaryButton.dataset.portal;
+		secondaryButton.removeAttribute('href');
 
 		primaryButton.textContent = secondaryButton.textContent;
 		secondaryButton.textContent = secondaryText;
 
-		primaryButton.setAttribute('target', '');
-		secondaryButton.setAttribute('target', '_blank');
-
 		primaryButton.focus();
 	}
-
-	primaryButton.addEventListener(
-		'click', () => window.addEventListener('focusout', swapButtons, {once: true}), {once: true}
-	);
 </script>
 </html>
