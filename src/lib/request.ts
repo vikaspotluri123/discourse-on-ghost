@@ -1,11 +1,13 @@
 import type {RequestInfo, RequestInit, Response} from 'node-fetch';
-import {IsomporphicCore} from '../types/isomorph.js';
+import {IsomorphicCore} from '../types/isomorph.js';
+import {createInjectionToken, inject} from './injector.js';
 
 type WrappedFetch = (url: RequestInfo, options?: RequestInit, context?: Record<string, string>) => Promise<Response>;
 
-export type FetchInjector = (serviceName: string, enableLogging: boolean) => WrappedFetch;
+type FetchInjector = (serviceName: string, enableLogging: boolean) => WrappedFetch;
 
-export function createFetchInjector({fetch, logger}: IsomporphicCore) {
+export function createFetchInjector() {
+	const {fetch, logger} = inject(IsomorphicCore);
 	return (serviceName: string, enableLogging: boolean): WrappedFetch => {
 		if (!enableLogging) {
 			return fetch;
@@ -32,3 +34,5 @@ export function createFetchInjector({fetch, logger}: IsomporphicCore) {
 		};
 	};
 }
+
+export const FetchInjectionToken = createInjectionToken<FetchInjector>('createFetchInjector');

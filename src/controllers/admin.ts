@@ -1,4 +1,5 @@
 import {Handler, Request, Response} from 'express';
+import {inject} from '../lib/injector.js';
 import {Queue} from '../lib/queue.js';
 import {DiscourseSyncService} from '../services/discourse-sync.js';
 import {GhostService} from '../services/ghost.js';
@@ -11,15 +12,14 @@ type Controllers = [syncTiers: Handler, clearCaches: Handler];
 const MINIMUM_SYNC_WAIT = 60_000; // 1 Minute
 
 export class AdminController {
+	private readonly _logger = inject(Logger);
+	private readonly _discourse = inject(DiscourseSyncService);
+	private readonly _member = inject(MemberSyncService);
+	private readonly _ghost = inject(GhostService);
 	private _lastSync = 0;
-	private readonly _queue = new Queue(this._logger, 300);
+	private readonly _queue = new Queue(300);
 
-	constructor(
-		private readonly _logger: Logger,
-		private readonly _discourse: DiscourseSyncService,
-		private readonly _member: MemberSyncService,
-		private readonly _ghost: GhostService,
-	) {
+	constructor() {
 		this.syncTiers = this.syncTiers.bind(this);
 		this._syncTiers = this._syncTiers.bind(this);
 		this.clearCaches = this.clearCaches.bind(this);

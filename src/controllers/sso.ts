@@ -1,11 +1,12 @@
 import {Request, Response} from 'express';
-import type {GhostService} from '../services/ghost.js';
+import {GhostService} from '../services/ghost.js';
 import {GhostMemberWithSubscriptions} from '../types/ghost.js';
 import {DiscourseSSOResponse} from '../types/discourse.js';
 import {getSlug} from '../services/discourse.js';
 import {Configuration} from '../types/config.js';
 import {CryptoService} from '../services/crypto.js';
-import {IsomporphicCore} from '../types/isomorph.js';
+import {IsomorphicCore} from '../types/isomorph.js';
+import {Dependency, inject} from '../lib/injector.js';
 
 const enum MemberError {
 	NotLoggedIn = 'NotLoggedIn',
@@ -13,20 +14,19 @@ const enum MemberError {
 }
 
 export class SSOController {
+	private readonly core = inject(IsomorphicCore);
+	private readonly _ghostService = inject(GhostService);
 	private readonly key: ReturnType<CryptoService['secretToKey']>;
 	private readonly _login: string;
 
-	constructor(
-		config: Configuration,
-		private readonly core: IsomporphicCore,
-		private readonly _ghostService: GhostService,
-	) {
+	constructor() {
+		const config = inject(Configuration);
 		// Don't use nullish coalescing here since the default value for `noAuthRedirect` is an empty string
-		this._login = config.noAuthRedirect || _ghostService.resolve('/', '#/portal/account');
-		this.key = core.crypto.secretToKey(config.discourseSecret);
+		this._login = config.noAuthRedirect || this._ghostService.resolve('/', '#/portal/account');
+		this.key = this.core.crypto.secretToKey(config.discourseSecret);
 	}
 
-	controllerFor(ssoMethod: Configuration['ssoMethod']) {
+	controllerFor(ssoMethod: Dependency<typeof Configuration>['ssoMethod']) {
 		if (ssoMethod === 'obscure') {
 			return this.obscurelyAuthorizeUser.bind(this);
 		}

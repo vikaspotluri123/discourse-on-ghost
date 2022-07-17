@@ -1,10 +1,11 @@
 import {Application, NextFunction, Request, Response, json} from 'express';
 import {uResolve} from './lib/u-resolve.js';
-import {type SSOController} from './controllers/sso.js';
-import {type GhostWebhookController} from './controllers/ghost-webhook.js';
+import {SSOController} from './controllers/sso.js';
+import {GhostWebhookController} from './controllers/ghost-webhook.js';
 import {Configuration} from './types/config.js';
 import {Logger} from './types/logger.js';
 import {AdminController} from './controllers/admin.js';
+import {inject} from './lib/injector.js';
 
 function lazyJson(payload: Record<string, unknown>, statusCode = 200) {
 	return (_: Request, response: Response) => {
@@ -17,13 +18,11 @@ function lazyJson(payload: Record<string, unknown>, statusCode = 200) {
 }
 
 export class RoutingManager {
-	constructor(
-		private readonly logger: Logger,
-		private readonly config: Configuration,
-		private readonly ghostWebhookController: GhostWebhookController,
-		private readonly sso: SSOController,
-		private readonly adminController: AdminController,
-	) {}
+	private readonly logger = inject(Logger);
+	private readonly config = inject(Configuration);
+	private readonly ghostWebhookController = inject(GhostWebhookController);
+	private readonly sso = inject(SSOController);
+	private readonly adminController = inject(AdminController);
 
 	resolve(route: string) {
 		return uResolve(this.config.mountedBasePath, route.replace(/^\//, ''));

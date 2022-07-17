@@ -1,18 +1,17 @@
 import {NextFunction, Request, Response} from 'express';
 import errors from '@tryghost/errors';
-import {Configuration} from '../types/config.js';
-import {MemberRemoved, MemberUpdated} from '../types/ghost.js';
-import type {MemberSyncService} from '../services/member-sync.js';
 import {Logger} from '../types/logger.js';
+import {MemberRemoved, MemberUpdated} from '../types/ghost.js';
+import {MemberSyncService} from '../services/member-sync.js';
+import {Dependency, inject} from '../lib/injector.js';
+import {Configuration} from '../types/config.js';
 
 type SafeMemberRemoved = MemberRemoved['member']['previous'] & {id: string};
 type DeleteHandler = (payload: SafeMemberRemoved) => Parameters<MemberSyncService['queue']>;
 
 export class GhostWebhookController {
-	constructor(
-		private readonly logger: Logger,
-		private readonly _memberSyncService: MemberSyncService,
-	) {}
+	private readonly logger = inject(Logger);
+	private readonly _memberSyncService = inject(MemberSyncService);
 
 	memberUpdated = (request: Request, response: Response, next: NextFunction) => {
 		this.logger.info('Processing member updated event');
@@ -39,7 +38,7 @@ export class GhostWebhookController {
 		response.status(202).json({message: 'Syncing member'});
 	};
 
-	deleteController(deleteAction: Configuration['ghostMemberDeleteDiscourseAction']) {
+	deleteController(deleteAction: Dependency<typeof Configuration>['ghostMemberDeleteDiscourseAction']) {
 		if (deleteAction === 'anonymize') {
 			return this.createWrappedDeleteHandler(member => [member.id, 'anonymizeDiscourseUser', member.uuid]);
 		}

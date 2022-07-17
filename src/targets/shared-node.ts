@@ -4,9 +4,10 @@ import fetch from 'node-fetch';
 import logging from '@tryghost/logging';
 import {CryptoService, WebCrypto} from '../services/crypto.js';
 import {Configuration} from '../types/config.js';
-import {IsomporphicCore} from '../types/isomorph.js';
+import {IsomorphicCore} from '../types/isomorph.js';
+import type {Dependency} from '../lib/injector.js';
 
-export const envToConfigMapping: Record<keyof Configuration, string> = {
+export const envToConfigMapping: Record<keyof Dependency<typeof Configuration>, string> = {
 	hostname: 'DOG_HOSTNAME',
 	port: 'DOG_PORT',
 	discourseSecret: 'DOG_DISCOURSE_SHARED_SECRET',
@@ -27,7 +28,7 @@ export const envToConfigMapping: Record<keyof Configuration, string> = {
 	noAuthRedirect: 'DOG_SSO_NO_AUTH_REDIRECT',
 } as const;
 
-export const core: IsomporphicCore = {
+export const core: Dependency<typeof IsomorphicCore> = {
 	fetch,
 	crypto: new CryptoService(webcrypto as unknown as WebCrypto),
 	logger: logging,

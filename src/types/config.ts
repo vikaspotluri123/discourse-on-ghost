@@ -1,8 +1,10 @@
+import {createInjectionToken} from '../lib/injector.js';
+
 export type DeleteAction = 'none' | 'sync' | 'suspend' | 'anonymize' | 'delete';
 
 export type SsoMethod = 'secure' | 'obscure';
 
-export type Configuration = {
+type ConfigurationType = {
 	hostname: string;
 	port: number;
 	discourseSecret: string;
@@ -22,3 +24,5 @@ export type Configuration = {
 	ssoMethod: SsoMethod;
 	noAuthRedirect: string;
 };
+
+export const Configuration = createInjectionToken<ConfigurationType>('Configuration');

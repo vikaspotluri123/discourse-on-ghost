@@ -1,15 +1,14 @@
+import {inject} from '../lib/injector.js';
 import {Logger} from '../types/logger.js';
-import {DEFAULT_GROUP_PREFIX, getNiceName, getSlug, type DiscourseService} from './discourse.js';
-import type {GhostService} from './ghost.js';
+import {DEFAULT_GROUP_PREFIX, DiscourseService, getNiceName, getSlug} from './discourse.js';
+import {GhostService} from './ghost.js';
 
 const LOG_PREFIX = '[discourse:sync]';
 
 export class DiscourseSyncService {
-	constructor(
-		private readonly logger: Logger,
-		readonly _discourseService: DiscourseService,
-		readonly _ghostService: GhostService,
-	) {}
+	private readonly logger = inject(Logger);
+	private readonly _discourseService = inject(DiscourseService);
+	private readonly _ghostService = inject(GhostService);
 
 	async syncTiersToGroups(removeUnmappedTiers = false) {
 		const tiers = await this._ghostService.getTiers();

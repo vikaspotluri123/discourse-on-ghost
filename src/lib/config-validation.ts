@@ -1,4 +1,5 @@
 import {Logger} from '../types/logger.js';
+import {inject} from './injector.js';
 
 function coerceToBoolean(envVar: string | undefined, defaultValue: boolean): boolean {
 	if (envVar === undefined || envVar === '') {
@@ -151,11 +152,11 @@ export class ConfigKeyValidator<
 export class ConfigValidator<
 	FinalShape extends Record<string, string | boolean | number>,
 > {
+	private readonly logger = inject(Logger);
 	private readonly _keys: Array<ConfigKeyValidator<string, FinalShape[string]>> = [];
 	private readonly _externalToInternalKeyMap: Record<string, Array<keyof FinalShape>> = {};
 
 	constructor(
-		private readonly logger: Logger,
 		private readonly _unsafeConfig: Record<string, string | undefined>,
 		private readonly _internalToExternalKeyMap: Record<keyof FinalShape, string>,
 	) {}

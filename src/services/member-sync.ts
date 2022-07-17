@@ -1,20 +1,20 @@
 import {GhostTier} from '../types/ghost.js';
 import {Queue} from '../lib/queue.js';
 import {Logger} from '../types/logger.js';
-import type {GhostService} from './ghost.js';
-import {getNiceName, getSlug, type DiscourseService} from './discourse.js';
+import {inject} from '../lib/injector.js';
+import {GhostService} from './ghost.js';
+import {DiscourseService, getNiceName, getSlug} from './discourse.js';
 
 type Queable = 'syncGroups' | 'setDiscourseGroupsFromTiers' | 'deleteDiscourseUser' | 'anonymizeDiscourseUser' | 'suspendDiscourseUser';
 
 export class MemberSyncService {
-	private readonly _queue = new Queue(this.logger);
+	private readonly logger = inject(Logger);
+	private readonly _discourseService = inject(DiscourseService);
+	private readonly _ghostService = inject(GhostService);
+	private readonly _queue = new Queue();
 	private readonly _knownGroups = new Set<string>();
 
-	constructor(
-		readonly logger: Logger,
-		readonly _discourseService: DiscourseService,
-		readonly _ghostService: GhostService,
-	) {
+	constructor() {
 		this.syncGroups = this.syncGroups.bind(this);
 		this.setDiscourseGroupsFromTiers = this.setDiscourseGroupsFromTiers.bind(this);
 		this.deleteDiscourseUser = this.deleteDiscourseUser.bind(this);

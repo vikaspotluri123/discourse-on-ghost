@@ -1,17 +1,20 @@
 import {ConfigValidator} from '../lib/config-validation.js';
-import {IsomporphicCore} from '../types/isomorph.js';
+import {IsomorphicCore} from '../types/isomorph.js';
 import {uResolve} from '../lib/u-resolve.js';
-import {Configuration} from '../types/config.js';
+import {Configuration as RawConfiguration} from '../types/config.js';
+import {Dependency, inject} from '../lib/injector.js';
+
+type Config = Dependency<typeof RawConfiguration>;
 
 const HEX_24 = /^[\da-f]{24}$/;
 const EXAMPLE_HEX_24 = 'BAFF1EDBEADEDCAFEBABB1ED';
 
 export function getConfig(
-	{crypto, logger}: IsomporphicCore,
 	rawConfig: Record<string, string | undefined>,
-	mapping: Record<keyof Configuration, string>,
+	mapping: Record<keyof Config, string>,
 ) {
-	const validator = new ConfigValidator<Configuration>(logger, rawConfig, mapping);
+	const {crypto} = inject(IsomorphicCore);
+	const validator = new ConfigValidator<Config>(rawConfig, mapping);
 	const getRandomHex = () => crypto.getRandomHex(12);
 	const getDiscourseSecret = () => crypto.getRandomHex(32);
 
@@ -43,3 +46,5 @@ export function getConfig(
 		validator.for('noAuthRedirect').optional('').url(),
 	).finalize();
 }
+
+export const deferGetConfig = (...args: Parameters<typeof getConfig>) => () => getConfig(...args);

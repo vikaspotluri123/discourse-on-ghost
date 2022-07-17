@@ -2,8 +2,10 @@
 import {v1 as uuid} from 'uuid';
 import {NextFunction, Request, Response} from 'express';
 import {Logger} from '../types/logger.js';
+import {inject} from '../lib/injector.js';
 
-export function useRequestLogging(logger: Logger) {
+export function useRequestLogging() {
+	const logger = inject(Logger);
 	return function logRequest(_request: Request, _response: Response, next: NextFunction) {
 		const startTime = Date.now();
 		const requestId = uuid();

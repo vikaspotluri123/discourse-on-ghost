@@ -1,12 +1,14 @@
 import {Logger} from '../types/logger.js';
+import {inject} from './injector.js';
 import {Semaphore} from './semaphore.js';
 
 export class Queue {
+	private readonly logger = inject(Logger);
 	private readonly _semaphore: Semaphore;
 	private readonly _jobs = new Set<string>();
 	private _jobId = 0;
 
-	constructor(private readonly logger: Logger, delay = 1000) {
+	constructor(delay = 1000) {
 		this._semaphore = new Semaphore(1, delay);
 	}
 

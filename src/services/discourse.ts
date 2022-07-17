@@ -1,12 +1,13 @@
 import type {RequestInit} from 'node-fetch';
 import errors from '@tryghost/errors';
-import {FetchInjector} from '../lib/request.js';
+import {FetchInjectionToken} from '../lib/request.js';
 import {Semaphore, withSemaphore} from '../lib/semaphore.js';
 import {DiscourseGroup, MinimalGroup} from '../types/discourse.js';
 import {JSON_MIME_TYPE} from '../lib/constants.js';
 import {uResolve} from '../lib/u-resolve.js';
 import {Configuration} from '../types/config.js';
 import {Logger} from '../types/logger.js';
+import {Dependency, inject} from '../lib/injector.js';
 
 export const DEFAULT_MAX_DISCOURSE_REQUEST_CONCURRENCY = 3;
 export const DEFAULT_GROUP_MENTIONABLE_LEVEL = 3;
@@ -34,18 +35,20 @@ interface InternalGroup {
 }
 
 export class DiscourseService {
+	readonly logger = inject(Logger);
 	private readonly _requestSemaphore: Semaphore;
 	private readonly _endpoint: string;
 	private readonly _apiKey: string;
 	private readonly _apiUser: string;
-	private readonly _fetch: ReturnType<FetchInjector>;
+	private readonly _fetch: ReturnType<Dependency<typeof FetchInjectionToken>>;
 
-	constructor(readonly logger: Logger, readonly config: Configuration, makeFetch: FetchInjector) {
+	constructor() {
+		const config = inject(Configuration);
 		this._requestSemaphore = new Semaphore(DEFAULT_MAX_DISCOURSE_REQUEST_CONCURRENCY);
 		this._endpoint = config.discourseUrl;
 		this._apiKey = config.discourseApiKey;
 		this._apiUser = config.discourseApiUser;
-		this._fetch = makeFetch('discourse', config.logDiscourseRequests);
+		this._fetch = inject(FetchInjectionToken)('discourse', config.logDiscourseRequests);
 
 		this.addMemberToGroup = this.addMemberToGroup.bind(this);
 		this.removeMemberFromGroup = this.removeMemberFromGroup.bind(this);
@@ -272,12 +275,12 @@ export class DiscourseService {
 		const unsettledResults = [];
 
 		for (const {name} of groupsToRemove) {
-			unsettledResults.push(withSemaphore(this._requestSemaphore, this.logger, this.removeMemberFromGroup, id, name));
+			unsettledResults.push(withSemaphore(this._requestSemaphore, this.removeMemberFromGroup, id, name));
 			changes.push({type: 'removed', name, success: true});
 		}
 
 		for (const [name, niceName] of requestedGroups.entries()) {
-			unsettledResults.push(withSemaphore(this._requestSemaphore, this.logger, this.addMemberToGroup, id, name, niceName));
+			unsettledResults.push(withSemaphore(this._requestSemaphore, this.addMemberToGroup, id, name, niceName));
 			changes.push({type: 'added', name, success: true});
 		}
 

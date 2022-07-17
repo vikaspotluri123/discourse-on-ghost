@@ -4,9 +4,10 @@ import path from 'node:path';
 import process from 'node:process';
 import type {Application, Request, Response} from 'express';
 import type {Logger} from '../types/logger.js';
+import {Dependency} from '../lib/injector.js';
 
 export async function load(dogHome: string, app: Application) {
-	const logger: Logger = console;
+	const logger: Dependency<typeof Logger> = console;
 	const requestedCwd = dogHome.replace('~', homedir());
 	const {config: loadEnv} = await import('dotenv');
 	loadEnv({path: path.resolve(requestedCwd, '.env')});
@@ -17,7 +18,7 @@ export async function load(dogHome: string, app: Application) {
 
 	core.logger = logger;
 
-	const config = getConfig(core, process.env, envToConfigMapping);
+	const config = getConfig(process.env, envToConfigMapping);
 
 	if (!config) {
 		logger.info('Failed loading DoG config. CWD:' + requestedCwd);

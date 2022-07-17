@@ -3,13 +3,16 @@ import getToken from '@tryghost/admin-api/lib/token.js';
 import type {RequestInit} from 'node-fetch';
 import type {GhostMemberWithSubscriptions, GhostMemberWithTiers, GhostTier} from '../types/ghost.js';
 import {isObject} from '../lib/is-object.js';
-import {FetchInjector} from '../lib/request.js';
+import {FetchInjectionToken} from '../lib/request.js';
 import {JSON_MIME_TYPE} from '../lib/constants.js';
 import {uResolve} from '../lib/u-resolve.js';
 import {Configuration} from '../types/config.js';
+import {Dependency, inject} from '../lib/injector.js';
+
+type Fetch = ReturnType<Dependency<typeof FetchInjectionToken>>;
 
 type GhostFetchCreator = (
-	fetch: ReturnType<FetchInjector>
+	fetch: Fetch
 ) => ConstructorParameters<typeof GhostAdminApi>[0]['makeRequest'];
 
 interface StaffUsers {
@@ -55,16 +58,14 @@ const createMakeRequest: GhostFetchCreator = fetch => async ({url, method, heade
 };
 
 export class GhostService {
-	private readonly _fetch: ReturnType<FetchInjector>;
+	private readonly _fetch: Fetch;
 	private readonly _api: ReturnType<typeof GhostAdminApi>;
 	private readonly _baseUrl: string;
 	private readonly _apiKey: string;
 
-	constructor(
-		readonly config: Configuration,
-		readonly makeFetch: FetchInjector,
-	) {
-		this._fetch = makeFetch('ghost', config.logGhostRequests);
+	constructor(readonly makeFetch: Dependency<typeof FetchInjectionToken>) {
+		const config = inject(Configuration);
+		this._fetch = inject(FetchInjectionToken)('ghost', config.logGhostRequests);
 		this._baseUrl = config.ghostUrl;
 		this._apiKey = config.ghostApiKey;
 		this._api = new GhostAdminApi({
