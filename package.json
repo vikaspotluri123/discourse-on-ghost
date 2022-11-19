@@ -1,14 +1,16 @@
 {
   "name": "@potluri/discourse-on-ghost",
   "version": "0.0.1",
-  "main": "dist/index.js",
   "repository": "https://github.com/vikaspotluri/discourse-on-ghost",
   "authors": [
     "Vikas Potluri <vikaspotluri123.github@gmail.com>"
   ],
   "license": "MIT",
   "type": "module",
-  "module": "dist/index.js",
+  "module": "build/index.js",
+  "files": [
+    "build"
+  ],
   "scripts": {
     "dev": "node scripts/dev.js",
     "lint": "xo && tsc",
