@@ -155,7 +155,9 @@ WantedBy=multi-user.target
 1. run `sudo systemctl daemon-reload`
 1. run `sudo systemctl enable discourse_on_ghost.service`
 1. run `sudo systemctl start discourse_on_ghost.service`
-1. confirm you did everything correctly by
+1. confirm you did everything correctly:
+    - run `sudo systemctl status discourse_on_ghost.service`
+    - The output should contain `Loaded: loaded`, and `Active: active (running)`
 
 *[SSO]: Single Sign On
 *[DoG]: Discourse on Ghost
