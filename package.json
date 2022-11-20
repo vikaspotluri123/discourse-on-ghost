@@ -1,7 +1,8 @@
 {
   "name": "@potluri/discourse-on-ghost",
   "version": "0.1.2",
-  "repository": "https://github.com/vikaspotluri/discourse-on-ghost",
+  "main": "build/index.js",
+  "repository": "https://github.com/vikaspotluri123/discourse-on-ghost",
   "authors": [
     "Vikas Potluri <vikaspotluri123.github@gmail.com>"
   ],
