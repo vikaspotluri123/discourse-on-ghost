@@ -1,6 +1,6 @@
 // Based on https://github.com/TryGhost/gscan/blob/b91d2ff2072ec0f8a/app/middlewares/log-request.js
 import {v1 as uuid} from 'uuid';
-import {NextFunction, Request, Response} from 'express';
+import {type NextFunction, type Request, type Response} from 'express';
 import {Logger} from '../types/logger.js';
 import {inject} from '../lib/injector.js';
 

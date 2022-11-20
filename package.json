@@ -38,6 +38,7 @@
   },
   "xo": {
     "rules": {
+      "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
       "@typescript-eslint/naming-convention": "off",
       "func-names": [
         "error",
@@ -48,6 +49,12 @@
       "no-console": "error"
     },
     "overrides": [
+      {
+        "files": "**/*.js",
+        "rules": {
+          "@typescript-eslint/consistent-type-definitions": "off"
+        }
+      },
       {
         "files": "test/**/*.js",
         "envs": [

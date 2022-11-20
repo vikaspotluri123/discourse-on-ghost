@@ -27,5 +27,5 @@ export async function _debugMakeGhostApiRequest(url, key) {
 }
 
 if (process.argv[2] && process.argv[3]) {
-	_debugMakeGhostApiRequest(process.argv[2], process.argv[3]);
+	_debugMakeGhostApiRequest(process.argv[2], process.argv[3]); // eslint-disable-line unicorn/prefer-top-level-await
 }

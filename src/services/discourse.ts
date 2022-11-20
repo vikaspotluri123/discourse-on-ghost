@@ -2,12 +2,12 @@ import type {RequestInit} from 'node-fetch';
 import errors from '@tryghost/errors';
 import {FetchInjectionToken} from '../lib/request.js';
 import {Semaphore, withSemaphore} from '../lib/semaphore.js';
-import {DiscourseGroup, MinimalGroup} from '../types/discourse.js';
+import {type DiscourseGroup, type MinimalGroup} from '../types/discourse.js';
 import {JSON_MIME_TYPE} from '../lib/constants.js';
 import {uResolve} from '../lib/u-resolve.js';
 import {Configuration} from '../types/config.js';
 import {Logger} from '../types/logger.js';
-import {Dependency, inject} from '../lib/injector.js';
+import {type Dependency, inject} from '../lib/injector.js';
 
 export const DEFAULT_MAX_DISCOURSE_REQUEST_CONCURRENCY = 3;
 export const DEFAULT_GROUP_MENTIONABLE_LEVEL = 3;

@@ -1,10 +1,10 @@
-import {Handler, Request, Response} from 'express';
+import {type Handler, type Request, type Response} from 'express';
 import {inject} from '../lib/injector.js';
 import {Queue} from '../lib/queue.js';
 import {DiscourseSyncService} from '../services/discourse-sync.js';
 import {GhostService} from '../services/ghost.js';
 import {MemberSyncService} from '../services/member-sync.js';
-import {SsoMethod} from '../types/config.js';
+import {type SsoMethod} from '../types/config.js';
 import {Logger} from '../types/logger.js';
 
 type Controllers = [syncTiers: Handler, clearCaches: Handler];

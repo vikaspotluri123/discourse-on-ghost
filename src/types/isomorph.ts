@@ -1,7 +1,7 @@
 import type fetch from 'node-fetch';
-import {createInjectionToken, Dependency} from '../lib/injector.js';
-import {CryptoService} from '../services/crypto.js';
-import {Logger} from './logger.js';
+import {createInjectionToken, type Dependency} from '../lib/injector.js';
+import {type CryptoService} from '../services/crypto.js';
+import {type Logger} from './logger.js';
 
 export interface IsomorphicCoreType {
 	fetch: typeof fetch;

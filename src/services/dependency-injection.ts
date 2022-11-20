@@ -1,7 +1,7 @@
 import {createFetchInjector, FetchInjectionToken} from '../lib/request.js';
 import {IsomorphicCore} from '../types/isomorph.js';
 import {Configuration} from '../types/config.js';
-import {bootstrapInjection, Dependency} from '../lib/injector.js';
+import {bootstrapInjection, type Dependency} from '../lib/injector.js';
 import {Logger} from '../types/logger.js';
 
 export function bootstrapInjector(

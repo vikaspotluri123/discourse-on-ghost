@@ -1,10 +1,10 @@
-import {NextFunction, Request, Response} from 'express';
+import {type NextFunction, type Request, type Response} from 'express';
 import errors from '@tryghost/errors';
 import {Logger} from '../types/logger.js';
-import {MemberRemoved, MemberUpdated} from '../types/ghost.js';
+import {type MemberRemoved, type MemberUpdated} from '../types/ghost.js';
 import {MemberSyncService} from '../services/member-sync.js';
-import {Dependency, inject} from '../lib/injector.js';
-import {Configuration} from '../types/config.js';
+import {type Dependency, inject} from '../lib/injector.js';
+import {type Configuration} from '../types/config.js';
 
 type SafeMemberRemoved = MemberRemoved['member']['previous'] & {id: string};
 type DeleteHandler = (payload: SafeMemberRemoved) => Parameters<MemberSyncService['queue']>;

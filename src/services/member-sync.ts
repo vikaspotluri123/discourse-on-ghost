@@ -1,4 +1,4 @@
-import {GhostTier} from '../types/ghost.js';
+import {type GhostTier} from '../types/ghost.js';
 import {Queue} from '../lib/queue.js';
 import {Logger} from '../types/logger.js';
 import {inject} from '../lib/injector.js';

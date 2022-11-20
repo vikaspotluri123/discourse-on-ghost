@@ -1,12 +1,12 @@
-import {Request, Response} from 'express';
+import {type Request, type Response} from 'express';
 import {GhostService} from '../services/ghost.js';
-import {GhostMemberWithSubscriptions} from '../types/ghost.js';
-import {DiscourseSSOResponse} from '../types/discourse.js';
+import {type GhostMemberWithSubscriptions} from '../types/ghost.js';
+import {type DiscourseSSOResponse} from '../types/discourse.js';
 import {getSlug} from '../services/discourse.js';
 import {Configuration} from '../types/config.js';
-import {CryptoService} from '../services/crypto.js';
+import {type CryptoService} from '../services/crypto.js';
 import {IsomorphicCore} from '../types/isomorph.js';
-import {Dependency, inject} from '../lib/injector.js';
+import {type Dependency, inject} from '../lib/injector.js';
 
 const enum MemberError {
 	NotLoggedIn = 'NotLoggedIn',

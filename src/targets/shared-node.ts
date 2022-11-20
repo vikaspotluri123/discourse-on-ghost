@@ -2,9 +2,9 @@ import {Buffer} from 'node:buffer';
 import {webcrypto} from 'node:crypto';
 import fetch from 'node-fetch';
 import logging from '@tryghost/logging';
-import {CryptoService, WebCrypto} from '../services/crypto.js';
-import {Configuration} from '../types/config.js';
-import {IsomorphicCore} from '../types/isomorph.js';
+import {CryptoService, type WebCrypto} from '../services/crypto.js';
+import {type Configuration} from '../types/config.js';
+import {type IsomorphicCore} from '../types/isomorph.js';
 import type {Dependency} from '../lib/injector.js';
 
 export const envToConfigMapping: Record<keyof Dependency<typeof Configuration>, string> = {

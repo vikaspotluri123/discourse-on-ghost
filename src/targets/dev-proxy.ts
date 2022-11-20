@@ -4,7 +4,7 @@ import path from 'node:path';
 import process from 'node:process';
 import type {Application, Request, Response} from 'express';
 import type {Logger} from '../types/logger.js';
-import {Dependency} from '../lib/injector.js';
+import {type Dependency} from '../lib/injector.js';
 
 export async function load(dogHome: string, app: Application) {
 	const logger: Dependency<typeof Logger> = console;

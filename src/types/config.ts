@@ -4,7 +4,7 @@ export type DeleteAction = 'none' | 'sync' | 'suspend' | 'anonymize' | 'delete';
 
 export type SsoMethod = 'secure' | 'obscure';
 
-type ConfigurationType = {
+export type ConfigurationType = { // eslint-disable-line @typescript-eslint/consistent-type-definitions
 	hostname: string;
 	port: number;
 	discourseSecret: string;

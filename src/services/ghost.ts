@@ -7,7 +7,7 @@ import {FetchInjectionToken} from '../lib/request.js';
 import {JSON_MIME_TYPE} from '../lib/constants.js';
 import {uResolve} from '../lib/u-resolve.js';
 import {Configuration} from '../types/config.js';
-import {Dependency, inject} from '../lib/injector.js';
+import {type Dependency, inject} from '../lib/injector.js';
 
 type Fetch = ReturnType<Dependency<typeof FetchInjectionToken>>;
 

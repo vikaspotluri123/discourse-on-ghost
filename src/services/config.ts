@@ -1,8 +1,8 @@
 import {ConfigValidator} from '../lib/config-validation.js';
 import {IsomorphicCore} from '../types/isomorph.js';
 import {uResolve} from '../lib/u-resolve.js';
-import {Configuration as RawConfiguration} from '../types/config.js';
-import {Dependency, inject} from '../lib/injector.js';
+import {type Configuration as RawConfiguration} from '../types/config.js';
+import {type Dependency, inject} from '../lib/injector.js';
 
 type Config = Dependency<typeof RawConfiguration>;
 

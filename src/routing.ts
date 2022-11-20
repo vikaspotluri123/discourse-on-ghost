@@ -1,4 +1,4 @@
-import {Application, NextFunction, Request, Response, json} from 'express';
+import {type Application, type NextFunction, type Request, type Response, json} from 'express';
 import {uResolve} from './lib/u-resolve.js';
 import {SSOController} from './controllers/sso.js';
 import {GhostWebhookController} from './controllers/ghost-webhook.js';
