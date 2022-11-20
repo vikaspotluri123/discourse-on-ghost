@@ -47,7 +47,7 @@ npm install @potluri/discourse-on-ghost
 # Create the environment variables file
 cp node_modules/@potluri/discourse-on-ghost/.env.example .env
 # Create the entrypoint script
-echo "import('@potluri/discourse-on-ghost/dist/targets/node.js');" > index.js
+echo "import('@potluri/discourse-on-ghost/build/targets/node.js');" > index.js
 ```
 
 ### Step 3: Configure DoG
