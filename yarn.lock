@@ -4806,10 +4806,10 @@ wrappy@1:
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==
 
-xo@0.53.0:
-  version "0.53.0"
-  resolved "https://registry.yarnpkg.com/xo/-/xo-0.53.0.tgz#cb91c1a833146a2f3d9bfbcd82d695783957be3d"
-  integrity sha512-sWLhl4IwuZ1Q8vza6qW3rEExEh1dFRYShW4iwsiHu6RxrRJtkUxP8TJZortF+kbi5fF7eloPMYXG8pYQZHdDQg==
+xo@0.53.1:
+  version "0.53.1"
+  resolved "https://registry.yarnpkg.com/xo/-/xo-0.53.1.tgz#23f35b007d50bbcd863cb9afbceff41aa9beb8ce"
+  integrity sha512-/2R8SPehv1UhiIqJ9uSvrAjslcoygICNsUlEb/Zf2V6rMtr7YCoggc6hlt6b/kbncpR989Roqt6AvEO779dFxw==
   dependencies:
     "@eslint/eslintrc" "^1.3.3"
     "@typescript-eslint/eslint-plugin" "^5.43.0"
