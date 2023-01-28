@@ -49,7 +49,7 @@ export function getConfig(
 				throw new Error(`${value} is not an absolute path`);
 			}
 
-			return getMountedUrl(value).toString();
+			return value;
 		}),
 	).finalize();
 }

@@ -24,7 +24,9 @@ export class SSOController {
 		const config = inject(Configuration);
 		// Don't use nullish coalescing here since the default value for `noAuthRedirect` is an empty string
 		this._login = config.noAuthRedirect || this._ghostService.resolve('/', '#/portal/account');
-		this._obscureRedirect = config.obscureGhostSSOPath;
+
+		// The prefixed period is to make the absolute URL relative.
+		this._obscureRedirect = new URL(`.${config.obscureGhostSSOPath}`, config.ghostUrl).href;
 		this.key = this.core.crypto.secretToKey(config.discourseSecret);
 	}
 
