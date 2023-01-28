@@ -28,6 +28,7 @@ export function getConfig(
 		validator.for('hostname').optional('127.0.0.1'),
 		validator.for('port').optional(3286).numeric({min: 0, max: 65_535}),
 		validator.for('ghostUrl').url(),
+		validator.for('ghostAdminUrl').url().optional(null!),
 		validator.for('discourseSecret').suggests(getDiscourseSecret),
 		validator.for('ghostApiKey').matches(/^[\da-f]{24}:[\da-f]{64}$/),
 		validator.for('discourseUrl').url(),

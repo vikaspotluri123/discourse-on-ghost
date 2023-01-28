@@ -12,6 +12,7 @@ export type ConfigurationType = { // eslint-disable-line @typescript-eslint/cons
 	discourseApiKey: string;
 	discourseApiUser: string;
 	ghostUrl: string; /* Specifically: url */
+	ghostAdminUrl: string; /* Specifically: url */
 	mountedPublicUrl: string;
 	mountedBasePath: string; /* Specifically: path */
 	ghostApiKey: string;

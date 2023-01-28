@@ -71,6 +71,7 @@ You can comment out values by prefixing them with a `#`. (e.g. `# DOG_KEY="value
 |DOG_HOSTNAME | IP Address | 127.0.0.1 | The hostname for DoG to listen |
 |DOG_PORT | Port | 3286 | The port for DoG to listen |
 |DOG_GHOST_URL | URL | **Yes** | The URL of your Ghost installation |
+|DOG_GHOST_ADMIN_URL | URL | {DOG_GHOST_URL} | The Admin URL of your Ghost installation. This is only required if your admin URL differs from your site URL (e.g. on Ghost(Pro)) |
 |DOG_DISCOURSE_SHARED_SECRET | string | **Yes**\* | The shared secret for Discourse SSO |
 |DOG_GHOST_ADMIN_TOKEN | string | **Yes** | Admin token for your Ghost installation - [Ghost Docs](https://ghost.org/integrations/custom-integrations/) (needs to be an API+webhook integration) |
 |DOG_DISCOURSE_URL | URL | **Yes** | The URL of your Discourse installation |

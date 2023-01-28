@@ -69,7 +69,7 @@ export class GhostService {
 		this._baseUrl = config.ghostUrl;
 		this._apiKey = config.ghostApiKey;
 		this._api = new GhostAdminApi({
-			url: config.ghostUrl,
+			url: config.ghostAdminUrl ?? config.ghostUrl,
 			key: config.ghostApiKey,
 			version: 'v5.0',
 			makeRequest: createMakeRequest(this._fetch),
