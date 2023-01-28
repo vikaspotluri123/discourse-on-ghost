@@ -1,3 +1,7 @@
+# 0.1.5
+
+ - config: add support for (optional) Ghost Admin URL
+
 # 0.1.4
 
  - Add DOG_OBSCURE_GHOST_SSO_PAGE to example env
