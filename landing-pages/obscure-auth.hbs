@@ -7,6 +7,7 @@
 	<title>Logging you in to {{@site.title}} Forum</title>
 </head>
 <body>
+	{{#if @member}}
 	<p>Logging you in, please wait...</p>
 	<script>
 		const memberUuid = '{{@member.uuid}}';
@@ -21,5 +22,8 @@
 		redirectUrl.searchParams.set('obscure', true);
 		window.location.href = redirectUrl.href;
 	</script>
+	{{else}}
+	<p>Please click the button at the bottom right of the page.</p>
+	{{/if}}
 </body>
 </html>
