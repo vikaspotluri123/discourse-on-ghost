@@ -83,7 +83,7 @@ You can comment out values by prefixing them with a `#`. (e.g. `# DOG_KEY="value
 |DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID | string | **Yes**\* | The endpoint to listen for Ghost Member Deleted webhooks. |
 |DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION | [enum](#dog_ghost_member_delete_discourse_action) | **Yes** | The action to take on Discourse when a Ghost member is deleted |
 |DOG_DISCOURSE_SSO_TYPE | [enum](#dog_discourse_sso_type) | **Yes** | The type of SSO to use for Discourse (see `Pick your Path`) |
-|DOG_SSO_NO_AUTH_REDIRECT | URL | {ghost_url} /#/portal/account | A custom landing page to redirect to if the user is not authenticated |
+|DOG_SSO_NO_AUTH_REDIRECT | URL | {ghost_url} /#/portal/account | A custom landing page to redirect to if the user is not authenticated. Example landing pages are on [GitHub](https://github.com/vikaspotluri123/discourse-on-ghost/tree/master/landing-pages) |
 
 *These values are shared with either Discourse or Ghost. If you don't specify a value, DoG will suggest one for you.
 
