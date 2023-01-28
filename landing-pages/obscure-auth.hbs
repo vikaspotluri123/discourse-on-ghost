@@ -18,6 +18,7 @@
 		redirectUrl.searchParams.set('sig', searchParams.get('sig'));
 		redirectUrl.searchParams.set('uuid', memberUuid);
 		redirectUrl.searchParams.set('email', memberEmail);
+		redirectUrl.searchParams.set('obscure', true);
 		window.location.href = redirectUrl.href;
 	</script>
 </body>

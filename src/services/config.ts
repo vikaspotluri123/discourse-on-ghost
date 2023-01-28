@@ -44,6 +44,13 @@ export function getConfig(
 		validator.for('mountedBasePath').url().transforms(value => getMountedUrl(value).pathname),
 		validator.for('ssoMethod').optional('secure').enum('secure', 'obscure'),
 		validator.for('noAuthRedirect').optional('').url(),
+		validator.for('obscureGhostSSOPath').optional('/sso/').transforms(value => {
+			if (!/^\/[a-z\d-_/]+\/$/.test(value)) {
+				throw new Error(`${value} is not an absolute path`);
+			}
+
+			return getMountedUrl(value).toString();
+		}),
 	).finalize();
 }
 

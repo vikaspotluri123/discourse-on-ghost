@@ -18,11 +18,13 @@ export class SSOController {
 	private readonly _ghostService = inject(GhostService);
 	private readonly key: ReturnType<CryptoService['secretToKey']>;
 	private readonly _login: string;
+	private readonly _obscureRedirect: string;
 
 	constructor() {
 		const config = inject(Configuration);
 		// Don't use nullish coalescing here since the default value for `noAuthRedirect` is an empty string
 		this._login = config.noAuthRedirect || this._ghostService.resolve('/', '#/portal/account');
+		this._obscureRedirect = config.obscureGhostSSOPath;
 		this.key = this.core.crypto.secretToKey(config.discourseSecret);
 	}
 
@@ -90,10 +92,23 @@ export class SSOController {
 	}
 
 	async obscurelyAuthorizeUser(request: Request, response: Response) {
-		const {sso, sig, email, uuid} = request.query;
+		const {sso, sig, email, uuid, obscure} = request.query;
 
 		if (!sso || !sig || Array.isArray(sso) || Array.isArray(sig) || typeof sso !== 'string' || typeof sig !== 'string') {
-			response.status(400).json({message: 'SSO and signature are required and must not be arrays'});
+			if (!obscure) {
+				response.redirect(302, this._obscureRedirect + '?error=direct_access');
+				return;
+			}
+
+			response.status(400).json({message: 'Client Error: SSO and signature are required and must not be arrays'});
+			return;
+		}
+
+		if (!obscure) {
+			const next = new URL(this._obscureRedirect);
+			next.searchParams.set('sso', sso);
+			next.searchParams.set('sig', sig);
+			response.redirect(302, next.href);
 			return;
 		}
 

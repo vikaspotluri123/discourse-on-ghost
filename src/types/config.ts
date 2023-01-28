@@ -23,6 +23,7 @@ export type ConfigurationType = { // eslint-disable-line @typescript-eslint/cons
 	ghostMemberDeleteDiscourseAction: DeleteAction;
 	ssoMethod: SsoMethod;
 	noAuthRedirect: string;
+	obscureGhostSSOPath: string;
 };
 
 export const Configuration = createInjectionToken<ConfigurationType>('Configuration');
