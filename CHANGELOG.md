@@ -1,3 +1,9 @@
+# 0.1.4
+
+ - Add DOG_OBSCURE_GHOST_SSO_PAGE to example env
+ - Fix obscure sso redirect using the DoG domain instead of the Ghost domain
+ - Add upgrading instructions
+
 # 0.1.3
 
  - Core: Fix catch-22 for obscure auth
