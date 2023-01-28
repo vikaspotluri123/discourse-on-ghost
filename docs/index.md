@@ -203,3 +203,14 @@ Add your `Member Deleted` Webhook
 ### Step 8: You're done!
 
 It might have been a journey, but you made it 🎉 Test out Discourse SSO, and member tier sync, it should work now!
+
+## Upgrading
+
+To update your DoG instance:
+
+1. Determine if there's a new release by viewing the [Releases page](https://github.com/vikaspotluri123/discourse-on-ghost/releases) on GitHub
+1. Review the changes. Just like after a flight, please use caution when opening overhead bins, as feature changes and deprecations might smack you in the face.
+1. Make sure you're in the installation directory - `cd /path/to/discourse-on-ghost`
+1. Update the module - `npm update`
+1. Make any required config changes based on the release notes
+1. Restart the process. If you're using systemd, run `sudo systemctl restart discourse_on_ghost.service`
