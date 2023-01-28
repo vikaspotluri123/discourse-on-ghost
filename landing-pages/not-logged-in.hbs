@@ -81,9 +81,9 @@
 	const primaryButton = document.querySelector('.primary');
 	const secondaryButton = document.querySelector('.secondary');
 
-	const discourseOnGhostUrl = 'https://dog.example.com';
+	const discourseOnGhostUrl = 'https://dog.example.com/ghost/api/external_discourse_on_ghost';
 	const searchParams = new URLSearchParams(window.location.search);
-	const redirectUrl = new URL('/sso', discourseOnGhostUrl);
+	const redirectUrl = new URL('./sso', discourseOnGhostUrl);
 	redirectUrl.searchParams.set('sso', searchParams.get('sso'));
 	redirectUrl.searchParams.set('sig', searchParams.get('sig'));
 	redirectUrl.searchParams.set('signedIn', 'true');
