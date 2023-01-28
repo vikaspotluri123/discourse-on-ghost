@@ -171,8 +171,9 @@ Head to the *Login Settings* of your Discourse installation (`https://your.forum
 Scroll to the option `enable discourse connect`
 
 1. Before you can enable Discourse Connect (SSO), you need to specify the URL. Enter the Discourse Connect URL in the `discourse connect url` field
-1. Check the `enable discourse connect` option (above `discourse connect url`)
   - For `secure` mode, this will be `https://your.ghost.blog/subdir/ghost/api/external_discourse_on_ghost/sso`. `subdir` will be the path your blog is installed on - if you don't have a path, remove it from the url.
+  - For `obscure` mode, this will be the landing page you need to create (e.g. `https://your.blog/sso`). Refer to the [landing pages](https://github.com/vikaspotluri123/discourse-on-ghost/tree/master/landing-pages) folder on GitHub
+1. Check the `enable discourse connect` option (above `discourse connect url`)
 1. Enter the `DOG_DISCOURSE_SHARED_SECRET` value from your configuration into `discourse connect secret`
 
 Once you enable Discourse Connect, forum members will only be able to log in by being a member in Ghost. Forum admins can log in using a magic link via `https://your.forum/u/admin-login`
