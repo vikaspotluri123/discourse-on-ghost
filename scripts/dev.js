@@ -13,7 +13,6 @@ await build({
 	format: 'esm',
 	outdir: './dist',
 	treeShaking: true,
-	watch: true,
 });
 
 const watcher = nodemon({
