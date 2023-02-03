@@ -54,6 +54,12 @@ echo "import('@potluri/discourse-on-ghost/build/targets/node.js');" > index.js
 
 The `.env` file you created contains the information needed to make DoG run. Refer to the [configuration documentation](./configuration) for in-depth information about each variable.
 
+Once you configure DoG, make sure all the Ghost Tiers are tracked as Discourse Groups. You should run this script whenever you change add/remove tiers.
+
+```bash
+node node_modules/@potluri/discourse-on-ghost/build/targets/first-run-node.js
+```
+
 ### Step 4: Set up NGINX
 
 
