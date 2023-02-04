@@ -190,26 +190,21 @@ Ghost's default tier names can get pretty long, and this can cause Discourse Gro
 
 #### Add private categories
 
-Private categories allow you to limit topics posted in the category to a specific group. Since DoG syncs member's tiers to the corresponding Discourse group, you can use private categories to create gated content and commenting. Refer to [this Discourse Meta topic](https://meta.discourse.org/t/how-to-create-private-categories-using-category-permission-security-settings/87678) for more information about creating and securing private categories.
+DoG syncs your member's tiers with a corresponding Discourse group, which means you can use Discourse's [Private Categories](https://meta.discourse.org/t/how-to-create-private-categories-using-category-permission-security-settings/87678) feature to create gated sections of the forum for commenting or conversation.
 
-#### Using Discourse for comments on Ghost
+#### A note on using Discourse for comments on Ghost
 
-It's possible to [use Discourse for commenting on your Ghost publication](https://ghost.org/integrations/discourse/), but automated topic creation can be limited in the following scenario:
+It's possible to [use Discourse for comments on your Ghost publication](https://ghost.org/integrations/discourse/).
+However, Discourse's embed feature doesn't allow dynamically setting the category.
+This can be an issue if e.g. you're looking to create gated content sections in your forum.
 
- - You have tiers in Ghost
- - The conversation topic for each post should be associated with a private Discourse category
- - The Ghost tiers are used to gate access to the private Discourse category
- - In other words (tl;dr): The topic associated to a comment thread isn't the same for every post
+To work around this limitation:
 
-This is due to a limitation in Discourse embeds - the topic is configured in the Discourse admin, not on the fly.
+ - After publishing your post, head over to the comments section on the live post
+ - Click `Continue Discussion` to open the auto-generated thread
+ - Set the topic's category to the private category associated with the tier
 
-Here's a publishing flow to work around this limitation:
-
- - Publish your post
- - View your post, and scroll to the comments section
- - Create the Discourse topic for the post
- - Click `Continue Discussion` to open the non-embedded version of the thread
- - Update the topic's category to the private category associated with the tier
+Alternatively, since Discourse allows you to specify the category based on the URL, you can also use Ghost's [Dynamic Routing](https://ghost.org/docs/themes/routing/) feature to create a "subdirectory" for each tier.
 
 
 ### Step 7: Configure Ghost Webhooks
