@@ -201,7 +201,7 @@ This can be an issue if e.g. you're looking to create gated content sections in 
 To work around this limitation:
 
  - After publishing your post, head over to the comments section on the live post
- - Click `Continue Discussion` to open the auto-generated thread
+ - Click `Start Discussion` to open the auto-generated thread
  - Set the topic's category to the private category associated with the tier
 
 Alternatively, since Discourse allows you to specify the category based on the URL, you can also use Ghost's [Dynamic Routing](https://ghost.org/docs/themes/routing/) feature to create a "subdirectory" for each tier.
