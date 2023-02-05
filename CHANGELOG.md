@@ -1,3 +1,8 @@
+# 0.1.6
+
+ - docs: add more information surrounding integrating Discourse with Ghost
+ - add standalone "sync tiers" script
+
 # 0.1.5
 
  - config: add support for (optional) Ghost Admin URL
