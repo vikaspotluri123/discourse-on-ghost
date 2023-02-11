@@ -39,6 +39,10 @@
     "typescript": "^4.9.5",
     "xo": "0.53.1"
   },
+  "gradebook": {
+    "cli:addSkipCIToCommit": true,
+    "cli:releaseTemplate": ".github/release_template.txt"
+  },
   "xo": {
     "rules": {
       "@typescript-eslint/consistent-type-definitions": [
