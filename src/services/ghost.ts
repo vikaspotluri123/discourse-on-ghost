@@ -1,5 +1,8 @@
+import {type JsonWebKey, createPublicKey} from 'node:crypto';
 import GhostAdminApi from '@tryghost/admin-api';
 import getToken from '@tryghost/admin-api/lib/token.js';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import jsonwebtoken, {type GetPublicKeyOrSecret} from 'jsonwebtoken';
 import type {RequestInit} from 'node-fetch';
 import type {GhostMemberWithSubscriptions, GhostMemberWithTiers, GhostTier} from '../types/ghost.js';
 import {isObject} from '../lib/is-object.js';
@@ -8,6 +11,13 @@ import {JSON_MIME_TYPE} from '../lib/constants.js';
 import {uResolve} from '../lib/u-resolve.js';
 import {Configuration} from '../types/config.js';
 import {type Dependency, inject} from '../lib/injector.js';
+
+function simplifyJwk(key: JsonWebKey) {
+	return {
+		kid: key.kid as string,
+		pem: createPublicKey({format: 'jwk', key}).export({type: 'pkcs1', format: 'pem'}).toString(),
+	};
+}
 
 type Fetch = ReturnType<Dependency<typeof FetchInjectionToken>>;
 
@@ -63,6 +73,8 @@ export class GhostService {
 	private readonly _publicUrl: string;
 	private readonly _adminUrl: string;
 	private readonly _apiKey: string;
+	private _ghostMembersPublicKeys: Array<{kid?: string; pem: string}> | undefined;
+	private readonly _jwtIssuer: string;
 
 	constructor(readonly makeFetch: Dependency<typeof FetchInjectionToken>) {
 		const config = inject(Configuration);
@@ -70,6 +82,7 @@ export class GhostService {
 		this._publicUrl = config.ghostUrl;
 		this._adminUrl = config.ghostAdminUrl ?? config.ghostUrl;
 		this._apiKey = config.ghostApiKey;
+		this._jwtIssuer = this.resolvePublic('/members/api');
 		this._api = new GhostAdminApi({
 			url: this._adminUrl,
 			key: config.ghostApiKey,
@@ -82,15 +95,46 @@ export class GhostService {
 		return `Ghost ${getToken(this._apiKey, '/admin')}`;
 	}
 
+	readonly _getKey: GetPublicKeyOrSecret = async ({kid}, callback) => {
+		if (!this._ghostMembersPublicKeys) {
+			await this._getJwtKeys();
+		}
+
+		if (!kid) {
+			callback(new Error('No kid'));
+			return;
+		}
+
+		const key = this._ghostMembersPublicKeys!.find(key => key.kid === kid + 'x');
+		if (!key) {
+			callback(new Error('Unable to find key with kid'));
+			return;
+		}
+
+		callback(null, key.pem);
+	};
 
 	resolvePublic(urlPath: string, hash = '', query?: Record<string, string>): string {
 		return this._urlResolve(this._publicUrl, urlPath, hash, query);
-			}
+	}
 
 	resolveAdmin(urlPath: string, hash = '', query?: Record<string, string>) {
 		return this._urlResolve(this._adminUrl, urlPath, hash, query);
-		}
+	}
 
+	// eslint-disable-next-line @typescript-eslint/promise-function-async
+	decodeMemberJwt(jwt: string) {
+		return new Promise<{success: true; payload: string} | {success: false; error: unknown}>(resolve => {
+			jsonwebtoken.verify(jwt, this._getKey, {algorithms: ['RS512'], issuer: this._jwtIssuer}, (error, payload) => {
+				// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+				if (error || !payload) {
+					resolve({success: false, error});
+					return;
+				}
+
+				resolve({success: true, payload: payload.sub as string});
+			});
+		});
 	}
 
 	async getMember(id: string): Promise<GhostMemberWithTiers | false> {
@@ -105,9 +149,9 @@ export class GhostService {
 		}
 	}
 
-	async getMemberByUuid(uuid: string): Promise<GhostMemberWithSubscriptions | false> {
+	async getMemberByEmail(email: string): Promise<GhostMemberWithSubscriptions | false> {
 		try {
-			const response = await this._api.members.browse({filter: `uuid:${uuid}`});
+			const response = await this._api.members.browse({filter: `email:${email}`});
 			if (response?.length !== 1) {
 				return false;
 			}
@@ -160,5 +204,14 @@ export class GhostService {
 		}
 
 		return base.toString();
+	}
+
+	private async _getJwtKeys() {
+		const endpoint = this.resolvePublic('/members/.well-known/jwks.json');
+		const response = await this._fetch(endpoint);
+		const {keys} = await response.json() as {keys: JsonWebKey[]};
+
+		// eslint-disable-next-line unicorn/no-array-callback-reference
+		this._ghostMembersPublicKeys = keys.map(simplifyJwk);
 	}
 }

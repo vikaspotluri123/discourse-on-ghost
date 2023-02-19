@@ -94,7 +94,7 @@ export class SSOController {
 	}
 
 	async obscurelyAuthorizeUser(request: Request, response: Response) {
-		const {sso, sig, email, uuid, obscure} = request.query;
+		const {sso, sig, obscure} = request.query;
 
 		if (!sso || !sig || Array.isArray(sso) || Array.isArray(sig) || typeof sso !== 'string' || typeof sig !== 'string') {
 			if (!obscure) {
@@ -114,12 +114,17 @@ export class SSOController {
 			return;
 		}
 
-		if (
-			!email || !uuid
-			|| Array.isArray(email) || Array.isArray(uuid)
-			|| typeof email !== 'string' || typeof uuid !== 'string'
-		) {
-			response.status(400).json({message: 'Email and UUID are required and must not be arrays'});
+		if (!request.headers.authorization?.startsWith('GhostMember ')) {
+			response.status(401).json({message: 'Client Error: Missing JWT to prove membership'});
+			return;
+		}
+
+		const jwt = request.headers.authorization.split('GhostMember ').pop()!.trim();
+		const decodedJwt = await this._ghostService.decodeMemberJwt(jwt);
+
+		if (!decodedJwt.success) {
+			const context = decodedJwt.error instanceof Error ? `\nContext: ${decodedJwt.error.message}` : '';
+			response.status(401).json({message: 'Client Error: Invalid JWT provided to prove membership' + context});
 			return;
 		}
 
@@ -130,7 +135,8 @@ export class SSOController {
 			return;
 		}
 
-		const member = await this._ghostService.getMemberByUuid(uuid);
+		const email = decodedJwt.payload;
+		const member = await this._ghostService.getMemberByEmail(email);
 
 		if (!member || member.email !== email) {
 			response.status(404).json({message: 'Unable to authenticate member'});
