@@ -1,3 +1,8 @@
+# 0.2.0-beta.0
+
+ - [BREAKING] :sparkles: use member JWT for auth instead of uuid + email
+ - :bug: fix Ghost URL resolution
+
 # 0.1.6
 
  - docs: add more information surrounding integrating Discourse with Ghost
