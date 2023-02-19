@@ -1,3 +1,7 @@
+# 0.2.0-beta.1
+
+ - config: run transformer for enums
+
 # 0.2.0-beta.0
 
  - [BREAKING] :sparkles: use member JWT for auth instead of uuid + email
