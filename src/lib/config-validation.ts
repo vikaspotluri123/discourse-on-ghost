@@ -121,7 +121,7 @@ export class ConfigKeyValidator<
 			}
 
 			// @ts-expect-error values() can only be called when the value is a string
-			return value;
+			return this._transformer?.(value) ?? value;
 		}
 
 		if (this._mustBeUrl) {
