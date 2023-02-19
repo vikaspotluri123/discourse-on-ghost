@@ -111,7 +111,7 @@ export class ConfigKeyValidator<
 				throw new Error(`Missing required configuration: ${this.key}${suffix}`);
 			}
 
-			return this._default;
+			return this._transformer?.(this._default.toString()) ?? this._default;
 		}
 
 		if (this._values) {
