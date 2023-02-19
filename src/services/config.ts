@@ -1,8 +1,9 @@
 import {ConfigValidator} from '../lib/config-validation.js';
 import {IsomorphicCore} from '../types/isomorph.js';
 import {uResolve} from '../lib/u-resolve.js';
-import {type Configuration as RawConfiguration} from '../types/config.js';
+import {type SsoMethod, type Configuration as RawConfiguration} from '../types/config.js';
 import {type Dependency, inject} from '../lib/injector.js';
+import {Logger} from '../types/logger.js';
 
 type Config = Dependency<typeof RawConfiguration>;
 
@@ -24,6 +25,8 @@ export function getConfig(
 		return parsed;
 	};
 
+	const jwtGhostSSOPathFallback = mapping.obscureGhostSSOPath ? '' : '/sso/';
+
 	return validator.add(
 		validator.for('hostname').optional('127.0.0.1'),
 		validator.for('port').optional(3286).numeric({min: 0, max: 65_535}),
@@ -43,9 +46,46 @@ export function getConfig(
 			.enum('none', 'sync', 'suspend', 'anonymize', 'delete'),
 		validator.for('mountedPublicUrl').url().transforms(value => getMountedUrl(value).toString()),
 		validator.for('mountedBasePath').url().transforms(value => getMountedUrl(value).pathname),
-		validator.for('ssoMethod').optional('secure').enum('secure', 'obscure'),
+		validator.for('ssoMethod').optional('session')
+			.enum('session', 'jwt', /** deprecated: */ 'secure', 'obscure')
+			.transforms(value => {
+				if (value === 'secure' || value === 'obscure') {
+					const logger = inject(Logger);
+					const replacement: SsoMethod = value === 'secure' ? 'session' : 'jwt';
+					logger.warn(`Config: ssoMethod type "${value}" is deprecated in favor of "${replacement}" and will be removed in a future version.`);
+					return replacement;
+				}
+
+				// The if statement handles the invalid parts of the enum
+				return value as SsoMethod;
+			}),
 		validator.for('noAuthRedirect').optional('').url(),
+		validator.for('jwtGhostSSOPath')
+			// Empty string as a default to allow obscureGhostSSOPath to be the fallback until it's removed
+			.optional(jwtGhostSSOPathFallback /** review when removing obscureGhostSSOPath */)
+			.transforms(value => {
+				// REMOVE THIS BLOCK WHEN obscureGhostSSOPath IS REMOVED
+				if (value === '') {
+					return value;
+				}
+
+				if (!/^\/[a-z\d-_/]+\/$/.test(value)) {
+					throw new Error(`${value} is not an absolute path`);
+				}
+
+				return value;
+			}),
 		validator.for('obscureGhostSSOPath').optional('/sso/').transforms(value => {
+			if (value === '/sso/') {
+				return value;
+			}
+
+			const obscureKey = mapping.obscureGhostSSOPath;
+			const jwtKey = mapping.jwtGhostSSOPath;
+			const logger = inject(Logger);
+
+			logger.warn(`${obscureKey} is deprecated in favor of ${jwtKey} and will be removed in a future version.`);
+			logger.warn('Note: you will have to make changes to your SSO page. Please review the release notes.');
 			if (!/^\/[a-z\d-_/]+\/$/.test(value)) {
 				throw new Error(`${value} is not an absolute path`);
 			}

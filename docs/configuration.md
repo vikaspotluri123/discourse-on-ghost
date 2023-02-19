@@ -84,7 +84,7 @@ You can comment out values by prefixing them with a `#`. (e.g. `# DOG_KEY="value
 |DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID | string | **Yes**\* | The endpoint to listen for Ghost Member Deleted webhooks. |
 |DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION | [enum](#dog_ghost_member_delete_discourse_action) | **Yes** | The action to take on Discourse when a Ghost member is deleted |
 |DOG_DISCOURSE_SSO_TYPE | [enum](#dog_discourse_sso_type) | **Yes** | The type of SSO to use for Discourse (see `Pick your Path`) |
-|DOG_OBSCURE_GHOST_SSO_PAGE | path | /sso/ | When using obscure auth, the path to the landing page. Must be an absolute path with a trailing slash. Example landing pages are on [GitHub](https://github.com/vikaspotluri123/discourse-on-ghost/tree/master/landing-pages) |
+|DOG_JWT_GHOST_SSO_PAGE | path | /sso/ | When using JWT auth, the path to the landing page. Must be an absolute path with a trailing slash. Example landing pages are on [GitHub](https://github.com/vikaspotluri123/discourse-on-ghost/tree/master/landing-pages) |
 |DOG_SSO_NO_AUTH_REDIRECT | URL | {ghost_url} /#/portal/account | A custom landing page to redirect to if the user is not authenticated. Example landing pages are on [GitHub](https://github.com/vikaspotluri123/discourse-on-ghost/tree/master/landing-pages) |
 
 *These values are shared with either Discourse or Ghost. If you don't specify a value, DoG will suggest one for you.
@@ -111,7 +111,7 @@ _Note_: The member won't be signed out of any Discourse sessions, but since Ghos
 
 Configures how DoG handles SSO. Refer to the [Pick your Path](../#step-1-pick-your-path) section on the home page.
 
-Supported values: **obscure**, or **secure**
+Supported values: **session**, or **jwt**
 
 *[SSO]: Single Sign On
 *[DoG]: Discourse on Ghost

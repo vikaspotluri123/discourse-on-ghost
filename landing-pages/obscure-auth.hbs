@@ -8,19 +8,50 @@
 </head>
 <body>
 	{{#if @member}}
-	<p>Logging you in, please wait...</p>
+	<p>
+		<span id="status">Logging you in, please wait...</span>
+		<span id="error-boundary"></span>
+	</p>
 	<script>
-		const memberUuid = '{{@member.uuid}}';
-		const memberEmail = '{{@member.email}}';
+		const siteUrl = '{{@site.url}}';
 		const discourseOnGhostUrl = 'https://dog.example.com/ghost/api/external_discourse_on_ghost';
 		const searchParams = new URLSearchParams(window.location.search);
-		const redirectUrl = new URL('./sso', discourseOnGhostUrl);
-		redirectUrl.searchParams.set('sso', searchParams.get('sso'));
-		redirectUrl.searchParams.set('sig', searchParams.get('sig'));
-		redirectUrl.searchParams.set('uuid', memberUuid);
-		redirectUrl.searchParams.set('email', memberEmail);
-		redirectUrl.searchParams.set('obscure', true);
-		window.location.href = redirectUrl.href;
+
+		async function run() {
+			const authUrl = new URL('./sso', discourseOnGhostUrl);
+			authUrl.searchParams.set('sso', searchParams.get('sso'));
+			authUrl.searchParams.set('sig', searchParams.get('sig'));
+			authUrl.searchParams.set('from_client', true);
+
+			const jwt = await fetch(siteUrl + '/members/api/session/').then(response => response.text());
+
+			const redirect = await fetch(authUrl.href, {
+				method: 'POST',
+				credentials: 'omit',
+				headers: {
+					authorization: `GhostMember ${jwt}`
+				},
+			}).then(async response => {
+				if (response.ok) {
+					const {redirect} = await response.json();
+					window.location.href = redirect;
+					return;
+				}
+
+				let errorContext;
+				if (response.headers.get('content-type').contains('application/json')) {
+					const jsonPayload = await response.json();
+					errorContext = jsonPayload.error || jsonPayload.message;
+				} else {
+					errorContext = await response.text();
+				}
+
+				document.getElementById('status').textContent = 'Something went wrong in authenticating you.';
+				document.getElementById('error-boundary').textContent = `Context: ${errorContext}`;
+			});
+		}
+
+		run();
 	</script>
 	{{else}}
 	<p>Please click the button at the bottom right of the page.</p>

@@ -22,7 +22,7 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Configuration**
-Mode: secure or obscure?
+Mode: session or JWT?
 Webhooks Enabled: yes or no?
 
 **Additional context**

@@ -26,11 +26,11 @@ export class AdminController {
 	}
 
 	never(_: Request, response: Response) {
-		response.status(501).json({error: 'DoG Administration is not available for obscure SSO'});
+		response.status(501).json({error: 'DoG Administration is not available for JWT SSO'});
 	}
 
 	get(ssoMethod: SsoMethod): Controllers {
-		if (ssoMethod === 'obscure') {
+		if (ssoMethod === 'jwt') {
 			return [this.never, this.never];
 		}
 

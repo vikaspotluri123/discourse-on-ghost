@@ -27,7 +27,9 @@ export const envToConfigMapping: Record<keyof Dependency<typeof Configuration>, 
 	ghostMemberDeleteDiscourseAction: 'DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION',
 	ssoMethod: 'DOG_DISCOURSE_SSO_TYPE',
 	noAuthRedirect: 'DOG_SSO_NO_AUTH_REDIRECT',
+	/** @deprecated */
 	obscureGhostSSOPath: 'DOG_OBSCURE_GHOST_SSO_PAGE',
+	jwtGhostSSOPath: 'DOG_JWT_GHOST_SSO_PAGE',
 } as const;
 
 export const core: Dependency<typeof IsomorphicCore> = {

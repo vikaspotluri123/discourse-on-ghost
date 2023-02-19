@@ -2,7 +2,7 @@ import {createInjectionToken} from '../lib/injector.js';
 
 export type DeleteAction = 'none' | 'sync' | 'suspend' | 'anonymize' | 'delete';
 
-export type SsoMethod = 'secure' | 'obscure';
+export type SsoMethod = 'session' | 'jwt';
 
 export type ConfigurationType = { // eslint-disable-line @typescript-eslint/consistent-type-definitions
 	hostname: string;
@@ -24,7 +24,9 @@ export type ConfigurationType = { // eslint-disable-line @typescript-eslint/cons
 	ghostMemberDeleteDiscourseAction: DeleteAction;
 	ssoMethod: SsoMethod;
 	noAuthRedirect: string;
+	/** @deprecated */
 	obscureGhostSSOPath: string;
+	jwtGhostSSOPath: string;
 };
 
 export const Configuration = createInjectionToken<ConfigurationType>('Configuration');

@@ -24,11 +24,11 @@ _Feel like something's missing? [File an issue](https://github.com/vikaspotluri1
 
 Discourse on Ghost has 2 methods to authenticate users:
 
-1. Secure (recommended): Mirrors the authentication that Ghost uses to authenticate members.
+1. Session: Mirrors the authentication that Ghost uses to authenticate members.
 	- Requires DoG to sit on the same domain (not a subdomain) as your Ghost site
-2. Obscure: Uses the user's email address and unique Ghost identifier to authenticate members.
+2. JWT: Ghost can provide a verifiable token (called a JWT) that authenticates a member
 	- Allows Discourse on Ghost to sit on any domain (including a subdomain)
-	- Relies on [security through obscurity](https://en.wikipedia.org/wiki/Security_through_obscurity) (since it's relatively difficult, though not impossible, to guess both the unique identifier and email address of a member)
+	- Requires a bit more coordination (redirects/hops) between Discourse, DoG, and Ghost
 
 Both methods have the same installation instructions, but your configuration will be slightly different.
 
@@ -63,13 +63,13 @@ node node_modules/@potluri/discourse-on-ghost/build/targets/first-run-node.js
 ### Step 4: Set up NGINX
 
 
-#### For standalone installations (`obscure` mode)
+#### For standalone installations (`JWT` mode)
 
 _This section isn't well documented. PRs are welcome!_
 
 You'll need to install NGINX with SSL (acme.sh is a good place to start), and configure it to serve traffic from your domain.
 
-#### For existing Ghost installations (`secure` mode)
+#### For existing Ghost installations (`session` mode)
 
 Modify the NGINX configuration that Ghost automatically created. You can find the file in `/etc/nginx/sites-enabled/your.domain-ssl.conf`.
 
@@ -146,7 +146,7 @@ Documentation=https://github.vikaspotluri.me/discourse-on-ghost
 Type=simple
 # Don't forget to update this!
 WorkingDirectory=/path/to/discourse-on-ghost
-# The user might be different for `obscure` mode
+# The user might be different for `jwt` mode
 User=ghost
 Environment="NODE_ENV=production"
 # You can get your node path by running `which node`
@@ -178,7 +178,7 @@ Scroll to the option `enable discourse connect`
 
 1. Before you can enable Discourse Connect (SSO), you need to specify the URL. Enter the Discourse Connect URL in the `discourse connect url` field
   - This will be `https://your.ghost.blog/subdir/ghost/api/external_discourse_on_ghost/sso`. `subdir` will be the path your blog is installed on - if you don't have a path, remove it from the url.
-  - For `obscure` mode, you need to set up a landing page at `DOG_OBSCURE_GHOST_SSO_PAGE` as defined in the configuration
+  - For `jwt` mode, you need to set up a landing page at `DOG_JWT_GHOST_SSO_PAGE` as defined in the configuration
 1. Check the `enable discourse connect` option (above `discourse connect url`)
 1. Enter the `DOG_DISCOURSE_SHARED_SECRET` value from your configuration into `discourse connect secret`
 

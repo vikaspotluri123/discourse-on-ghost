@@ -18,24 +18,25 @@ export class SSOController {
 	private readonly _ghostService = inject(GhostService);
 	private readonly key: ReturnType<CryptoService['secretToKey']>;
 	private readonly _login: string;
-	private readonly _obscureRedirect: string;
+	private readonly _jwtRedirect: string;
 
 	constructor() {
 		const config = inject(Configuration);
 		// Don't use nullish coalescing here since the default value for `noAuthRedirect` is an empty string
 		this._login = config.noAuthRedirect || this._ghostService.resolvePublic('/', '#/portal/account');
 
+		// Don't use nullish coalescing here because obscureGhostSSOPath needs to be the fallback (even to an empty string) until it's removed
 		// The prefixed period is to make the absolute URL relative.
-		this._obscureRedirect = new URL(`.${config.obscureGhostSSOPath}`, config.ghostUrl).href;
+		this._jwtRedirect = new URL(`.${config.jwtGhostSSOPath || config.obscureGhostSSOPath}`, config.ghostUrl).href;
 		this.key = this.core.crypto.secretToKey(config.discourseSecret);
 	}
 
 	controllerFor(ssoMethod: Dependency<typeof Configuration>['ssoMethod']) {
-		if (ssoMethod === 'obscure') {
-			return this.obscurelyAuthorizeUser.bind(this);
+		if (ssoMethod === 'jwt') {
+			return this.jwtUserAuth.bind(this);
 		}
 
-		return this.securelyAuthorizeUser.bind(this);
+		return this.sessionUserAuth.bind(this);
 	}
 
 	async getMemberWithCookie(cookie: string): Promise<GhostMemberWithSubscriptions | MemberError> {
@@ -54,7 +55,7 @@ export class SSOController {
 		return proxyResponse.json() as Promise<GhostMemberWithSubscriptions>;
 	}
 
-	async securelyAuthorizeUser(request: Request, response: Response) {
+	async sessionUserAuth(request: Request, response: Response) {
 		const {sso, sig} = request.query;
 		const {cookie} = request.headers;
 
@@ -93,12 +94,12 @@ export class SSOController {
 		response.redirect(await this.addEncodedPayloadToDiscourseReturnUrl(memberPayload, discourseRedirect));
 	}
 
-	async obscurelyAuthorizeUser(request: Request, response: Response) {
-		const {sso, sig, obscure} = request.query;
+	async jwtUserAuth(request: Request, response: Response) {
+		const {sso, sig, from_client} = request.query;
 
 		if (!sso || !sig || Array.isArray(sso) || Array.isArray(sig) || typeof sso !== 'string' || typeof sig !== 'string') {
-			if (!obscure) {
-				response.redirect(302, this._obscureRedirect + '?error=direct_access');
+			if (!from_client) {
+				response.redirect(302, this._jwtRedirect + '?error=direct_access');
 				return;
 			}
 
@@ -106,8 +107,8 @@ export class SSOController {
 			return;
 		}
 
-		if (!obscure) {
-			const next = new URL(this._obscureRedirect);
+		if (!from_client) {
+			const next = new URL(this._jwtRedirect);
 			next.searchParams.set('sso', sso);
 			next.searchParams.set('sig', sig);
 			response.redirect(302, next.href);
