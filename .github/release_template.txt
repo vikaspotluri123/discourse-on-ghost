@@ -7,6 +7,6 @@ Highlights:
 
 Here are a few pointers:
 - Check out https://github.vikaspotluri.me/discourse-on-ghost for the most up-to-date documentation
-- The frozen docs are available in [vikaspotluri123/discourse-on-ghost@{currentTag}:/docs](https://github.com/vikaspotluri123/discourse-on-ghost/tree/{currentTag}) (markdown)
+- The frozen docs are available in [vikaspotluri123/discourse-on-ghost@{currentTag}:/docs](https://github.com/vikaspotluri123/discourse-on-ghost/tree/{currentTag}/docs) (markdown)
 - You can browse the released npm package on [JSDelivr](https://cdn.jsdelivr.net/npm/@potluri/discourse-on-ghost@{currentVersion}/)
 - View full list of changes from the previous release: https://github.com/vikaspotluri123/discourse-on-ghost/compare/{previousTag}...{currentTag}
