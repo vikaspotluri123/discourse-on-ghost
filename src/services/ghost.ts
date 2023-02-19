@@ -60,16 +60,18 @@ const createMakeRequest: GhostFetchCreator = fetch => async ({url, method, heade
 export class GhostService {
 	private readonly _fetch: Fetch;
 	private readonly _api: ReturnType<typeof GhostAdminApi>;
-	private readonly _baseUrl: string;
+	private readonly _publicUrl: string;
+	private readonly _adminUrl: string;
 	private readonly _apiKey: string;
 
 	constructor(readonly makeFetch: Dependency<typeof FetchInjectionToken>) {
 		const config = inject(Configuration);
 		this._fetch = inject(FetchInjectionToken)('ghost', config.logGhostRequests);
-		this._baseUrl = config.ghostUrl;
+		this._publicUrl = config.ghostUrl;
+		this._adminUrl = config.ghostAdminUrl ?? config.ghostUrl;
 		this._apiKey = config.ghostApiKey;
 		this._api = new GhostAdminApi({
-			url: config.ghostAdminUrl ?? config.ghostUrl,
+			url: this._adminUrl,
 			key: config.ghostApiKey,
 			version: 'v5.0',
 			makeRequest: createMakeRequest(this._fetch),
@@ -80,18 +82,15 @@ export class GhostService {
 		return `Ghost ${getToken(this._apiKey, '/admin')}`;
 	}
 
-	resolve(urlPath: string, hash = '', query?: Record<string, string>): string {
-		const base = new URL(this._baseUrl);
-		base.pathname = uResolve(base.pathname, urlPath);
-		base.hash = hash;
 
-		if (query) {
-			for (const [key, value] of Object.entries(query)) {
-				base.searchParams.set(key, value);
+	resolvePublic(urlPath: string, hash = '', query?: Record<string, string>): string {
+		return this._urlResolve(this._publicUrl, urlPath, hash, query);
 			}
+
+	resolveAdmin(urlPath: string, hash = '', query?: Record<string, string>) {
+		return this._urlResolve(this._adminUrl, urlPath, hash, query);
 		}
 
-		return base.toString();
 	}
 
 	async getMember(id: string): Promise<GhostMemberWithTiers | false> {
@@ -129,14 +128,14 @@ export class GhostService {
 			accept: JSON_MIME_TYPE,
 		};
 
-		const response = await this._fetch(this.resolve('/ghost/api/admin/tiers'), {headers});
+		const response = await this._fetch(this.resolveAdmin('/ghost/api/admin/tiers'), {headers});
 
 		const {tiers} = await response.json() as {tiers: GhostTier[]};
 		return tiers;
 	}
 
 	async authenticateStaffFromCookie(cookie: string) {
-		const response = await this._fetch(this.resolve('/ghost/api/admin/users/me/', '', {include: 'roles'}), {
+		const response = await this._fetch(this.resolveAdmin('/ghost/api/admin/users/me/', '', {include: 'roles'}), {
 			headers: {cookie},
 		});
 
@@ -147,5 +146,19 @@ export class GhostService {
 		const {users: [user]} = await response.json() as StaffUsers;
 
 		return user.roles.some(role => role.name === 'Owner' || role.name === 'Administrator');
+	}
+
+	private _urlResolve(url: string, urlPath: string, hash = '', query?: Record<string, string>): string {
+		const base = new URL(url);
+		base.pathname = uResolve(base.pathname, urlPath);
+		base.hash = hash;
+
+		if (query) {
+			for (const [key, value] of Object.entries(query)) {
+				base.searchParams.set(key, value);
+			}
+		}
+
+		return base.toString();
 	}
 }

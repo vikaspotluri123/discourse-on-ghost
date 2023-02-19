@@ -23,7 +23,7 @@ export class SSOController {
 	constructor() {
 		const config = inject(Configuration);
 		// Don't use nullish coalescing here since the default value for `noAuthRedirect` is an empty string
-		this._login = config.noAuthRedirect || this._ghostService.resolve('/', '#/portal/account');
+		this._login = config.noAuthRedirect || this._ghostService.resolvePublic('/', '#/portal/account');
 
 		// The prefixed period is to make the absolute URL relative.
 		this._obscureRedirect = new URL(`.${config.obscureGhostSSOPath}`, config.ghostUrl).href;
@@ -39,7 +39,7 @@ export class SSOController {
 	}
 
 	async getMemberWithCookie(cookie: string): Promise<GhostMemberWithSubscriptions | MemberError> {
-		const proxyResponse = await this.core.fetch(this._ghostService.resolve('/members/api/member'), {
+		const proxyResponse = await this.core.fetch(this._ghostService.resolvePublic('/members/api/member'), {
 			headers: {cookie},
 		});
 
