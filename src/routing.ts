@@ -29,6 +29,10 @@ export class RoutingManager {
 	}
 
 	addCoreRoutes(app: Application) {
+		if (this.sso.hasCors(this.config.ssoMethod)) {
+			app.options(this.resolve('sso'), this.sso.cors);
+		}
+
 		app.get(this.resolve('sso'), this.sso.controllerFor(this.config.ssoMethod));
 
 		if (this.config.enableGhostWebhooks) {

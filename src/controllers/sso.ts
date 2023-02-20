@@ -19,6 +19,7 @@ export class SSOController {
 	private readonly key: ReturnType<CryptoService['secretToKey']>;
 	private readonly _login: string;
 	private readonly _jwtRedirect: string;
+	private readonly _corsOrigin: string;
 
 	constructor() {
 		const config = inject(Configuration);
@@ -29,7 +30,19 @@ export class SSOController {
 		// The prefixed period is to make the absolute URL relative.
 		this._jwtRedirect = new URL(`.${config.jwtGhostSSOPath || config.obscureGhostSSOPath}`, config.ghostUrl).href;
 		this.key = this.core.crypto.secretToKey(config.discourseSecret);
+		this._corsOrigin = new URL(this._jwtRedirect).origin;
 	}
+
+	hasCors(ssoMethod: Dependency<typeof Configuration>['ssoMethod']) {
+		return ssoMethod === 'jwt';
+	}
+
+	readonly cors = (_: Request, response: Response) => {
+		response.setHeader('access-control-allow-origin', this._corsOrigin);
+		response.setHeader('access-control-allow-headers', 'authorization');
+		response.setHeader('access-control-allow-methods', 'POST');
+		response.status(204).end();
+	};
 
 	controllerFor(ssoMethod: Dependency<typeof Configuration>['ssoMethod']) {
 		if (ssoMethod === 'jwt') {
