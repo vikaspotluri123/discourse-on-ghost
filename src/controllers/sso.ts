@@ -228,6 +228,6 @@ export class SSOController {
 	private _setCorsHeaders(response: Response) {
 		response.setHeader('access-control-allow-origin', this._corsOrigin);
 		response.setHeader('access-control-allow-headers', 'authorization');
-		response.setHeader('access-control-allow-methods', 'POST');
+		response.setHeader('access-control-allow-methods', 'GET');
 	}
 }

@@ -26,7 +26,6 @@
 			const jwt = await fetch(siteUrl + '/members/api/session/').then(response => response.text());
 
 			await fetch(authUrl.href, {
-				method: 'POST',
 				credentials: 'omit',
 				headers: {
 					authorization: `GhostMember ${jwt}`
