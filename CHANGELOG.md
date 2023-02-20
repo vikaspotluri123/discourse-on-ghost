@@ -1,3 +1,14 @@
+# 0.2.0
+
+_Official release, no changes from v0.2.0-beta.3_
+
+ - [BREAKING] :sparkles: use member JWT for auth instead of uuid + email
+   - `DOG_DISCOURSE_SSO_TYPE` now takes `session` in place of `secure`, and `jwt` in place of `obscure`
+   - If you're using `obscure` auth, the example landing page has been updated - please review and make any necessary changes
+   - `DOG_OBSCURE_GHOST_SSO_PAGE` has been renamed to `DOG_JWT_GHOST_SSO_PAGE`
+ - :bug: fix Ghost URL resolution
+ - Remove `x-powered-by: express` header in responses
+
 # 0.2.0-beta.3
 
  - add CORS headers to SSO POST request
