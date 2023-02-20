@@ -25,7 +25,7 @@
 
 			const jwt = await fetch(siteUrl + '/members/api/session/').then(response => response.text());
 
-			const redirect = await fetch(authUrl.href, {
+			await fetch(authUrl.href, {
 				method: 'POST',
 				credentials: 'omit',
 				headers: {
