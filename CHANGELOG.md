@@ -1,3 +1,10 @@
+# 0.2.0-beta.3
+
+ - add CORS headers to SSO POST request
+ - fix: jwt-auth should send a GET request, not POST
+ - fix typo in jwt-auth template response handler
+ - remove test code in JWT key locator
+
 # 0.2.0-beta.2
 
  - fix DOG_DISCOURSE_SSO_TYPE deprecation message not containing the actual environment variable
