@@ -1,3 +1,10 @@
+# 0.2.0-beta.2
+
+ - fix DOG_DISCOURSE_SSO_TYPE deprecation message not containing the actual environment variable
+ - fix SSO JWT response type
+ - add cors to SSO JWT URL
+ - disable x-powered-by header
+
 # 0.2.0-beta.1
 
  - config: run transformer for enums
