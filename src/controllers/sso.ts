@@ -38,9 +38,7 @@ export class SSOController {
 	}
 
 	readonly cors = (_: Request, response: Response) => {
-		response.setHeader('access-control-allow-origin', this._corsOrigin);
-		response.setHeader('access-control-allow-headers', 'authorization');
-		response.setHeader('access-control-allow-methods', 'POST');
+		this._setCorsHeaders(response);
 		response.status(204).end();
 	};
 
@@ -108,6 +106,7 @@ export class SSOController {
 	}
 
 	async jwtUserAuth(request: Request, response: Response) {
+		this._setCorsHeaders(response);
 		const {sso, sig, from_client} = request.query;
 
 		if (!sso || !sig || Array.isArray(sso) || Array.isArray(sig) || typeof sso !== 'string' || typeof sig !== 'string') {
@@ -224,5 +223,11 @@ export class SSOController {
 		}
 
 		return memberPayload;
+	}
+
+	private _setCorsHeaders(response: Response) {
+		response.setHeader('access-control-allow-origin', this._corsOrigin);
+		response.setHeader('access-control-allow-headers', 'authorization');
+		response.setHeader('access-control-allow-methods', 'POST');
 	}
 }
