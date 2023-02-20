@@ -38,7 +38,7 @@
 				}
 
 				let errorContext;
-				if (response.headers.get('content-type').contains('application/json')) {
+				if (response.headers.get('content-type').includes('application/json')) {
 					const jsonPayload = await response.json();
 					errorContext = jsonPayload.error || jsonPayload.message;
 				} else {
