@@ -17,6 +17,7 @@ if (!config) {
 
 const routingManager = new RoutingManager();
 export const app = express();
+app.disable('x-powered-by');
 
 app.use(useRequestLogging());
 routingManager.addAllRoutes(app);
