@@ -52,7 +52,8 @@ export function getConfig(
 				if (value === 'secure' || value === 'obscure') {
 					const logger = inject(Logger);
 					const replacement: SsoMethod = value === 'secure' ? 'session' : 'jwt';
-					logger.warn(`Config: ssoMethod type "${value}" is deprecated in favor of "${replacement}" and will be removed in a future version.`);
+					const envKey = mapping.ssoMethod;
+					logger.warn(`Config: ${envKey} type "${value}" is deprecated in favor of "${replacement}" and will be removed in a future version.`);
 					return replacement;
 				}
 
