@@ -105,7 +105,7 @@ export class GhostService {
 			return;
 		}
 
-		const key = this._ghostMembersPublicKeys!.find(key => key.kid === kid + 'x');
+		const key = this._ghostMembersPublicKeys!.find(key => key.kid === kid);
 		if (!key) {
 			callback(new Error('Unable to find key with kid'));
 			return;
