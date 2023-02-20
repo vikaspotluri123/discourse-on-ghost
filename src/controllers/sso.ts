@@ -147,7 +147,7 @@ export class SSOController {
 		const discourseRedirect = rawDiscoursePayload.get('return_sso_url')!;
 		const memberPayload = this.convertGhostMemberToDiscourseSSO(member, rawDiscoursePayload.get('nonce')!);
 
-		response.redirect(await this.addEncodedPayloadToDiscourseReturnUrl(memberPayload, discourseRedirect));
+		response.json({redirect: await this.addEncodedPayloadToDiscourseReturnUrl(memberPayload, discourseRedirect)});
 	}
 
 	private async addEncodedPayloadToDiscourseReturnUrl(payload: DiscourseSSOResponse, urlBase: string) {
