@@ -1,6 +1,19 @@
 import {Logger} from '../types/logger.js';
 import {inject} from './injector.js';
 
+class ConfigValidationError extends Error {
+	// eslint-disable-next-line @typescript-eslint/class-literal-property-style
+	readonly hideStack = true;
+	readonly help: string | undefined;
+	readonly context: string | undefined;
+
+	constructor(keyName: string, suggestion?: string, context?: string) {
+		super(`${keyName} is not valid`);
+		this.context = context;
+		this.help = suggestion ? `Suggestion: ${suggestion}` : undefined;
+	}
+}
+
 function coerceToBoolean(envVar: string | undefined, defaultValue: boolean): boolean {
 	if (envVar === undefined || envVar === '') {
 		return defaultValue;
@@ -107,8 +120,7 @@ export class ConfigKeyValidator<
 
 		if (!value) {
 			if (this._default === required) {
-				const suffix = this._suggestion ? `. Try ${this._suggestion()}` : '';
-				throw new Error(`Missing required configuration: ${this.key}${suffix}`);
+				throw new ConfigValidationError(this.key, this._suggestion?.(), 'This is a required variable');
 			}
 
 			return this._transformer?.(this._default.toString()) ?? this._default;
@@ -117,7 +129,7 @@ export class ConfigKeyValidator<
 		if (this._values) {
 			if (!this._values.includes(value)) {
 				const values = this._values.join(', ');
-				throw new Error(`Invalid configuration: ${this.key} must be one of ${values}`);
+				throw new ConfigValidationError(this.key, '', `Must be ${values}`);
 			}
 
 			// @ts-expect-error values() can only be called when the value is a string
@@ -128,21 +140,19 @@ export class ConfigKeyValidator<
 			try {
 				new URL(value); // eslint-disable-line no-new
 			} catch {
-				throw new Error(`Invalid configuration: ${this.key} must be a URL`);
+				throw new ConfigValidationError(this.key, '', 'Must be a URL');
 			}
 		}
 
 		if (this._test && !this._test.test(value)) {
 			const match = this._test.toString();
-			const suffix = this._suggestion ? `. Try ${this._suggestion()}` : '';
-			throw new Error(`Invalid configuration: ${this.key} must match ${match}${suffix}`);
+			throw new ConfigValidationError(this.key, this._suggestion?.(), `Must match ${match}`);
 		}
 
 		const transformed = this._transformer?.(value) ?? value;
 
 		if (this._disallowed?.includes(transformed as Value)) {
-			const suffix = this._suggestion ? `. Try ${this._suggestion()}` : '';
-			throw new Error(`Invalid configuration: ${this.key} cannot be ${value}${suffix}`);
+			throw new ConfigValidationError(this.key, this._suggestion?.(), `Cannot be ${value}`);
 		}
 
 		return transformed as Value;
@@ -182,7 +192,7 @@ export class ConfigValidator<
 		// @ts-expect-error due to the external to internal config map, we can know
 		// that all the config keys will be specified
 		const config: FinalShape = {};
-		let successful = true;
+		let failures = 0;
 
 		const internalKeys = new Set(Object.keys(this._internalToExternalKeyMap));
 
@@ -198,8 +208,13 @@ export class ConfigValidator<
 			try {
 				config[internalKey] = validator.coerce();
 			} catch (error: unknown) {
-				this.logger.error(error);
-				successful = false;
+				if (error instanceof ConfigValidationError) {
+					this.logger.error(error);
+				} else if (error instanceof Error) {
+					this.logger.error(new ConfigValidationError(validator.key, '', error.message));
+				}
+
+				failures++;
 			}
 		}
 
@@ -208,7 +223,9 @@ export class ConfigValidator<
 			throw new Error(`Some configuration options haven't been validated: ${missingKeys}`);
 		}
 
-		if (!successful) {
+		if (failures > 0) {
+			const keys = failures === 1 ? 'key was' : 'keys were';
+			this.logger.error(`${failures} config ${keys} were invalid, unable to continue`);
 			return;
 		}
 
