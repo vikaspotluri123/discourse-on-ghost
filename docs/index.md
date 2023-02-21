@@ -177,8 +177,9 @@ Head to the *Login Settings* of your Discourse installation (`https://your.forum
 Scroll to the option `enable discourse connect`
 
 1. Before you can enable Discourse Connect (SSO), you need to specify the URL. Enter the Discourse Connect URL in the `discourse connect url` field
-  - This will be `https://your.ghost.blog/subdir/ghost/api/external_discourse_on_ghost/sso`. `subdir` will be the path your blog is installed on - if you don't have a path, remove it from the url.
-  - For `jwt` mode, you need to set up a landing page at `DOG_JWT_GHOST_SSO_PAGE` as defined in the configuration
+  - In `session` mode, this will always be `https://your.ghost.blog/subdir/ghost/api/external_discourse_on_ghost/sso`
+  - In `jwt` mode, this will be `https://your.ghost.admin/subdir/ghost/api/external_discourse_on_ghost/sso`. If you don't have a separate admin domain, use your blog domain.
+  - For both cases, `subdir` part will be the path your blog is installed on - if you don't have a path, remove it from the url.
 1. Check the `enable discourse connect` option (above `discourse connect url`)
 1. Enter the `DOG_DISCOURSE_SHARED_SECRET` value from your configuration into `discourse connect secret`
 
