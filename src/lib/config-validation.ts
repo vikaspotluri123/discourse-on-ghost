@@ -28,7 +28,7 @@ function coerceToNumber(candidate: unknown, {min, max}: {min?: number; max?: num
 	if (Number.isNaN(coerced)) {
 		const lessThan = typeof min === 'number' ? `greater than ${min}` : '';
 		const greaterThan = typeof max === 'number' ? `less than ${max}` : '';
-		const final = lessThan && greaterThan ? `between ${lessThan} and ${greaterThan}` : lessThan || greaterThan;
+		const final = lessThan && greaterThan ? `between ${min!} and ${max!}` : lessThan || greaterThan;
 		const safeCandidate = String(candidate);
 		throw new Error(`${safeCandidate} is not a valid number${final ? ` ${final}` : ''}`);
 	}
