@@ -178,7 +178,7 @@ Scroll to the option `enable discourse connect`
 
 1. Before you can enable Discourse Connect (SSO), you need to specify the URL. Enter the Discourse Connect URL in the `discourse connect url` field
   - In `session` mode, this will always be `https://your.ghost.blog/subdir/ghost/api/external_discourse_on_ghost/sso`
-  - In `jwt` mode, this will be `https://your.ghost.admin/subdir/ghost/api/external_discourse_on_ghost/sso`. If you don't have a separate admin domain, use your blog domain.
+  - In `jwt` mode, this will be `https://your.dog.site/subdir/ghost/api/external_discourse_on_ghost/sso`
   - For both cases, `subdir` part will be the path your blog is installed on - if you don't have a path, remove it from the url.
 1. Check the `enable discourse connect` option (above `discourse connect url`)
 1. Enter the `DOG_DISCOURSE_SHARED_SECRET` value from your configuration into `discourse connect secret`
