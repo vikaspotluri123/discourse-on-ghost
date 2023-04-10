@@ -34,7 +34,7 @@
     "@types/jsonwebtoken": "^9.0.1",
     "@types/uuid": "^9.0.1",
     "chai": "^4.3.7",
-    "esbuild": "^0.17.15",
+    "esbuild": "^0.17.16",
     "mocha": "^10.2.0",
     "nodemon": "^2.0.22",
     "typescript": "^5.0.2",
