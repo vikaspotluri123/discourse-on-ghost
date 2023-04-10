@@ -37,7 +37,7 @@
     "esbuild": "^0.17.15",
     "mocha": "^10.2.0",
     "nodemon": "^2.0.22",
-    "typescript": "^5.0.2",
+    "typescript": "^5.0.4",
     "xo": "0.53.1"
   },
   "gradebook": {
