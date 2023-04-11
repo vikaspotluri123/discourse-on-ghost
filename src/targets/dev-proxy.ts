@@ -32,7 +32,7 @@ export async function load(dogHome: string, app: Application) {
 	app.use(mountedBasePath, json(), (request: Request, response: Response) => {
 		logger.info(`Proxying ${request.method} ${request.originalUrl} to DoG`);
 		const body
-			= request.method !== 'GET' && request.method !== 'HEAD' && Object.keys(request.body).length > 0
+			= request.method !== 'GET' && request.method !== 'HEAD' && Object.keys(request.body as Record<any, any>).length > 0
 				? JSON.stringify(request.body)
 				: undefined;
 		void core.fetch(`http://${hostname}:${port}${request.originalUrl}`, {

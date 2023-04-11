@@ -9,7 +9,7 @@ export class Semaphore {
 
 	constructor(private readonly _maximum: number, private readonly _delay = 150) {}
 
-	acquire() {
+	acquire() { // eslint-disable-line @typescript-eslint/promise-function-async
 		if (this._activeCount === this._maximum) {
 			const response = new Promise<Unsubscriber>(resolve => {
 				this._queue.push(resolve);
