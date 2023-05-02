@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@tryghost/admin-api": "^1.13.5",
-    "@tryghost/errors": "^1.2.24",
+    "@tryghost/errors": "^1.2.25",
     "@tryghost/logging": "^2.4.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
