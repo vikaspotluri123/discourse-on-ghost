@@ -5,7 +5,7 @@ export interface GhostMember {
 	name: string | null; // eslint-disable-line @typescript-eslint/ban-types
 	firstname: string | null; // eslint-disable-line @typescript-eslint/ban-types
 	paid: boolean;
-	subscriptions: unknown[];
+	subscriptions?: unknown[];
 	avatar_image: string;
 }
 
@@ -26,7 +26,7 @@ export interface GhostTier {
 
 export interface GhostSubscription {
 	id: string;
-	tier: GhostTier;
+	tier?: GhostTier;
 }
 
 export interface GhostMemberWithTiers extends GhostMember {

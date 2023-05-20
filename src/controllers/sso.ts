@@ -213,13 +213,19 @@ export class SSOController {
 			memberPayload.name = name;
 		}
 
-		if (subscriptions?.length > 0) {
-			// NOTE: if the group doesn't exist, Discourse won't create it. The likeliness of a new user SSOing with Discourse,
-			// and being the first person to be part of the tier is really low, and if that happens, they can re-auth after
-			// the group is manually created.
-			memberPayload.add_groups = subscriptions
-				.map(({tier: {slug}}) => getSlug(slug))
-				.join(',');
+		// NOTE: if the group doesn't exist, Discourse won't create it. The likeliness of a new user SSOing with Discourse,
+		// and being the first person to be part of the tier is really low, and if that happens, they can re-auth after
+		// the group is manually created.
+		const groups = [];
+
+		for (const {tier} of subscriptions) {
+			if (tier?.active) {
+				groups.push(getSlug(tier.slug));
+			}
+		}
+
+		if (groups.length > 0) {
+			memberPayload.add_groups = groups.join(',');
 		}
 
 		return memberPayload;
