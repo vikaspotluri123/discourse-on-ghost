@@ -1,3 +1,8 @@
+# 0.2.1
+
+ - :bug: fix crash when authenticating a member with subscriptions that don't map to a tier
+ - :art: improve error log for invalid configuration settings
+
 # 0.2.0
 
 _Official release, no changes from v0.2.0-beta.3_
