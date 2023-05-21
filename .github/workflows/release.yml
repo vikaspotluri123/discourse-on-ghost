@@ -16,7 +16,7 @@ jobs:
       - uses: gradebook/actions/actions/setup@master
         with:
           git-fetch-depth: 5
-      - run: yarn install --frozen-lockfile
+      - run: yarn install --frozen-lockfile --prefer-offline
       - run: yarn release-utils test-and-publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

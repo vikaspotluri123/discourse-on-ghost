@@ -24,7 +24,7 @@ jobs:
   #     env:
   #       FORCE_COLOR: 0
   #   - name: Install Dependencies
-  #     run: yarn install --frozen-lockfile
+  #     run: yarn install --frozen-lockfile --prefer-offline
   #   - name: Unit Tests
   #     run: yarn test:unit
   lint:
@@ -38,6 +38,6 @@ jobs:
       env:
         FORCE_COLOR: 0
     - name: Install dependencies
-      run: yarn install --frozen-lockfile
+      run: yarn install --frozen-lockfile --prefer-offline
     - name: Lint and Typecheck
       run: yarn lint
