@@ -200,10 +200,10 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.38.0.tgz#73a8a0d8aa8a8e6fe270431c5e72ae91b5337892"
   integrity sha512-IoD2MfUnOV58ghIHCiil01PcohxjbYR/qCxsoC+xNgUwh1EY8jOOrYmu3d3a71+tJJ23uscEV4X2HJWMsPJu4g==
 
-"@gradebook/release-utils@^0.7.0":
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/@gradebook/release-utils/-/release-utils-0.7.0.tgz#de182f153cbd5a55a5c3a7382b7b9a2c24ce84bd"
-  integrity sha512-MPvdCwpAJfWZjhtp9ZGGxJo9qEOBNZr5CgTolH1zolrim0GmkktuaWXrU5J/KRGxKWtpvWf7MR0u4WKz8UGcSQ==
+"@gradebook/release-utils@^0.7.1":
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/@gradebook/release-utils/-/release-utils-0.7.1.tgz#c51ad91c00de1e5145e9ccf6e04735f508aa5d45"
+  integrity sha512-CByYeaFtOWp7AjAj+P3+8HaChhqg95MU7WKfurBhrsCzPdYVvEyxPufATulaHBJoXt9ECaXNWIdN5qqI+p0U7Q==
   dependencies:
     "@types/urijs" "^1.19.17"
     mime "^3.0.0"
