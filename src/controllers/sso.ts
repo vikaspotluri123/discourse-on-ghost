@@ -76,7 +76,7 @@ export class SSOController {
 		}
 
 		if (!cookie) {
-			response.redirect(this._login);
+			response.redirect(this._addQueryParams(this._login, {sso, sig}));
 			return;
 		}
 
@@ -90,7 +90,7 @@ export class SSOController {
 		const memberResponse = await this.getMemberWithCookie(cookie);
 
 		if (memberResponse === MemberError.NotLoggedIn || !memberResponse) {
-			response.redirect(this._login);
+			response.redirect(this._addQueryParams(this._login, {sso, sig}));
 			return;
 		}
 
@@ -120,10 +120,7 @@ export class SSOController {
 		}
 
 		if (!from_client) {
-			const next = new URL(this._jwtRedirect);
-			next.searchParams.set('sso', sso);
-			next.searchParams.set('sig', sig);
-			response.redirect(302, next.href);
+			response.redirect(302, this._addQueryParams(this._jwtRedirect, {sso, sig}));
 			return;
 		}
 
@@ -235,5 +232,12 @@ export class SSOController {
 		response.setHeader('access-control-allow-origin', this._corsOrigin);
 		response.setHeader('access-control-allow-headers', 'authorization');
 		response.setHeader('access-control-allow-methods', 'GET');
+	}
+
+	private _addQueryParams(redirect: string, {sso, sig}: Record<'sso' | 'sig', string>) {
+		const next = new URL(redirect);
+		next.searchParams.set('sso', sso);
+		next.searchParams.set('sig', sig);
+		return next.href;
 	}
 }
