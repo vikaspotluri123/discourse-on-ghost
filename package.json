@@ -15,7 +15,8 @@
   "scripts": {
     "dev": "node scripts/dev.js",
     "lint": "xo && tsc",
-    "test": "echo no tests defined",
+    "pretest": "NO_WATCH= node scripts/dev.js",
+    "test": "mocha -r dist/targets/test.js --recursive test/unit",
     "prepublish": "yarn build",
     "build": "esbuild `find src -name '*.ts'` --outdir=build --platform=node --target=node16  --format=esm"
   },
