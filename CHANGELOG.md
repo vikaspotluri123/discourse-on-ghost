@@ -1,3 +1,7 @@
+# 0.2.2-beta.0
+
+ - :bug: fix session redirect not including auth params
+
 # 0.2.1
 
  - :bug: fix crash when authenticating a member with subscriptions that don't map to a tier
