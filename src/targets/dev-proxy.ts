@@ -12,13 +12,14 @@ export async function load(dogHome: string, app: Application) {
 	const {config: loadEnv} = await import('dotenv');
 	loadEnv({path: path.resolve(requestedCwd, '.env')});
 
-	const {getConfig} = await import('../services/config.js');
+	const {bootstrapInjector} = await import('../services/dependency-injection.js');
+	const {deferGetConfig} = await import('../services/config.js');
 	const {core, envToConfigMapping} = await import('./shared-node.js');
 	const {json} = await import('express');
 
 	core.logger = logger;
 
-	const config = getConfig(process.env, envToConfigMapping);
+	const config = bootstrapInjector(core, deferGetConfig(process.env, envToConfigMapping));
 
 	if (!config) {
 		logger.info('Failed loading DoG config. CWD:' + requestedCwd);
