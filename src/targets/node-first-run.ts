@@ -15,4 +15,10 @@ if (!config) {
 }
 
 const discourseSyncService = inject(DiscourseSyncService);
-void discourseSyncService.syncTiersToGroups(false);
+
+void discourseSyncService.syncTiersToGroups(false)
+	.catch(error => { // eslint-disable-line unicorn/prefer-top-level-await
+		core.logger.error('Failed syncing tiers:');
+		core.logger.error(error?.message ?? String(error));
+		core.logger.debug(error);
+	});
