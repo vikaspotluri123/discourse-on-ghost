@@ -33,6 +33,31 @@ interface StaffUsers {
 	}>;
 }
 
+/**
+ * Used to type a JSON response, in conjunction with {@link assertNoErrors}
+ */
+interface PossibleErrors {
+	errors?: unknown;
+}
+
+/**
+ * @param errors - The `errors` property from a Ghost API response
+ * @param errorContext - Answer to fill in the blank - `Failed to ___`
+ *
+ * @description Ensures the `errors` property of a Ghost response is empty
+ * @example ```typescript
+ *  const {[dataType], errors} = await response.json() as ResponseType & PossibleErrors
+ *  assertNoErrors(errors, 'Read [dataType]');
+ *  return [dataType];
+ * ```
+ */
+function assertNoErrors(errors: unknown, errorContext: string) {
+	if (errors && Array.isArray(errors) && errors.length > 0) {
+		const errorMessage = (errors[0] as Record<string, string>)?.message ?? JSON.stringify(errors);
+		throw new Error(`Failed to ${errorContext}: ${errorMessage}`);
+	}
+}
+
 const createMakeRequest: GhostFetchCreator = fetch => async ({url, method, headers, params, data}) => {
 	if (params && Object.keys(params).length > 0) {
 		const parsedUrl = new URL(url);
@@ -174,7 +199,9 @@ export class GhostService {
 
 		const response = await this._fetch(this.resolveAdmin('/ghost/api/admin/tiers'), {headers});
 
-		const {tiers} = await response.json() as {tiers: GhostTier[]};
+		const {tiers, errors} = await response.json() as {tiers: GhostTier[]} & PossibleErrors;
+		assertNoErrors(errors, 'get tiers');
+
 		return tiers;
 	}
 
@@ -187,9 +214,10 @@ export class GhostService {
 			return false;
 		}
 
-		const {users: [user]} = await response.json() as StaffUsers;
+		const {users, errors} = await response.json() as StaffUsers & PossibleErrors;
+		assertNoErrors(errors, 'authenticate staff from cookie');
 
-		return user.roles.some(role => role.name === 'Owner' || role.name === 'Administrator');
+		return users[0].roles.some(role => role.name === 'Owner' || role.name === 'Administrator');
 	}
 
 	private _urlResolve(url: string, urlPath: string, hash = '', query?: Record<string, string>): string {
