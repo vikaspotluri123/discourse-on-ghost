@@ -12,7 +12,7 @@ Note: these instructions assume MacOS or Linux distributions, and are compiled f
 When setting all this up, I found it useful to have everything alongside each other for easy access. For example:
 
 ```
-├── working_directory
+├── working-directory
 │   ├── ghost
 │   ├── discourse
 │   ├── discourse-on-ghost
@@ -20,15 +20,15 @@ When setting all this up, I found it useful to have everything alongside each ot
 
 ## 1. Install Ghost Locally
 
-Install [Ghost-CLI](https://ghost.org/docs/ghost-cli/)
+Step 1. Install [Ghost-CLI](https://ghost.org/docs/ghost-cli/)
 
 ```zsh
 npm install ghost-cli@latest -g
 ```
 
-Install Ghost
+Step 2. Install Ghost
 
-In your terminal, cd into the `ghost` directory (diagrammed above) and run the install command:
+In the `ghost` directory (diagrammed above), run the install command:
 
 ```zsh
 ghost install local
@@ -36,18 +36,23 @@ ghost install local
 
 Once the install is finished you’ll be able to access your new site on <http://localhost:2368> and <http://localhost:2368/ghost> to access Ghost Admin.
 
-The official docs can be found here: <https://ghost.org/docs/install/local/>
+The official Ghost install docs can be found here: <https://ghost.org/docs/install/local/>
 
 ## 2. Install Discourse Locally with Docker
 
 Step 1. Install Docker
 
-Step 2. Start container
+Step 2. Install Discourse
 
-Clone Discourse repository to your local device. Perform the following from the working directory in the diagram above:
+Clone Discourse repository to your local device. Perform the following from the `working-directory` in the diagram above:
 
 ```zsh
 git clone https://github.com/discourse/discourse.git discourse
+```
+
+Step 3. Start container
+
+```
 cd discourse
 
 d/boot_dev --init
@@ -67,9 +72,9 @@ Then open a browser on <http://localhost:4200> and voila!, you should see Discou
 
 For more details, see offical docs: <https://meta.discourse.org/t/install-discourse-for-development-using-docker/102009>
 
-## 3. Install Discourse on Ghost locally
+## 3. Install Discourse on Ghost
 
-From the root of your working directory:
+From the root of `working-directory`:
 
 Step 1. Install DoG
 
@@ -116,8 +121,8 @@ Head over to your `ghost` folder.
 Open `current/core/boot.js` and insert the following around line 483, immediately after `const rootApp = require('./app')();`
 
 ```javascript
-const dog = await import("/path-to-working-directory/discourse-on-ghost-mp/dist/targets/dev-proxy.js");
-await dog.load("/path-to-working-directory/discourse-on-ghost-mp/dist/", rootApp);
+const dog = await import("/path-to-working-directory/discourse-on-ghost/dist/targets/dev-proxy.js");
+await dog.load("/path-to-working-directory/discourse-on-ghost/dist/", rootApp);
 ```
 
 The final hack should look something like this:
@@ -127,8 +132,8 @@ The final hack should look something like this:
 debug("Begin: load server + minimal app");
 const rootApp = require("./app")();
 
-const dog = await import("/path-to-working-directory/discourse-on-ghost-mp/dist/targets/dev-proxy.js");
-await dog.load("/path-to-working-directory/discourse-on-ghost-mp/dist/", rootApp);
+const dog = await import("/path-to-working-directory/discourse-on-ghost/dist/targets/dev-proxy.js");
+await dog.load("/path-to-working-directory/discourse-on-ghost/dist/", rootApp);
 ```
 
 Save the file and restart Ghost:
@@ -143,4 +148,4 @@ If Ghost starts up with out complaining, you can start testing the integration.
 
 1. To fully test, DoG, you'll want to have your local Ghost installation be able to send emails. There are many ways to do this but it's not the scope of this documentation.
 2. As you are testing, you can check the DoG terminal (step 3 above) for output.
-3. If you are testing logging in from Discourse, and redirecting back to page on Discourse where you logged in from, please see [this note](https://github.com/vikaspotluri123/discourse-on-ghost/discussions/80#discussioncomment-6726220) on some complexities around redirect urls.
+3. If you are testing logging in from Discourse, and the subsequent redirect back to page on Discourse where you logged in from, please see [this note](https://github.com/vikaspotluri123/discourse-on-ghost/discussions/80#discussioncomment-6726220) on some complexities around redirect urls.
