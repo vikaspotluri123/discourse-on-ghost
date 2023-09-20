@@ -223,12 +223,12 @@ Scroll to the `Webhooks` section
 Add your `Member Updated` Webhook
 - Name can be whatever you want!
 - Event should be `Member Updated`
-- Target URL should be `https://your.blog/ghost/api/external_discourse_on_ghost/DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID` (replace `DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID` with the config value)
+- Target URL should be `https://your.blog/ghost/api/external_discourse_on_ghost/hook/DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID` (replace `DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID` with the config value)
 
 Add your `Member Deleted` Webhook
 - Name can be whatever you want!
 - Event should be `Member Deleted`
-- Target URL should be `https://your.blog/ghost/api/external_discourse_on_ghost/DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID` (replace `DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID` with the config value)
+- Target URL should be `https://your.blog/ghost/api/external_discourse_on_ghost/hook/DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID` (replace `DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID` with the config value)
 
 ### Step 8: You're done!
 
