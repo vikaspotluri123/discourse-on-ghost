@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@gradebook/release-utils": "^0.7.1",
-    "@types/express": "^4.17.20",
+    "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.4",
     "@types/uuid": "^9.0.7",
     "chai": "^4.3.10",
