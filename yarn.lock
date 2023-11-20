@@ -1231,10 +1231,10 @@
   dependencies:
     defer-to-connect "^2.0.1"
 
-"@tryghost/admin-api@^1.13.9":
-  version "1.13.9"
-  resolved "https://registry.yarnpkg.com/@tryghost/admin-api/-/admin-api-1.13.9.tgz#3085b981b0c899063290b08f8720a97336938cb1"
-  integrity sha512-pJkp3Pcb0bSgI2AB9LipWmZ4QSzDlooR8NOqjF0uGjYtcPljyCpH1cpMLe/y95AXqyzh0JuiBAbYQ0cCBvdZyQ==
+"@tryghost/admin-api@^1.13.11":
+  version "1.13.11"
+  resolved "https://registry.yarnpkg.com/@tryghost/admin-api/-/admin-api-1.13.11.tgz#c66c386ed1545311b29175826446558ec46ad183"
+  integrity sha512-8orRjijkK7tOZ6lx0KZzl/L45RfUUwwCK8TASgLUIGLysLEf/nOQoxKp5jOAlGfUI7rEu7ucVK1KKNles2+dbA==
   dependencies:
     axios "^1.0.0"
     form-data "^4.0.0"
