@@ -205,12 +205,12 @@
   resolved "https://registry.yarnpkg.com/@fastify/busboy/-/busboy-2.0.0.tgz#f22824caff3ae506b18207bad4126dbc6ccdb6b8"
   integrity sha512-JUFJad5lv7jxj926GPgymrWQxxjPYuJNiNjNMzqT+HiuP6Vl3dk5xzG+8sTX96np0ZAluvaMzPsjhHZ5rNuNQQ==
 
-"@gradebook/release-utils@^0.7.1":
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/@gradebook/release-utils/-/release-utils-0.7.1.tgz#c51ad91c00de1e5145e9ccf6e04735f508aa5d45"
-  integrity sha512-CByYeaFtOWp7AjAj+P3+8HaChhqg95MU7WKfurBhrsCzPdYVvEyxPufATulaHBJoXt9ECaXNWIdN5qqI+p0U7Q==
+"@gradebook/release-utils@^0.8.0":
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/@gradebook/release-utils/-/release-utils-0.8.0.tgz#3f5aa86ecd80498750981e802f46b2f3ab57184f"
+  integrity sha512-IfjPuc+R3hrQJCUU9HAircV+VECCSI+XelDfjpw+MUwmHD9bdAoaOzya4SMWWOeFa7Qm9QxYN2v+4N/Xxbt6YA==
   dependencies:
-    "@types/urijs" "^1.19.17"
+    "@types/urijs" "^1.19.20"
     mime "^3.0.0"
     urijs "^1.19.6"
     zx "^4.2.0"
@@ -1501,10 +1501,10 @@
     "@types/mime" "*"
     "@types/node" "*"
 
-"@types/urijs@^1.19.17":
-  version "1.19.19"
-  resolved "https://registry.yarnpkg.com/@types/urijs/-/urijs-1.19.19.tgz#2789369799907fc11e2bc6e3a00f6478c2281b95"
-  integrity sha512-FDJNkyhmKLw7uEvTxx5tSXfPeQpO0iy73Ry+PmYZJvQy0QIWX8a7kJ4kLWRf+EbTPJEPDSgPXHaM7pzr5lmvCg==
+"@types/urijs@^1.19.20":
+  version "1.19.25"
+  resolved "https://registry.yarnpkg.com/@types/urijs/-/urijs-1.19.25.tgz#ac92b53e674c3b108decdbe88dc5f444a2f42f6a"
+  integrity sha512-XOfUup9r3Y06nFAZh3WvO0rBU4OtlfPB/vgxpjg+NRdGU6CN6djdc6OEiH+PcqHCY6eFLo9Ista73uarf4gnBg==
 
 "@types/uuid@^9.0.7":
   version "9.0.7"
