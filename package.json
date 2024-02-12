@@ -40,7 +40,7 @@
     "nodemon": "^3.0.3",
     "sinon": "^17.0.1",
     "typescript": "^5.3.3",
-    "xo": "0.56.0"
+    "xo": "0.57.0"
   },
   "gradebook": {
     "cli:addSkipCIToCommit": false,
