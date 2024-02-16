@@ -96,4 +96,4 @@ export function getConfig(
 	).finalize();
 }
 
-export const deferGetConfig = (...args: Parameters<typeof getConfig>) => () => getConfig(...args);
+export const deferGetConfig = (...arguments_: Parameters<typeof getConfig>) => () => getConfig(...arguments_);

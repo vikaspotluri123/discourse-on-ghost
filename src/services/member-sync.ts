@@ -78,8 +78,8 @@ export class MemberSyncService {
 		return this._queue.has(id);
 	}
 
-	queue<T extends Queable>(id: string, action: T, ...args: Parameters<MemberSyncService[T]>) {
-		void this._queue.add(id, this[action], ...args);
+	queue<T extends Queable>(id: string, action: T, ...arguments_: Parameters<MemberSyncService[T]>) {
+		void this._queue.add(id, this[action], ...arguments_);
 	}
 
 	private async maybeCreateGroup(name: string, fullName: string) {

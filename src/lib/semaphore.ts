@@ -32,11 +32,11 @@ export class Semaphore {
 }
 
 export async function withSemaphore<
-	Func extends (...args: any[]) => Promise<any>,
->(semaphore: Semaphore, fn: Func, ...args: Parameters<Func>): Promise<ReturnType<Func>> {
+	TExecutor extends (...arguments_: any[]) => Promise<any>,
+>(semaphore: Semaphore, execute: TExecutor, ...parameters: Parameters<TExecutor>): Promise<ReturnType<TExecutor>> {
 	const unsubscribe = await semaphore.acquire();
 	try {
-		return await fn(...args); // eslint-disable-line @typescript-eslint/no-unsafe-return
+		return await execute(...parameters); // eslint-disable-line @typescript-eslint/no-unsafe-return
 	} catch (error: unknown) {
 		inject(Logger).error(error);
 		throw error;

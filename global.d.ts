@@ -35,7 +35,7 @@ declare module '@tryghost/logging' {
 	type GhostLoggingMethods = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
 
 	const defaultExport: {
-		[k in GhostLoggingMethods]: (...args: any[]) => void
+		[k in GhostLoggingMethods]: (...arguments_: any[]) => void
 	};
 
 	export default defaultExport;
