@@ -14,12 +14,12 @@ class ConfigValidationError extends Error {
 	}
 }
 
-function coerceToBoolean(envVar: string | undefined, defaultValue: boolean): boolean {
-	if (envVar === undefined || envVar === '') {
+function coerceToBoolean(envValue: string | undefined, defaultValue: boolean): boolean {
+	if (envValue === undefined || envValue === '') {
 		return defaultValue;
 	}
 
-	return envVar.toLowerCase() === 'true' || envVar === '1';
+	return envValue.toLowerCase() === 'true' || envValue === '1';
 }
 
 function coerceToNumber(candidate: unknown, {min, max}: {min?: number; max?: number}): number {

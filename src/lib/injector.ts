@@ -1,4 +1,4 @@
-type Class<T> = new(...args: any[]) => T;
+type Class<T> = new(...arguments_: any[]) => T;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 interface InjectionToken<T> extends Symbol {

@@ -1,6 +1,8 @@
 import {inject} from '../lib/injector.js';
 import {Logger} from '../types/logger.js';
-import {DEFAULT_GROUP_PREFIX, DiscourseService, getNiceName, getSlug} from './discourse.js';
+import {
+	DEFAULT_GROUP_PREFIX, DiscourseService, getNiceName, getSlug,
+} from './discourse.js';
 import {GhostService} from './ghost.js';
 
 const LOG_PREFIX = '[discourse:sync]';
