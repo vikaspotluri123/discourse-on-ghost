@@ -2,7 +2,7 @@
 name: Documentation Issue
 about: Report an issue or enhancement to the documentation
 title: "[docs]"
-labels: needs-triage
+labels: needs-triage, documentation
 assignees: ''
 
 ---
