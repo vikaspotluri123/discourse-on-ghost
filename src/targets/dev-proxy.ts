@@ -50,9 +50,9 @@ export async function load(dogHome: string, app: Application) {
 			return proxyResponse.text();
 		}).then(body => {
 			response.send(body);
-		}).catch(error => {
+		}).catch((error: unknown) => {
 			logger.error(error);
-			response.status(500).send(error?.message ?? 'Unknown error');
+			response.status(500).send((error as {message?: string})?.message ?? 'Unknown error');
 		});
 	});
 }
