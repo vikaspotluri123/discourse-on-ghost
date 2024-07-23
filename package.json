@@ -59,7 +59,8 @@
       ],
       "no-use-extend-native/no-use-extend-native": "off",
       "func-name-matching": "off",
-      "no-console": "error"
+      "no-console": "error",
+      "n/file-extension-in-import": "off"
     },
     "overrides": [
       {
