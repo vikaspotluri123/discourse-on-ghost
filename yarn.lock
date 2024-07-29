@@ -5807,10 +5807,10 @@ wrappy@1:
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==
 
-xo@0.59.0:
-  version "0.59.0"
-  resolved "https://registry.yarnpkg.com/xo/-/xo-0.59.0.tgz#15858bb5a1df4ac02485c77315e3af85f3782b28"
-  integrity sha512-SBYYsZahFkdKKuz53Y3szikIfyAk1EVQimdwwXbxXKh35vwq7OEZWuezPda2wWizYGnJ7ZVfNxem4qc+BI60rg==
+xo@0.59.3:
+  version "0.59.3"
+  resolved "https://registry.yarnpkg.com/xo/-/xo-0.59.3.tgz#21635dbbbda132103c8ab13ef840c67f10e79da1"
+  integrity sha512-jjUplAF4kqNP22HIlgnW+Ej8/Z1utf4Mzw/dLsbOcSpnUgrEqcyaS/OhGFriFyEBbnWVkslnYgUHiDsb6lNiBQ==
   dependencies:
     "@eslint/eslintrc" "^3.1.0"
     "@typescript-eslint/eslint-plugin" "^7.16.1"
