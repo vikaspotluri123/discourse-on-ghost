@@ -36,7 +36,7 @@
     "@types/uuid": "^10.0.0",
     "chai": "^5.1.2",
     "esbuild": "^0.24.0",
-    "mocha": "^10.7.3",
+    "mocha": "^10.8.2",
     "nodemon": "^3.1.7",
     "sinon": "^19.0.2",
     "typescript": "^5.5.4",
