@@ -101,7 +101,7 @@ export class GhostService {
 	private _ghostMembersPublicKeys: Array<{kid?: string; pem: string}> | undefined;
 	private readonly _jwtIssuer: string;
 
-	constructor(readonly makeFetch: Dependency<typeof FetchInjectionToken>) {
+	constructor() {
 		const config = inject(Configuration);
 		this._fetch = inject(FetchInjectionToken)('ghost', config.logGhostRequests);
 		this._publicUrl = config.ghostUrl;
