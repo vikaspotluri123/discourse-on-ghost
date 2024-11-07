@@ -40,6 +40,7 @@ export async function load(dogHome: string, app: Application) {
 			method: request.method,
 			headers: request.headers as Record<string, string>,
 			body,
+			redirect: 'manual',
 		}).then(proxyResponse => { // eslint-disable-line @typescript-eslint/promise-function-async
 			response.status(proxyResponse.status);
 
