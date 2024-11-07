@@ -1,14 +1,15 @@
 // Based on https://github.com/TryGhost/gscan/blob/b91d2ff2072ec0f8a/app/middlewares/log-request.js
-import {v1 as uuid} from 'uuid';
 import {type NextFunction, type Request, type Response} from 'express';
+import {IsomorphicCore} from '../types/isomorph.js';
 import {Logger} from '../types/logger.js';
 import {inject} from '../lib/injector.js';
 
 export function useRequestLogging() {
+	const {randomUUID} = inject(IsomorphicCore);
 	const logger = inject(Logger);
 	return function logRequest(_request: Request, _response: Response, next: NextFunction) {
 		const startTime = Date.now();
-		const requestId = uuid();
+		const requestId = randomUUID();
 
 		const request = _request as Request & {
 			requestId: string;

@@ -7,6 +7,7 @@ export interface IsomorphicCoreType {
 	fetch: typeof fetch;
 	crypto: CryptoService;
 	logger: Dependency<typeof Logger>;
+	randomUUID: () => string;
 	encoding: {
 		atob: (text: string) => string;
 		btoa: (binary: string) => string;

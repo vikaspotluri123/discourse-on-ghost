@@ -1,5 +1,5 @@
 import {Buffer} from 'node:buffer';
-import {webcrypto} from 'node:crypto';
+import {randomUUID, webcrypto} from 'node:crypto';
 import fetch from 'node-fetch';
 import logging from '@tryghost/logging';
 import {CryptoService, type WebCrypto} from '../services/crypto.js';
@@ -35,6 +35,7 @@ export const envToConfigMapping: Record<keyof Dependency<typeof Configuration>, 
 export const core: Dependency<typeof IsomorphicCore> = {
 	fetch,
 	crypto: new CryptoService(webcrypto as unknown as WebCrypto),
+	randomUUID,
 	logger: logging,
 	encoding: {
 		atob: (text: string) => Buffer.from(text, 'base64').toString('utf8'),
