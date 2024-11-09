@@ -7,12 +7,12 @@ updates:
     groups:
       all:
         applies-to: version-updates
-        patters: ["*"]
+        patterns: ["*"]
         update-types:
         - minor
         - patch
       all-major:
         applies-to: version-updates
-        patters: ["*"]
+        patterns: ["*"]
         update-types:
         - major
