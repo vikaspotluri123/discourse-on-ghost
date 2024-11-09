@@ -8,6 +8,7 @@ import {Logger} from '../types/logger.js';
 type Config = Dependency<typeof RawConfiguration>;
 
 const HEX_24 = /^[\da-f]{24}$/;
+const STRING_MIN_8 = /^.{8,}$/;
 const EXAMPLE_HEX_24 = 'BAFF1EDBEADEDCAFEBABB1ED';
 
 export function getConfig(
@@ -40,8 +41,12 @@ export function getConfig(
 		validator.for('logDiscourseRequests').boolean(false),
 		validator.for('logGhostRequests').boolean(false),
 		validator.for('enableGhostWebhooks').boolean(false),
+		// Use the most secure validator by default
+		validator.for('ghostWebhooksSecretVersion').enum('0', '1', '2').optional('2'),
 		validator.for('ghostMemberUpdatedRoute').matches(HEX_24).not(EXAMPLE_HEX_24).suggests(getRandomHex),
+		validator.for('ghostMemberUpdatedSecret').matches(STRING_MIN_8).not(EXAMPLE_HEX_24).optional('').suggests(getDiscourseSecret),
 		validator.for('ghostMemberDeletedRoute').matches(HEX_24).not(EXAMPLE_HEX_24).suggests(getRandomHex),
+		validator.for('ghostMemberDeletedSecret').matches(STRING_MIN_8).not(EXAMPLE_HEX_24).optional('').suggests(getDiscourseSecret),
 		validator.for('ghostMemberDeleteDiscourseAction')
 			.enum('none', 'sync', 'suspend', 'anonymize', 'delete'),
 		validator.for('mountedPublicUrl').url().transforms(value => getMountedUrl(value).toString()),

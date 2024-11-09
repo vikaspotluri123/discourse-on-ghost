@@ -19,8 +19,11 @@ export type ConfigurationType = { // eslint-disable-line @typescript-eslint/cons
 	logDiscourseRequests: boolean;
 	logGhostRequests: boolean;
 	enableGhostWebhooks: boolean;
+	ghostWebhooksSecretVersion: '0' | '1' | '2';
 	ghostMemberUpdatedRoute: string;
+	ghostMemberUpdatedSecret: string;
 	ghostMemberDeletedRoute: string;
+	ghostMemberDeletedSecret: string;
 	ghostMemberDeleteDiscourseAction: DeleteAction;
 	ssoMethod: SsoMethod;
 	noAuthRedirect: string;
