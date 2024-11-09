@@ -80,8 +80,11 @@ You can comment out values by prefixing them with a `#`. (e.g. `# DOG_KEY="value
 |DOG_LOG_DISCOURSE_REQUESTS | boolean | false | Whether to log requests made to Discourse. _There could be some user-specific information in the logs_ |
 |DOG_LOG_GHOST_REQUESTS | boolean | false | Whether to log requests made to Ghost. _There could be some user-specific information  in the logs_ |
 |DOG_GHOST_MEMBER_WEBHOOKS_ENABLED | boolean | false | Whether to enable the Ghost member webhooks (used to sync membership tiers) |
+|DOG_GHOST_MEMBER_WEBHOOKS_SECRET_VERSION | [enum](#dog_ghost_member_webhooks_secret_version) | 2 | Which version of Ghost's webhook signing to use. This depends on your Ghost version. |
 |DOG_GHOST_MEMBER_UPDATED_WEBHOOK_ID | string | **Yes**\* | The endpoint to listen for Ghost Member Updated webhooks. |
+|DOG_GHOST_MEMBER_UPDATED_WEBHOOK_SECRET | string | false | The secret for the Ghost Member Updated webhook. Must be at least 8 characters. |
 |DOG_GHOST_MEMBER_DELETED_WEBHOOK_ID | string | **Yes**\* | The endpoint to listen for Ghost Member Deleted webhooks. |
+|DOG_GHOST_MEMBER_DELETED_WEBHOOK_SECRET | string | false | The secret for the Ghost Member Deleted webhook. Must be at least 8 characters. |
 |DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION | [enum](#dog_ghost_member_delete_discourse_action) | **Yes** | The action to take on Discourse when a Ghost member is deleted |
 |DOG_DISCOURSE_SSO_TYPE | [enum](#dog_discourse_sso_type) | **Yes** | The type of SSO to use for Discourse (see `Pick your Path`) |
 |DOG_JWT_GHOST_SSO_PAGE | path | /sso/ | When using JWT auth, the path to the landing page. Must be an absolute path with a trailing slash. Example landing pages are on [GitHub](https://github.com/vikaspotluri123/discourse-on-ghost/tree/master/landing-pages) |
@@ -92,6 +95,14 @@ You can comment out values by prefixing them with a `#`. (e.g. `# DOG_KEY="value
 ## Enums
 
 Some of the configuration options have a fixed set of values to choose how DoG behaves.
+
+## DOG_GHOST_MEMBER_WEBHOOKS_SECRET_VERSION
+
+| Value | Description |
+| ----- | ----------- |
+| **0** | Ghost versions before 5.11.0, when webhooks were not signed. Note: This value is only support for completeness, and you should set the secret value to `""`. |
+| **1** | Ghost versions 5.11.0 to 5.87.0 |
+| **2** | Ghost versions 5.87.1 and later |
 
 ## DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION
 
