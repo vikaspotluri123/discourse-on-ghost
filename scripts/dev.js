@@ -15,6 +15,7 @@ await build({
 	format: 'esm',
 	outdir: './dist',
 	treeShaking: true,
+	sourcemap: true,
 });
 
 if (disableWatch) {
