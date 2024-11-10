@@ -42,3 +42,7 @@ export function bootstrapInjection<Dependency>(token: Token<Dependency>, instanc
 export function createInjectionToken<T>(description: string): InjectionToken<T> {
 	return Symbol(description) as unknown as InjectionToken<T>;
 }
+
+export const __test = {
+	instances,
+};
