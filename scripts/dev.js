@@ -3,12 +3,12 @@
 /* eslint-disable unicorn/no-process-exit */
 import process from 'node:process';
 import glob from 'glob';
-import {build} from 'esbuild';
+import {context} from 'esbuild';
 import nodemon from 'nodemon';
 
 const disableWatch = 'NO_WATCH' in process.env;
 
-await build({
+const esbuilder = await context({
 	entryPoints: glob.sync('./src/**/*.ts'),
 	target: 'node16',
 	platform: 'node',
@@ -19,8 +19,11 @@ await build({
 });
 
 if (disableWatch) {
+	await esbuilder.rebuild();
 	process.exit();
 }
+
+await esbuilder.watch();
 
 const watcher = nodemon({
 	script: 'dist/index.js',
