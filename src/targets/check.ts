@@ -174,6 +174,7 @@ void runCheckGroup({name: 'root', children: checks}).then(status => {
 
 	if (fail === 0) {
 		console.log(green('Everything looks good!'));
+	} else {
 		// eslint-disable-next-line unicorn/no-process-exit
 		process.exit(1);
 	}
