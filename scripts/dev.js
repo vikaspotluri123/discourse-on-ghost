@@ -1,12 +1,14 @@
 // @ts-check
 /* eslint-disable no-console */
 /* eslint-disable unicorn/no-process-exit */
-import process from 'node:process';
+import process, {argv} from 'node:process';
+import {existsSync} from 'node:fs';
 import glob from 'glob';
 import {context} from 'esbuild';
 import nodemon from 'nodemon';
 
 const disableWatch = 'NO_WATCH' in process.env;
+const target = argv[2] ?? 'node';
 
 const esbuilder = await context({
 	entryPoints: glob.sync('./src/**/*.ts'),
@@ -25,8 +27,15 @@ if (disableWatch) {
 
 await esbuilder.watch();
 
+const script = `dist/targets/${target}.js`;
+
+if (!existsSync(script)) {
+	console.error(`Unknown target "${target}"`);
+	process.exit(1);
+}
+
 const watcher = nodemon({
-	script: 'dist/index.js',
+	script,
 	watch: ['dist'],
 	delay: 0.01,
 });
