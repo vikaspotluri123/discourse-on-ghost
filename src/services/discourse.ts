@@ -35,12 +35,12 @@ interface InternalGroup {
 }
 
 export class DiscourseService {
-	readonly logger = inject(Logger);
+	protected readonly _fetch: ReturnType<Dependency<typeof FetchInjectionToken>>;
+	private readonly logger = inject(Logger);
 	private readonly _requestSemaphore: Semaphore;
 	private readonly _endpoint: string;
 	private readonly _apiKey: string;
 	private readonly _apiUser: string;
-	private readonly _fetch: ReturnType<Dependency<typeof FetchInjectionToken>>;
 
 	constructor() {
 		const config = inject(Configuration);

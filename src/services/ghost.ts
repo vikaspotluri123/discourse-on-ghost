@@ -93,7 +93,7 @@ const createMakeRequest: GhostFetchCreator = fetch => async ({url, method, heade
 };
 
 export class GhostService {
-	private readonly _fetch: Fetch;
+	protected readonly _fetch: Fetch;
 	private readonly _api: ReturnType<typeof GhostAdminApi>;
 	private readonly _publicUrl: string;
 	private readonly _adminUrl: string;
