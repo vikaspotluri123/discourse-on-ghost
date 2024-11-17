@@ -8,6 +8,7 @@ export interface DiffFailure {
 
 export interface StatusReporter {
 	pass(message?: string): void;
+	warn(message?: string | undefined | DiffFailure): void;
 	fail(message?: string | undefined | DiffFailure): void;
 	skip(message?: string): void;
 }

@@ -122,7 +122,13 @@ class DiscourseChecksService extends DiscourseService {
 	}
 }
 
-async function checkDiscourseSetting({pass, fail, skip}: StatusReporter, name: string, value: string) {
+async function checkDiscourseSetting(
+	{pass, fail, warn, skip}: StatusReporter,
+	name: string,
+	value: string,
+	fatal: boolean,
+) {
+	const noPass = fatal ? fail : warn;
 	const discourseService = inject(DiscourseChecksService);
 	if (discourseService.apiKeyError) {
 		skip('API not available');
@@ -131,24 +137,24 @@ async function checkDiscourseSetting({pass, fail, skip}: StatusReporter, name: s
 
 	const setting = await discourseService.getSetting(name);
 	if (setting === undefined) {
-		fail('Not set');
+		noPass('Not set');
 		return;
 	}
 
 	if (setting !== value) {
-		fail({expected: value, actual: setting});
+		noPass({expected: value, actual: setting});
 		return;
 	}
 
 	pass();
 }
 
-function createDiscourseSettingCheck(setting: DiscourseSetting): Check {
+function createDiscourseSettingCheck(setting: DiscourseSetting, fatal: boolean): Check {
 	return {
 		name: setting.name,
 		description: setting.description,
 		// eslint-disable-next-line @typescript-eslint/promise-function-async
-		run: report => checkDiscourseSetting(report, setting.name, setting.value),
+		run: report => checkDiscourseSetting(report, setting.name, setting.value, fatal),
 	};
 }
 
@@ -165,4 +171,4 @@ export async function checkDiscourseApiKey({pass, fail}: StatusReporter) {
 
 export const discourseSettingsChecks = (category: 'general' | 'connect') => DISCOURSE_SETTINGS
 	.filter(setting => setting.category === category)
-	.map(setting => createDiscourseSettingCheck(setting));
+	.map(setting => createDiscourseSettingCheck(setting, category === 'connect'));

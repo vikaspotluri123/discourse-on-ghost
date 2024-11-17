@@ -2,7 +2,9 @@
 
 import process from 'node:process';
 import {config as loadEnv} from 'dotenv';
-import {red, green, yellow} from 'yoctocolors';
+import {
+	red, green, yellow, cyan,
+} from 'yoctocolors';
 import {
 	type CheckGroup, type DiffFailure, type StatusReporter, checks,
 } from '../checks/index.js';
@@ -26,11 +28,12 @@ interface InternalCheckStatus {
 class CheckStatusReporter implements StatusReporter {
 	readonly pass: (message?: string) => void;
 	readonly fail: (message: string | undefined | {expected: string; actual: string}) => void;
+	readonly warn: (message?: string) => void;
 	readonly skip: (message?: string) => void;
 
 	private statusMessage = '';
 	private statusPrefix = '';
-	private _status?: 'pass' | 'fail' | 'skip';
+	private _status?: 'pass' | 'fail' | 'skip' | 'warn';
 	private readonly _errors: string[] = [];
 
 	get value() {
@@ -40,6 +43,7 @@ class CheckStatusReporter implements StatusReporter {
 	constructor(public readonly name: string) {
 		this.pass = this._createStatusMethod('pass', green('✓'));
 		this.fail = this._createStatusMethod('fail', red('✗'));
+		this.warn = this._createStatusMethod('warn', cyan('⚠'));
 		this.skip = this._createStatusMethod('skip', yellow('○'));
 	}
 
@@ -131,8 +135,11 @@ function serializeInternalCheckStatus(
 	summary: {
 		pass: number;
 		fail: number;
+		warn: number;
 		skip: number;
-	} = {pass: 0, fail: 0, skip: 0},
+	} = {
+		pass: 0, fail: 0, warn: 0, skip: 0,
+	},
 ) {
 	const spaces = ' '.repeat(indent * 2);
 	if (Array.isArray(result)) {
@@ -160,9 +167,10 @@ void runCheckGroup({name: 'root', children: checks}).then(status => {
 	const {pass, fail, skip} = serializeInternalCheckStatus(status);
 	const passes = green(pass === 1 ? `${pass} pass` : `${pass} passes`);
 	const fails = red(fail === 1 ? `${fail} fail` : `${fail} fails`);
+	const warns = cyan(fail === 1 ? `${fail} warning` : `${fail} warnings`);
 	const skips = yellow(skip === 1 ? `${skip} skip` : `${skip} skips`);
 
-	console.log(`\n\nConfiguration check completed with ${passes}, ${fails}, and ${skips}`);
+	console.log(`\n\nConfiguration check completed with ${passes}, ${warns}, ${fails}, and ${skips}`);
 
 	if (fail === 0) {
 		console.log(green('Everything looks good!'));
