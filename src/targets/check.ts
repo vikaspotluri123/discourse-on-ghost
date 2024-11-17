@@ -30,8 +30,12 @@ class CheckStatusReporter implements StatusReporter {
 
 	private statusMessage = '';
 	private statusPrefix = '';
-	private status?: 'pass' | 'fail' | 'skip';
+	private _status?: 'pass' | 'fail' | 'skip';
 	private readonly _errors: string[] = [];
+
+	get value() {
+		return this._status ?? 'fail';
+	}
 
 	constructor(public readonly name: string) {
 		this.pass = this._createStatusMethod('pass', green('✓'));
@@ -40,7 +44,7 @@ class CheckStatusReporter implements StatusReporter {
 	}
 
 	assert() {
-		if (!this.status) {
+		if (!this._status) {
 			this._errors.push('One of reporter#{pass,fail,skip} must be called in the check');
 			this.fail('No status');
 		}
@@ -65,14 +69,14 @@ class CheckStatusReporter implements StatusReporter {
 	}
 
 	// eslint-disable-next-line @typescript-eslint/ban-types
-	private _createStatusMethod(status: CheckStatusReporter['status'] & {}, prefix: string) {
+	private _createStatusMethod(status: CheckStatusReporter['_status'] & {}, prefix: string) {
 		return (message: string | DiffFailure = '') => {
-			if (this.status) {
+			if (this._status) {
 				const message = this.statusMessage ? ` (${this.statusMessage})` : '';
-				this._errors.push(`Dropped ${this.status}${message} for ${status}`);
+				this._errors.push(`Dropped ${this._status}${message} for ${status}`);
 			}
 
-			this.status = status;
+			this._status = status;
 			this.statusPrefix = prefix;
 			this.statusMessage = this._serializeMessage(message);
 		};
@@ -120,26 +124,49 @@ async function runCheckGroup(group: CheckGroup, indent = 1) {
 	return statuses;
 }
 
-function serializeInternalCheckStatus(status: InternalCheckStatus[] | InternalCheckStatus, indent = 0) {
+function serializeInternalCheckStatus(
+	result: InternalCheckStatus[] | InternalCheckStatus,
+	indent = 0,
+	// eslint-disable-next-line unicorn/no-object-as-default-parameter
+	summary: {
+		pass: number;
+		fail: number;
+		skip: number;
+	} = {pass: 0, fail: 0, skip: 0},
+) {
 	const spaces = ' '.repeat(indent * 2);
-	if (Array.isArray(status)) {
-		for (const singleStatus of status) {
-			serializeInternalCheckStatus(singleStatus, indent + 1);
+	if (Array.isArray(result)) {
+		for (const singleStatus of result) {
+			serializeInternalCheckStatus(singleStatus, indent + 1, summary);
 		}
 
-		return;
+		return summary;
 	}
 
-	if (status.status instanceof CheckStatusReporter) {
+	if (result.status instanceof CheckStatusReporter) {
 		// Extra indent because it's a sub-message of a check
-		console.log(spaces + status.status.toString(indent + 2));
+		console.log(spaces + result.status.toString(indent + 2));
+		summary[result.status.value] += 1;
 	} else {
-		console.log(spaces + status.name);
-		serializeInternalCheckStatus(status.status, indent + 1);
+		console.log(spaces + result.name);
+		serializeInternalCheckStatus(result.status, indent + 1, summary);
 	}
+
+	return summary;
 }
 
 // eslint-disable-next-line unicorn/prefer-top-level-await
 void runCheckGroup({name: 'root', children: checks}).then(status => {
-	serializeInternalCheckStatus(status);
+	const {pass, fail, skip} = serializeInternalCheckStatus(status);
+	const passes = green(pass === 1 ? `${pass} pass` : `${pass} passes`);
+	const fails = red(fail === 1 ? `${fail} fail` : `${fail} fails`);
+	const skips = yellow(skip === 1 ? `${skip} skip` : `${skip} skips`);
+
+	console.log(`\n\nConfiguration check completed with ${passes}, ${fails}, and ${skips}`);
+
+	if (fail === 0) {
+		console.log(green('Everything looks good!'));
+		// eslint-disable-next-line unicorn/no-process-exit
+		process.exit(1);
+	}
 });
