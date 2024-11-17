@@ -165,10 +165,10 @@ function serializeInternalCheckStatus(
 // eslint-disable-next-line unicorn/prefer-top-level-await
 void runCheckGroup({name: 'root', children: checks}).then(status => {
 	const {pass, fail, skip} = serializeInternalCheckStatus(status);
-	const passes = green(pass === 1 ? `${pass} pass` : `${pass} passes`);
-	const fails = red(fail === 1 ? `${fail} fail` : `${fail} fails`);
+	const passes = green(`${pass} passing`);
+	const fails = red(`${fail} failing`);
 	const warns = cyan(fail === 1 ? `${fail} warning` : `${fail} warnings`);
-	const skips = yellow(skip === 1 ? `${skip} skip` : `${skip} skips`);
+	const skips = yellow(`${skip} skipped`);
 
 	console.log(`\n\nConfiguration check completed with ${passes}, ${warns}, ${fails}, and ${skips}`);
 
