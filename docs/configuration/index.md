@@ -96,7 +96,7 @@ You can comment out values by prefixing them with a `#`. (e.g. `# DOG_KEY="value
 
 Some of the configuration options have a fixed set of values to choose how DoG behaves.
 
-## DOG_GHOST_MEMBER_WEBHOOKS_SECRET_VERSION
+### DOG_GHOST_MEMBER_WEBHOOKS_SECRET_VERSION
 
 | Value | Description |
 | ----- | ----------- |
@@ -104,7 +104,7 @@ Some of the configuration options have a fixed set of values to choose how DoG b
 | **1** | Ghost versions 5.11.0 to 5.87.0 |
 | **2** | Ghost versions 5.87.1 and later |
 
-## DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION
+### DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION
 
 Configures how DoG responds to the `Member Deleted` Ghost event.
 
@@ -118,7 +118,7 @@ _Note_: The member won't be signed out of any Discourse sessions, but since Ghos
 | **anonymize** | Anonymize the member's Discourse account. Data will be retained, but not be associated with the member |
 | **delete**    | Delete the member's Discourse account. All data will be deleted |
 
-## DOG_DISCOURSE_SSO_TYPE
+### DOG_DISCOURSE_SSO_TYPE
 
 Configures how DoG handles SSO. Refer to the [Pick your Path](../#step-1-pick-your-path) section on the home page.
 
