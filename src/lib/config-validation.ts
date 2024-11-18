@@ -4,12 +4,14 @@ import {inject} from './injector.js';
 class ConfigValidationError extends Error {
 	// eslint-disable-next-line @typescript-eslint/class-literal-property-style
 	readonly hideStack = true;
+	readonly suggestion: string | undefined;
 	readonly help: string | undefined;
 	readonly context: string | undefined;
 
 	constructor(keyName: string, suggestion?: string, context?: string) {
 		super(`${keyName} is not valid`);
 		this.context = context;
+		this.suggestion = suggestion;
 		this.help = suggestion ? `Suggestion: ${suggestion}` : undefined;
 	}
 }
@@ -195,6 +197,7 @@ export class ConfigValidator<
 		let failures = 0;
 
 		const internalKeys = new Set(Object.keys(this._internalToExternalKeyMap));
+		const suggestions = [];
 
 		for (const validator of this._keys) {
 			const {key: externalKey} = validator;
@@ -210,6 +213,9 @@ export class ConfigValidator<
 			} catch (error: unknown) {
 				if (error instanceof ConfigValidationError) {
 					this.logger.error(error);
+					if (error.suggestion) {
+						suggestions.push(`${externalKey}="${error.suggestion}"`);
+					}
 				} else if (error instanceof Error) {
 					this.logger.error(new ConfigValidationError(validator.key, '', error.message));
 				}
@@ -226,6 +232,12 @@ export class ConfigValidator<
 		if (failures > 0) {
 			const keys = failures === 1 ? 'key was' : 'keys were';
 			this.logger.error(`${failures} config ${keys} were invalid, unable to continue`);
+
+			if (suggestions.length > 0) {
+				const suggestion = suggestions.length === 1 ? 'Suggestion' : 'Suggestions';
+				this.logger.info(`${suggestion}:\n\n${suggestions.join('\n')}\n`);
+			}
+
 			return;
 		}
 
