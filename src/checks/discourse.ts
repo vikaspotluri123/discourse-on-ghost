@@ -15,36 +15,36 @@ interface DiscourseSetting {
 
 export const DISCOURSE_SETTINGS: DiscourseSetting[] = [{
 	name: 'enable_discourse_connect',
-	description: 'Configures Discourse to use DoG for logging users in',
+	description: 'Verifies that Discourse Connect is enabled, which is required for DoG to serve as the SSO provider.',
 	category: 'connect',
 	value: 'true',
 }, {
 	name: 'discourse_connect_url',
-	description: 'Configures the DoG URL for Discourse Connect',
+	description: 'Verifies that the Discourse Connect URL points to DoG. Incorrectly configuring this will cause DoG to not handle auth for Discourse.',
 	category: 'connect',
 	get value() {
 		return new URL('ghost/api/external_discourse_on_ghost/sso', inject(Configuration).ghostAdminUrl).href;
 	},
 }, {
 	name: 'discourse_connect_secret',
-	description: 'Configures the shared secret between Discourse and DoG',
+	description: 'Verifies that the Discourse Connect secret matches the DoG configured secret',
 	category: 'connect',
 	get value() {
 		return inject(Configuration).discourseSecret;
 	},
 }, {
 	name: 'auth_overrides_name',
-	description: 'Configures Discourse to only use the Member\'s name from Ghost',
+	description: 'Verifies that Discourse is configured to only use the Member\'s name from Ghost. This is optional, but recommended so you can have a single source of truth.',
 	category: 'general',
 	value: 'true',
 }, {
 	name: 'auth_overrides_email',
-	description: 'Configures Discourse to only use the Member\'s email from Ghost',
+	description: 'Verifies that Discourse is configured to only use the Member\'s email from Ghost. This is optional, but recommended so you can have a single source of truth.',
 	category: 'general',
 	value: 'true',
 }, {
 	name: 'discourse_connect_overrides_avatar',
-	description: 'Configures Discourse to only use the Member\'s avatar from Ghost',
+	description: 'Verifies that Discourse is configured to only use the Member\'s avatar from Ghost. This is optional, but recommended so you can have a single source of truth.`',
 	category: 'general',
 	value: 'true',
 }];

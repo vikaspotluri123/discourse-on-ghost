@@ -15,6 +15,7 @@ export interface StatusReporter {
 
 export interface CheckGroup {
 	name: string;
+	description?: string;
 	children: Array<Check | CheckGroup>;
 }
 
@@ -29,10 +30,11 @@ export const checks: CheckGroup[] = [{
 	name: 'Discourse',
 	children: [{
 		name: 'API Key',
-		description: 'Check if the API key is valid',
+		description: 'Verifies that Discourse is functional and the API key is valid.',
 		run: checkDiscourseApiKey,
 	}, {
 		name: 'Connect Settings',
+		description: 'Group of checks to verify Discourse Connect related settings.',
 		children: discourseSettingsChecks('connect'),
 	}, {
 		name: 'General Settings',
@@ -42,11 +44,11 @@ export const checks: CheckGroup[] = [{
 	name: 'Ghost',
 	children: [{
 		name: 'API Key',
-		description: 'Check if the API key is valid',
+		description: 'Verifies that Discourse Connect is enabled, which is required for DoG to serve as the SSO provider.',
 		run: checkGhostApiKey,
 	}, {
 		name: 'SSO Page',
-		description: 'Check if the SSO page is valid',
+		description: 'For session auth, verifies that the SSO page is exists and is accessible.',
 		run: checkGhostSsoUrl,
 	}],
 }];

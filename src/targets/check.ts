@@ -171,6 +171,7 @@ void runCheckGroup({name: 'root', children: checks}).then(status => {
 	const skips = yellow(`${skip} skipped`);
 
 	console.log(`\n\nConfiguration check completed with ${passes}, ${warns}, ${fails}, and ${skips}`);
+	console.log('For more information, refer to the checker docs at https://github.vikaspotluri.me/discourse-on-ghost/configuration/checker/');
 
 	if (fail === 0) {
 		console.log(green('Everything looks good!'));

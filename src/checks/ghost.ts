@@ -67,7 +67,7 @@ export async function checkGhostApiKey({pass, fail}: StatusReporter) {
 export async function checkGhostSsoUrl({pass, fail, skip}: StatusReporter) {
 	const config = inject(Configuration);
 	if (config.ssoMethod === 'jwt') {
-		skip('N/A for session-based authentication');
+		skip('N/A for jwt-based authentication');
 		return;
 	}
 
