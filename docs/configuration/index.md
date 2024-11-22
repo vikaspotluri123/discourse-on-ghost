@@ -21,7 +21,7 @@ tr td:first-child {
 		max-width: 248px;
 	}
 
-	.main {
+	.side-bar + .main {
 		margin-left: 248px;
 		max-width: 1200px;
 	}
@@ -32,14 +32,14 @@ tr td:first-child {
 		max-width: 350px;
 	}
 
-	.main {
+	.side-bar + .main {
 		margin-left: calc((100% - 1064px) / 2 + 264px);
 		max-width: 1200px;
 	}
 }
 
 @media (min-width: 1250px) {
-	.main {
+	.side-bar + .main {
 		margin-left: 350px;
 	}
 
@@ -47,7 +47,7 @@ tr td:first-child {
 		word-break: inherit;
 	}
 
-	.main {
+	.side-bar + .main {
 		max-width: unset;
 	}
 
