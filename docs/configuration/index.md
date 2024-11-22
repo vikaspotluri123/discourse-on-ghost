@@ -124,5 +124,13 @@ Configures how DoG handles SSO. Refer to the [Pick your Path](../#step-1-pick-yo
 
 Supported values: **session**, or **jwt**
 
+## Ghost Webhooks
+
+Ghost can notify integrations (like DoG) of changes via [webhooks](https://ghost.org/docs/webhooks/). If you enable webhooks (`DOG_GHOST_MEMBER_WEBHOOKS_ENABLED="true"`), DoG will process the following Ghost Webhooks:
+
+1. **Member Updated**: Triggered when a member is updated - either by the member or you. DoG uses this webhook to synchronize any subscription changes from Ghost to Discourse.
+
+1. **Member Deleted**: Triggered when a member is deleted by you. DoG uses this webhook to perform the [DOG_GHOST_MEMBER_DELETE_DISCOURSE_ACTION](#dog_ghost_member_delete_discourse_action).
+
 *[SSO]: Single Sign On
 *[DoG]: Discourse on Ghost
