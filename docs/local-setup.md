@@ -133,7 +133,7 @@ debug("Begin: load server + minimal app");
 const rootApp = require("./app")();
 
 const dog = await import("/path-to-working-directory/discourse-on-ghost/dist/targets/dev-proxy.js");
-await dog.load("/path-to-working-directory/discourse-on-ghost/dist/", rootApp);
+await dog.load("/path-to-working-directory/discourse-on-ghost/", rootApp);
 ```
 
 Save the file and restart Ghost:
