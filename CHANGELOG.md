@@ -1,3 +1,17 @@
+# 0.3.0
+
+ - :sparkles: add support for verifying Ghost webhooks
+ - :sparkles: add `check` target [(docs)](https://github.vikaspotluri.me/discourse-on-ghost/configuration/checker/)
+ - :sparkles: list all suggested configuration options when config validation fails
+ - :art: improve error handling in first run target
+ - Several documentation updates
+
+New [Configuration](https://github.vikaspotluri.me/discourse-on-ghost/configuration/) Options:
+
+ - DOG_GHOST_MEMBER_WEBHOOKS_SECRET_VERSION
+ - DOG_GHOST_MEMBER_UPDATED_WEBHOOK_SECRET
+ - DOG_GHOST_MEMBER_DELETED_WEBHOOK_SECRET
+
 # 0.2.2-beta.0
 
  - :bug: fix session redirect not including auth params
