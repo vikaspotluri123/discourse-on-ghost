@@ -42,7 +42,7 @@
     "mocha": "^11.0.1",
     "nodemon": "^3.1.9",
     "sinon": "^19.0.2",
-    "typescript": "^5.7.2",
+    "typescript": "^5.7.3",
     "xo": "0.60.0"
   },
   "gradebook": {
