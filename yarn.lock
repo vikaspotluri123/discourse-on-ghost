@@ -1249,15 +1249,15 @@
     "@tryghost/errors" "^1.3.7"
     "@tryghost/request" "^1.0.10"
 
-"@tryghost/logging@^2.4.20":
-  version "2.4.20"
-  resolved "https://registry.yarnpkg.com/@tryghost/logging/-/logging-2.4.20.tgz#251cff0911014829816d865667104fcd4ac25b7f"
-  integrity sha512-7fpg8xuJHrgAgGhtJjY9nH5vAj8RY2SvcPLkOvD/7leou47ZdSu15l+bUBNFAsx9mAI7AdozDRCAv3WuTkV7cw==
+"@tryghost/logging@^2.4.21":
+  version "2.4.21"
+  resolved "https://registry.yarnpkg.com/@tryghost/logging/-/logging-2.4.21.tgz#3fd922c19fe8ea0950d83554a8c68ff338700e13"
+  integrity sha512-9Yzkzl1k81b0kEAWUfR3Lc8RQtWrX7SYGy/b3brUthhsigjacCENo7tMGOhMIG/ZKVDbtwa39T7Rnvk5qR6Asg==
   dependencies:
     "@tryghost/bunyan-rotating-filestream" "^0.0.7"
     "@tryghost/elasticsearch" "^3.0.23"
     "@tryghost/http-stream" "^0.1.35"
-    "@tryghost/pretty-stream" "^0.1.28"
+    "@tryghost/pretty-stream" "^0.1.29"
     "@tryghost/root-utils" "^0.3.32"
     bunyan "^1.8.15"
     bunyan-loggly "^1.4.2"
@@ -1266,10 +1266,10 @@
     json-stringify-safe "^5.0.1"
     lodash "^4.17.21"
 
-"@tryghost/pretty-stream@^0.1.28":
-  version "0.1.28"
-  resolved "https://registry.yarnpkg.com/@tryghost/pretty-stream/-/pretty-stream-0.1.28.tgz#2cff88b3a6cb6f1c1b7dd08c27fb9f6351da487e"
-  integrity sha512-iA3Jxw4ltiHKPBZMnvYN3TP26O2RdQBH051BNY+qrSJjx8DhLVverjXlwCC3fxfOTTiPDtx1aMMLlW4RkACtlQ==
+"@tryghost/pretty-stream@^0.1.29":
+  version "0.1.29"
+  resolved "https://registry.yarnpkg.com/@tryghost/pretty-stream/-/pretty-stream-0.1.29.tgz#e0bbab7333a6cac38fdfa19d3da86aeaaded7f02"
+  integrity sha512-HByPoCd5R63bRg34wZ4D7bfCeBsLTP3gLCi5xVsOnETxB4GiHHo31/vm+kI8pZd7mnWMre3nnDdVR0Sf72U0eQ==
   dependencies:
     date-format "^4.0.14"
     lodash "^4.17.21"
@@ -1403,10 +1403,10 @@
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
   integrity sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==
 
-"@types/jsonwebtoken@^9.0.8":
-  version "9.0.8"
-  resolved "https://registry.yarnpkg.com/@types/jsonwebtoken/-/jsonwebtoken-9.0.8.tgz#313490052801edfb031bb32b6bbd77cc9f230852"
-  integrity sha512-7fx54m60nLFUVYlxAB1xpe9CBWX2vSrk50Y6ogRJ1v5xxtba7qXTg5BgYDN5dq+yuQQ9HaVlHJyAAt1/mxryFg==
+"@types/jsonwebtoken@^9.0.9":
+  version "9.0.9"
+  resolved "https://registry.yarnpkg.com/@types/jsonwebtoken/-/jsonwebtoken-9.0.9.tgz#a4c3a446c0ebaaf467a58398382616f416345fb3"
+  integrity sha512-uoe+GxEuHbvy12OUQct2X9JenKM3qAscquYymuQN4fMWG9DBQtykrQEFcAbVACF7qaLw9BePSodUL0kquqBJpQ==
   dependencies:
     "@types/ms" "*"
     "@types/node" "*"
@@ -1444,10 +1444,10 @@
     "@types/node" "*"
     form-data "^3.0.0"
 
-"@types/node@*", "@types/node@^22.13.4":
-  version "22.13.4"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.13.4.tgz#3fe454d77cd4a2d73c214008b3e331bfaaf5038a"
-  integrity sha512-ywP2X0DYtX3y08eFVx5fNIw7/uIv8hYUKgXoK8oayJlLnKcRfEYCxWMVE1XagUdVtCJlZT1AU4LXEABW+L1Peg==
+"@types/node@*", "@types/node@^22.13.5":
+  version "22.13.5"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.13.5.tgz#23add1d71acddab2c6a4d31db89c0f98d330b511"
+  integrity sha512-+lTU0PxZXn0Dr1NBtC7Y8cR21AJr87dLLU953CWA6pMxxv/UDc7jYAY90upcrie1nRcD6XNG5HOYEDtgW5TxAg==
   dependencies:
     undici-types "~6.20.0"
 
@@ -1487,10 +1487,10 @@
     "@types/mime" "*"
     "@types/node" "*"
 
-"@types/sinon@^17.0.3":
-  version "17.0.3"
-  resolved "https://registry.yarnpkg.com/@types/sinon/-/sinon-17.0.3.tgz#9aa7e62f0a323b9ead177ed23a36ea757141a5fa"
-  integrity sha512-j3uovdn8ewky9kRBG19bOwaZbexJu/XjtkHyjvUgt4xfPFz18dcORIMqnYh66Fx3Powhcr85NT5+er3+oViapw==
+"@types/sinon@^17.0.4":
+  version "17.0.4"
+  resolved "https://registry.yarnpkg.com/@types/sinon/-/sinon-17.0.4.tgz#fd9a3e8e07eea1a3f4a6f82a972c899e5778f369"
+  integrity sha512-RHnIrhfPO3+tJT0s7cFaXGZvsL4bbR3/k7z3P312qMS4JaS2Tk+KiwiLx1S0rQ56ERj00u1/BtdyVd0FY+Pdew==
   dependencies:
     "@types/sinonjs__fake-timers" "*"
 
