@@ -193,25 +193,6 @@ Ghost's default tier names can get pretty long, and this can cause Discourse Gro
 
 DoG syncs your member's tiers with a corresponding Discourse group, which means you can use Discourse's [Private Categories](https://meta.discourse.org/t/how-to-create-private-categories-using-category-permission-security-settings/87678) feature to create gated sections of the forum for commenting or conversation.
 
-
-#### A note on using Discourse for comments on Ghost
-
-It's possible to [use Discourse for comments on your Ghost publication](https://ghost.org/integrations/discourse/).
-However, there are a few things to note:
-
-1. When using official Discourse hosting, views of embedded topics (e.g. a "comments section" of a post) are counted as pageviews, which can impact your pricing.
-
-2. Discourse's embed feature doesn't allow dynamically setting the category. This can be an issue if e.g. you're looking to create gated content sections in your forum.
-
-   To work around this limitation:
-
-   - After publishing your post, head over to the comments section on the live post
-   - Click `Start Discussion` to open the auto-generated thread. It might take a minute to load.
-   - Set the topic's category to the private category associated with the tier
-
-   Alternatively, since Discourse allows you to specify the category based on the URL, you can also use Ghost's [Dynamic Routing](https://ghost.org/docs/themes/routing/) feature to create a "subdirectory" for each tier.
-
-
 ### Step 7: Configure Ghost Webhooks
 
 Head to the *Integrations* page of your Ghost installation (`https://your.blog/ghost/#/settings/integrations/`)
