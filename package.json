@@ -32,6 +32,7 @@
   "devDependencies": {
     "@gradebook/release-utils": "^0.8.0",
     "@types/chai": "^5.2.1",
+    "@types/dotenv": "^8.2.3",
     "@types/express": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/mocha": "^10.0.10",

@@ -20,6 +20,11 @@ export const app = express();
 app.disable('x-powered-by');
 
 app.use(useRequestLogging());
+
+app.get('/health', (_, res) => {
+  res.status(200).json({ status: 'ok', uptime: process.uptime() });
+});
+
 routingManager.addAllRoutes(app);
 
 app.listen(config.port, '0.0.0.0', () => {
