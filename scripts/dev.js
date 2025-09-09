@@ -1,11 +1,10 @@
 // @ts-check
 /* eslint-disable no-console */
 /* eslint-disable unicorn/no-process-exit */
-import process, { argv } from 'node:process';
-import { existsSync } from 'node:fs';
+import process, {argv} from 'node:process';
+import {existsSync} from 'node:fs';
 import { glob } from 'glob';
-import { context } from 'esbuild';
-const { default: nodemon } = await import('nodemon'); // ✅ fix import
+import {context} from 'esbuild';
 
 const disableWatch = 'NO_WATCH' in process.env;
 const target = argv[2] ?? 'node';
@@ -34,17 +33,6 @@ if (!existsSync(script)) {
 	process.exit(1);
 }
 
-const watcher = nodemon({
-	script,
-	watch: ['dist'],
-	delay: 0.01,
-});
+console.log(`Watching and ready to run ${script}...`);
 
-watcher.once('start', () => {
-	console.log('Watching for changes...');
-}).on('quit', () => {
-	console.log('Exiting...');
-	process.exit();
-}).on('restart', () => {
-	console.log('Restarted');
-});
+// Suggestion: run `nodemon dist/targets/node.js` from CLI or package.json instead
