@@ -25,6 +25,10 @@ app.get('/health', (_req, res) => {
   res.status(200).send('OK');
 });
 
+app.get('/', (req, res) => {
+  res.status(200).send('✨ Discourse-on-Ghost is live ✨');
+});
+
 routingManager.addAllRoutes(app);
 
 app.listen(config.port, '0.0.0.0', () => {
