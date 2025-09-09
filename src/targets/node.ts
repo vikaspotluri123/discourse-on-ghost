@@ -25,7 +25,7 @@ app.get('/health', (_req, res) => {
   res.status(200).send('OK');
 });
 
-app.get('/', (req, res) => {
+app.get('/', (_req, res) => {
   res.status(200).send('✨ Discourse-on-Ghost is live ✨');
 });
 
