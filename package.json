@@ -12,7 +12,7 @@
   "files": [
     "build"
   ],
-  "scripts": {
+    "scripts": {
     "dev": "node scripts/dev.js",
     "lint": "xo && tsc",
     "pretest": "NO_WATCH= node scripts/dev.js",
