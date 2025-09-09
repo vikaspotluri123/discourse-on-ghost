@@ -1,0 +1,91 @@
+
+---
+
+## 📄 Internal Handoff Doc (Editable)
+
+Here's a version you can duplicate into Google Docs or Notion:
+
+---
+
+### 🧾 Internal Handoff: Discourse-on-Ghost Webhook Middleware
+
+#### ✅ Overview
+- Node.js web server hosting webhook and SSO routes for Ghost & Discourse integration.
+- Hosted on Render, deploys via GitHub.
+- Simple and reliable integration layer between the two platforms.
+
+---
+
+#### 📦 Tech Stack
+
+| Layer         | Tooling                 |
+|---------------|-------------------------|
+| Runtime       | Node.js v18             |
+| Server        | Express.js              |
+| Modules       | TypeScript, ESM         |
+| Deployment    | Render                  |
+| Logging       | Console logs (Render)   |
+
+---
+
+#### 🌍 Routes
+
+| URL Suffix             | Method | Purpose              |
+|------------------------|--------|----------------------|
+| `/health`             | GET    | Render health check  |
+| `/discourse/sso`      | POST   | Handles SSO from Discourse |
+| `/ghost/api/.../hook` | POST   | Webhook from Discourse |
+| `/` (root)            | GET    | Optional welcome text |
+
+---
+
+#### 🔐 Secrets Required
+
+Stored in Render under **Environment > Environment Variables**:
+
+- `DISCOURSE_SSO_SECRET`
+- `WEBHOOK_SECRET`
+- `GHOST_API_KEY` *(if needed)*
+
+---
+
+#### 🧩 Maintenance Tasks
+
+| Task                         | Frequency        |
+|------------------------------|------------------|
+| Rotate Webhook/SSO secrets   | Every 6–12 months|
+| Re-deploy after Ghost/Discourse updates | As needed |
+| Check Render logs            | Weekly           |
+
+---
+
+#### 💰 Estimated Cost
+
+| Resource      | Cost                 |
+|---------------|----------------------|
+| Render hosting | Free Tier is sufficient |
+| Domain         | Optional, ~$10/yr    |
+
+---
+
+#### ⚠️ Known Limitations
+
+- `/` returns 404 unless manually defined
+- `npm run dev` fails due to ESM import conflict with `glob`
+- Error handling is minimal but functional
+
+---
+
+#### 📌 Handoff Checklist
+
+- [x] Webhooks mounted
+- [x] SSO route confirmed
+- [x] Render auto-deploy connected to GitHub
+- [ ] Documented config tokens (shared securely)
+- [ ] (Optional) Home route set
+
+---
+
+Let me know when you’re ready and I’ll turn these into downloadable versions (`.md`, `.docx`, `.pdf`) if you want them in a ZIP for handoff!
+
+Also happy to help once you start adding in the `/discourse/sso` logic or update your welcome page.
