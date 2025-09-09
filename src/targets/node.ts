@@ -14,15 +14,15 @@ loadEnv();
 const config = bootstrapInjector(core, deferGetConfig(process.env, envToConfigMapping));
 
 if (!config) {
-	process.exit(1); // eslint-disable-line unicorn/no-process-exit
+	process.exit(1);
 }
 
 const routingManager = new RoutingManager();
 export const app = express();
 app.disable('x-powered-by');
-
 app.use(useRequestLogging());
 
+// ✅ Health check & landing routes
 app.get('/health', (_req, res) => {
 	res.status(200).send('OK');
 });
@@ -31,10 +31,8 @@ app.get('/', (_req, res) => {
 	res.status(200).send('✨ Discourse-on-Ghost is live ✨');
 });
 
-routingManager.addAllRoutes(app);
-
-// ✅ Discourse SSO handler
-const discourseSSOHandler = async (req: Request, res: Response): Promise<void> => {
+// ✅ SSO route FIRST — before mounting all other routes
+app.get('/discourse/sso', async (req: Request, res: Response): Promise<void> => {
 	const sso = req.query.sso as string;
 	const sig = req.query.sig as string;
 
@@ -101,11 +99,11 @@ const discourseSSOHandler = async (req: Request, res: Response): Promise<void> =
 		console.error('❌ Ghost lookup failed:', err);
 		res.status(500).send('Ghost lookup failed');
 	}
-};
+});
 
-app.get('/discourse/sso', discourseSSOHandler);
+// ✅ Mount dynamic app routes after custom SSO route
+routingManager.addAllRoutes(app);
 
 app.listen(config.port, '0.0.0.0', () => {
 	core.logger.info(`Listening on http://0.0.0.0:${config.port}`);
 });
-
