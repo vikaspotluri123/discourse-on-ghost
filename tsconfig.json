@@ -3,14 +3,20 @@
   "compilerOptions": {
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "downlevelIteration": true,
-    "esModuleInterop": true,
-    "module": "es2020",
-    "moduleResolution": "node",
-    "target": "es2021",
-    "noEmit": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noImplicitReturns": true
-  },
+    "noImplicitReturns": true,
+
+    "target": "ES2022",
+    "module": "node16",
+    "moduleResolution": "node16",
+
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "types": ["node"],
+    "noEmit": true
+  }
 }
