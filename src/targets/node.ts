@@ -22,6 +22,6 @@ app.disable('x-powered-by');
 app.use(useRequestLogging());
 routingManager.addAllRoutes(app);
 
-app.listen(config.port, config.hostname, () => {
-	core.logger.info(`Listening on http://${config.hostname}:${config.port}`);
+app.listen(config.port, '0.0.0.0', () => {
+	core.logger.info(`Listening on http://0.0.0.0:${config.port}`);
 });
