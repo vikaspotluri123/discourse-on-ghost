@@ -4,7 +4,7 @@ import express, { type Request, type Response, type RequestHandler } from "expre
 import cookieParser from "cookie-parser";
 import axios from "axios";
 import crypto from "crypto";
-import jwt from "jsonwebtoken"; // NEW for Ghost Admin API auth
+import jwt from "jsonwebtoken"; // For Ghost Admin API auth
 
 import { deferGetConfig } from "../services/config.js";
 import { useRequestLogging } from "../controllers/middleware.js";
@@ -74,7 +74,7 @@ app.get("/health", (_req, res) => res.status(200).send("OK"));
 
 // ------------------------- login-from-ghost -------------------------
 const loginFromGhost: RequestHandler = async (_req: Request, res: Response) => {
-  core.logger.info("Starting login-from-ghost route...");
+  core.logger.info("Starting login-from-ghost...");
 
   try {
     if (!GHOST_URL || !GHOST_ADMIN_KEY || !SESSION_SECRET) {
@@ -83,22 +83,16 @@ const loginFromGhost: RequestHandler = async (_req: Request, res: Response) => {
     }
 
     const token = createGhostAdminToken();
-    core.logger.info("Ghost Admin JWT created");
-
     const ghostResp = await axios.get(`${GHOST_URL}/ghost/api/admin/members/`, {
       headers: { Authorization: `Ghost ${token}` },
       params: { limit: 1, order: "last_seen_at desc" },
     });
-
-    core.logger.info("Ghost API call successful", { members: ghostResp.data?.members?.length });
 
     const member = ghostResp.data?.members?.[0];
     if (!member) {
       core.logger.warn("No member found, redirecting to sign-in");
       return res.redirect(`${GHOST_URL}/#/portal/signin`);
     }
-
-    core.logger.info("Member found", { id: member.id, email: member.email });
 
     const now = Math.floor(Date.now() / 1000);
     const payload = {
@@ -117,8 +111,6 @@ const loginFromGhost: RequestHandler = async (_req: Request, res: Response) => {
       maxAge: SESSION_TTL_SECONDS * 1000,
       path: "/",
     });
-
-    core.logger.info("Session cookie set");
 
     if (!DISCOURSE_URL) {
       core.logger.error("DISCOURSE_URL missing");
@@ -139,7 +131,7 @@ app.get("/login-from-ghost", loginFromGhost);
 
 // ------------------------- discourse/sso -------------------------
 const discourseSSOHandler: RequestHandler = async (req: Request, res: Response) => {
-  core.logger.info("Starting discourse/sso handler...");
+  core.logger.info("Starting discourse/sso...");
 
   try {
     if (!SSO_SECRET || !DISCOURSE_URL) {
@@ -162,7 +154,6 @@ const discourseSSOHandler: RequestHandler = async (req: Request, res: Response) 
     const token = req.cookies?.[SESSION_COOKIE] as string | undefined;
     const session = token ? verifyCookie(token, SESSION_SECRET) : null;
     if (!session || session.exp <= Math.floor(Date.now() / 1000)) {
-      core.logger.warn("Session missing/expired");
       return res.redirect(302, `${req.protocol}://${req.get("host")}/login-from-ghost`);
     }
 
@@ -175,14 +166,15 @@ const discourseSSOHandler: RequestHandler = async (req: Request, res: Response) 
     const member = ghostResp.data?.members?.[0];
     if (!member) return res.status(404).send("Member not found");
 
-    core.logger.info("Member validated", { id: member.id });
-
+    // 🔥 Add fields to quietly create and activate accounts
     const identity = new URLSearchParams({
       nonce,
       external_id: member.id,
       email: member.email,
       username: (member.name || member.email.split("@")[0]).replace(/\s+/g, "_"),
       name: member.name || "",
+      require_activation: "false",
+      suppress_welcome_message: "true",
     });
 
     const b64 = Buffer.from(identity.toString(), "utf8").toString("base64");
@@ -204,10 +196,6 @@ app.get("/discourse/sso", discourseSSOHandler);
 // ------------------------- Start Server -------------------------
 const routingManager = new RoutingManager();
 routingManager.addAllRoutes(app);
-
-app.listen(config.port, "0.0.0.0", () => {
-  core.logger.info(`Listening on http://0.0.0.0:${config.port}`);
-});
 
 app.listen(config.port, "0.0.0.0", () => {
   core.logger.info(`Listening on http://0.0.0.0:${config.port}`);
