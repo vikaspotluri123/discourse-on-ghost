@@ -29,13 +29,11 @@ app.use(useRequestLogging());
 
 const getEnv = (k: string) => (process.env[k] ?? "").trim();
 
-const SSO_SECRET =
-  getEnv("DOG_DISCOURSE_SHARED_SECRET") || getEnv("SSO_SECRET");
-const DISCOURSE_URL =
-  getEnv("DOG_DISCOURSE_URL") || getEnv("DISCOURSE_URL");
-const GHOST_URL = getEnv("DOG_GHOST_URL");
-const GHOST_ADMIN_KEY = getEnv("DOG_GHOST_ADMIN_API_KEY");
-const SESSION_SECRET = getEnv("DOG_SESSION_SECRET");
+const SSO_SECRET = getEnv("DISCOURSE_SSO_SECRET");
+const DISCOURSE_URL = getEnv("DISCOURSE_URL");
+const GHOST_URL = getEnv("GHOST_URL");
+const GHOST_ADMIN_KEY = getEnv("GHOST_ADMIN_API_KEY");
+const SESSION_SECRET = getEnv("SESSION_SECRET");
 const SESSION_COOKIE = "dog_member";
 const SESSION_TTL_SECONDS = 10 * 60; // 10 minutes
 
