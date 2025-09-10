@@ -4,6 +4,7 @@ import express, { type Request, type Response, type RequestHandler } from "expre
 import cookieParser from "cookie-parser";
 import axios from "axios";
 import crypto from "crypto";
+import jwt from "jsonwebtoken"; // NEW for Ghost Admin API auth
 
 import { deferGetConfig } from "../services/config.js";
 import { useRequestLogging } from "../controllers/middleware.js";
@@ -30,14 +31,25 @@ const getEnv = (k: string) => (process.env[k] ?? "").trim();
 const SSO_SECRET = getEnv("DISCOURSE_SSO_SECRET");
 const DISCOURSE_URL = getEnv("DISCOURSE_URL");
 const GHOST_URL = getEnv("GHOST_URL");
-const GHOST_ADMIN_KEY = getEnv("GHOST_ADMIN_API_KEY");
+const GHOST_ADMIN_KEY = getEnv("GHOST_ADMIN_API_KEY"); // "id:secret"
 const SESSION_SECRET = getEnv("SESSION_SECRET");
 const SESSION_COOKIE = "dog_member";
 const SESSION_TTL_SECONDS = 10 * 60;
 
 // ------------------------- Helpers -------------------------
-const signHmac = (payloadBase64: string) =>
-  crypto.createHmac("sha256", SSO_SECRET).update(payloadBase64).digest("hex");
+function createGhostAdminToken(): string {
+  const [id, secret] = GHOST_ADMIN_KEY.split(":");
+  return jwt.sign({}, Buffer.from(secret, "hex"), {
+    keyid: id,
+    algorithm: "HS256",
+    expiresIn: "5m",
+    audience: "/v5/admin/",
+  });
+}
+
+function signHmac(payloadBase64: string): string {
+  return crypto.createHmac("sha256", SSO_SECRET).update(payloadBase64).digest("hex");
+}
 
 function signCookie(payload: object, secret: string): string {
   const body = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
@@ -57,7 +69,7 @@ function verifyCookie(token: string, secret: string): null | any {
   }
 }
 
-// ------------------------- Healthcheck -------------------------
+// ------------------------- Routes -------------------------
 app.get("/health", (_req, res) => res.status(200).send("OK"));
 
 // ------------------------- login-from-ghost -------------------------
@@ -65,37 +77,29 @@ const loginFromGhost: RequestHandler = async (_req: Request, res: Response) => {
   core.logger.info("Starting login-from-ghost route...");
 
   try {
-    // Check env vars
     if (!GHOST_URL || !GHOST_ADMIN_KEY || !SESSION_SECRET) {
-      core.logger.error({
-        GHOST_URL,
-        GHOST_ADMIN_KEY: GHOST_ADMIN_KEY ? "SET" : "MISSING",
-        SESSION_SECRET: SESSION_SECRET ? "SET" : "MISSING",
-      }, "Missing environment variables");
+      core.logger.error("Missing Ghost config");
       return res.status(500).send("Server missing Ghost config");
     }
 
-    core.logger.info(`Calling Ghost Admin API: ${GHOST_URL}/ghost/api/admin/members/`);
+    const token = createGhostAdminToken();
+    core.logger.info("Ghost Admin JWT created");
 
-    // Fetch latest member
     const ghostResp = await axios.get(`${GHOST_URL}/ghost/api/admin/members/`, {
-      headers: { Authorization: `Ghost ${GHOST_ADMIN_KEY}` },
+      headers: { Authorization: `Ghost ${token}` },
       params: { limit: 1, order: "last_seen_at desc" },
     });
 
-    core.logger.info("Ghost API response", {
-      membersFound: ghostResp.data?.members?.length || 0,
-    });
+    core.logger.info("Ghost API call successful", { members: ghostResp.data?.members?.length });
 
     const member = ghostResp.data?.members?.[0];
     if (!member) {
-      core.logger.warn("No member found, redirecting to Ghost sign-in");
+      core.logger.warn("No member found, redirecting to sign-in");
       return res.redirect(`${GHOST_URL}/#/portal/signin`);
     }
 
     core.logger.info("Member found", { id: member.id, email: member.email });
 
-    // Create session payload
     const now = Math.floor(Date.now() / 1000);
     const payload = {
       sub: member.id,
@@ -105,8 +109,8 @@ const loginFromGhost: RequestHandler = async (_req: Request, res: Response) => {
       exp: now + SESSION_TTL_SECONDS,
     };
 
-    const token = signCookie(payload, SESSION_SECRET);
-    res.cookie(SESSION_COOKIE, token, {
+    const cookie = signCookie(payload, SESSION_SECRET);
+    res.cookie(SESSION_COOKIE, cookie, {
       httpOnly: true,
       secure: true,
       sameSite: "lax",
@@ -114,14 +118,14 @@ const loginFromGhost: RequestHandler = async (_req: Request, res: Response) => {
       path: "/",
     });
 
-    core.logger.info("Session cookie set successfully");
+    core.logger.info("Session cookie set");
 
     if (!DISCOURSE_URL) {
-      core.logger.error("DISCOURSE_URL is missing");
+      core.logger.error("DISCOURSE_URL missing");
       return res.status(500).send("Missing DISCOURSE_URL");
     }
 
-    core.logger.info(`Redirecting user to Discourse: ${DISCOURSE_URL}`);
+    core.logger.info(`Redirecting to Discourse: ${DISCOURSE_URL}`);
     return res.redirect(302, DISCOURSE_URL);
 
   } catch (err: any) {
@@ -140,7 +144,7 @@ const discourseSSOHandler: RequestHandler = async (req: Request, res: Response) 
   try {
     if (!SSO_SECRET || !DISCOURSE_URL) {
       core.logger.error("Missing SSO_SECRET or DISCOURSE_URL");
-      return res.status(500).send("Server misconfigured: missing SSO secret or forum URL");
+      return res.status(500).send("Server misconfigured");
     }
 
     const sso = req.query.sso as string | undefined;
@@ -153,30 +157,26 @@ const discourseSSOHandler: RequestHandler = async (req: Request, res: Response) 
     const decoded = Buffer.from(sso, "base64").toString("utf8");
     const params = new URLSearchParams(decoded);
     const nonce = params.get("nonce");
-    if (!nonce) return res.status(400).send("Invalid SSO payload: missing nonce");
+    if (!nonce) return res.status(400).send("Missing nonce");
 
-    // Read signed cookie
     const token = req.cookies?.[SESSION_COOKIE] as string | undefined;
     const session = token ? verifyCookie(token, SESSION_SECRET) : null;
     if (!session || session.exp <= Math.floor(Date.now() / 1000)) {
-      core.logger.warn("Session missing or expired, redirecting back to login-from-ghost");
+      core.logger.warn("Session missing/expired");
       return res.redirect(302, `${req.protocol}://${req.get("host")}/login-from-ghost`);
     }
 
-    core.logger.info("Session validated", { session });
-
-    // Verify member
+    const ghostToken = createGhostAdminToken();
     const ghostResp = await axios.get(`${GHOST_URL}/ghost/api/admin/members/`, {
-      headers: { Authorization: `Ghost ${GHOST_ADMIN_KEY}` },
+      headers: { Authorization: `Ghost ${ghostToken}` },
       params: { filter: `id:'${session.sub}'`, fields: "id,email,name" },
     });
 
     const member = ghostResp.data?.members?.[0];
-    if (!member) return res.status(404).send("Ghost member not found");
+    if (!member) return res.status(404).send("Member not found");
 
-    core.logger.info("Member validated", { id: member.id, email: member.email });
+    core.logger.info("Member validated", { id: member.id });
 
-    // Build SSO payload
     const identity = new URLSearchParams({
       nonce,
       external_id: member.id,
@@ -189,21 +189,25 @@ const discourseSSOHandler: RequestHandler = async (req: Request, res: Response) 
     const returnSig = signHmac(b64);
     const redirectUrl = `${DISCOURSE_URL}/session/sso_login?sso=${encodeURIComponent(b64)}&sig=${returnSig}`;
 
-    core.logger.info("SSO payload built, redirecting to Discourse", { redirectUrl });
+    core.logger.info("Redirecting back to Discourse", { redirectUrl });
     return res.redirect(302, redirectUrl);
 
   } catch (err: any) {
     core.logger.error({ error: err?.response?.data || err.message }, "SSO handler error");
     console.error(err);
-    return res.status(500).send(`Unexpected error in SSO handler: ${err.message}`);
+    return res.status(500).send(`SSO error: ${err.message}`);
   }
 };
 
 app.get("/discourse/sso", discourseSSOHandler);
 
-// ------------------------- Routing -------------------------
+// ------------------------- Start Server -------------------------
 const routingManager = new RoutingManager();
 routingManager.addAllRoutes(app);
+
+app.listen(config.port, "0.0.0.0", () => {
+  core.logger.info(`Listening on http://0.0.0.0:${config.port}`);
+});
 
 app.listen(config.port, "0.0.0.0", () => {
   core.logger.info(`Listening on http://0.0.0.0:${config.port}`);
