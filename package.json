@@ -21,28 +21,28 @@
     "build": "esbuild `find src -name '*.ts'` --outdir=build --platform=node --target=node16  --format=esm"
   },
   "dependencies": {
-    "@tryghost/admin-api": "^1.13.12",
-    "@tryghost/errors": "^1.3.7",
-    "@tryghost/logging": "^2.4.21",
+    "@tryghost/admin-api": "^1.14.2",
+    "@tryghost/errors": "^1.3.8",
+    "@tryghost/logging": "^2.5.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "node-fetch": "^3.3.2",
-    "yoctocolors": "^2.1.1"
+    "yoctocolors": "^2.1.2"
   },
   "devDependencies": {
     "@gradebook/release-utils": "^0.8.0",
     "@types/chai": "^5.2.1",
     "@types/express": "^5.0.1",
-    "@types/jsonwebtoken": "^9.0.9",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.14.0",
     "@types/sinon": "^17.0.4",
     "chai": "^5.2.0",
-    "esbuild": "^0.25.2",
-    "mocha": "^11.1.0",
-    "nodemon": "^3.1.9",
+    "esbuild": "^0.27.1",
+    "mocha": "^11.7.5",
+    "nodemon": "^3.1.11",
     "sinon": "^20.0.0",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.3",
     "xo": "0.60.0"
   },
   "gradebook": {
