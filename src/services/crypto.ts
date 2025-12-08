@@ -17,15 +17,14 @@ export interface WebCrypto {
 	getRandomValues: (array: ArrayBufferView) => ArrayBufferView;
 	subtle: {
 		importKey: (format: Format, keyData: KeyData, algorithm: Algorithm, extractable: boolean, keyUsages: Usage[]) => Promise<CryptoKey>;
-		verify: (algorithm: 'HMAC', key: CryptoKey, signature: ArrayBuffer, data: ArrayBuffer) => Promise<boolean>;
-		sign: (algorithm: 'HMAC', key: CryptoKey, data: ArrayBuffer) => Promise<ArrayBuffer>;
+		verify: (algorithm: 'HMAC', key: CryptoKey, signature: ArrayBuffer, data: ArrayBufferView<ArrayBuffer>) => Promise<boolean>;
+		sign: (algorithm: 'HMAC', key: CryptoKey, data: ArrayBufferView<ArrayBuffer>) => Promise<ArrayBuffer>;
 	};
 }
 
-export function toHex(buffer: ArrayBuffer): string {
-	const container = new Uint8Array(buffer);
+export function toHex(buffer: Uint8Array): string {
 	let response = '';
-	for (const element of container) {
+	for (const element of buffer) {
 		response += element.toString(16).padStart(2, '0');
 	}
 
@@ -61,6 +60,6 @@ export class CryptoService {
 
 	async sign(key: CryptoKey, data: string) {
 		const raw = await this.crypto.subtle.sign('HMAC', key, encoder.encode(data));
-		return toHex(raw);
+		return toHex(new Uint8Array(raw));
 	}
 }
