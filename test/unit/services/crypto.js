@@ -1,4 +1,5 @@
 import {expect} from 'chai';
+import {describe, it} from 'mocha';
 import {toHex} from '../../../dist/services/crypto.js';
 
 const HEX_BUFFER_SIZE = 2 ** 8;

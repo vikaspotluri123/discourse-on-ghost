@@ -1,4 +1,5 @@
 // @ts-check
+import {afterEach} from 'mocha';
 import {__test} from '../../dist/lib/injector.js';
 
 const {instances: injectorState} = __test;

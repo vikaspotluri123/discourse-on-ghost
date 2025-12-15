@@ -1,5 +1,6 @@
 // @ts-check
 import {expect} from 'chai';
+import {beforeEach, describe, it} from 'mocha';
 import {Fifo} from '../../../dist/lib/fifo.js';
 
 class FifoTest extends Fifo {
