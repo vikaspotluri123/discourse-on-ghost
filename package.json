@@ -49,7 +49,7 @@
     "cli:addSkipCIToCommit": false,
     "cli:releaseTemplate": ".github/release_template.txt"
   },
-  "xo": {
+  "xo": [{
     "rules": {
       "@typescript-eslint/consistent-type-definitions": [
         "error",
@@ -64,26 +64,18 @@
       "func-name-matching": "off",
       "no-console": "error",
       "n/file-extension-in-import": "off"
-    },
-    "overrides": [
-      {
-        "files": "**/*.js",
-        "rules": {
-          "@typescript-eslint/consistent-type-definitions": "off"
-        }
-      },
-      {
-        "files": "test/**/*.js",
-        "envs": [
-          "node",
-          "mocha"
-        ],
-        "rules": {
-          "func-names": "off",
-          "prefer-arrow-callback": "off",
-          "no-unused-expressions": "off"
-        }
+    }
+  }, {
+    "files": "**/*.js",
+    "rules": {
+      "@typescript-eslint/consistent-type-definitions": "off"
+    }
+  }, {
+    "files": "test/**/*.js",
+      "rules": {
+        "func-names": "off",
+        "prefer-arrow-callback": "off",
+        "no-unused-expressions": "off"
       }
-    ]
-  }
+  }]
 }
