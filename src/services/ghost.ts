@@ -1,4 +1,4 @@
-import {type JsonWebKey, createPublicKey} from 'node:crypto';
+import {createPublicKey} from 'node:crypto';
 import GhostAdminApi from '@tryghost/admin-api';
 import getToken from '@tryghost/admin-api/lib/token.js';
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -12,11 +12,18 @@ import {uResolve} from '../lib/u-resolve.js';
 import {Configuration} from '../types/config.js';
 import {type Dependency, inject} from '../lib/injector.js';
 
-function simplifyJwk(key: JsonWebKey) {
+function simplifyJwk(key: GhostKey) {
 	return {
-		kid: key.kid as string,
+		kid: key.kid,
 		pem: createPublicKey({format: 'jwk', key}).export({type: 'pkcs1', format: 'pem'}).toString(),
 	};
+}
+
+interface GhostKey {
+	kty: 'RSA';
+	kid: string;
+	n: string;
+	e: string;
 }
 
 type Fetch = ReturnType<Dependency<typeof FetchInjectionToken>>;
@@ -237,7 +244,7 @@ export class GhostService {
 	private async _getJwtKeys() {
 		const endpoint = this.resolvePublic('/members/.well-known/jwks.json');
 		const response = await this._fetch(endpoint);
-		const {keys} = await response.json() as {keys: JsonWebKey[]};
+		const {keys} = await response.json() as {keys: GhostKey[]};
 
 		// eslint-disable-next-line unicorn/no-array-callback-reference
 		this._ghostMembersPublicKeys = keys.map(simplifyJwk);
