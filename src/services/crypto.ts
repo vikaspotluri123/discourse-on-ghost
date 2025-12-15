@@ -3,7 +3,7 @@ const encoder = new TextEncoder();
 // Pulled from https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/importKey
 type Format = 'raw' | 'pkcs8' | 'spki' | 'jwk';
 type Usage = 'encrypt' | 'decrypt' | 'sign' | 'verify' | 'deriveKey' | 'deriveBits' | 'wrapKey' | 'unwrapKey';
-type KeyData = ArrayBufferView | DataView | JsonWebKey; // Partial - TypedArray is not available
+type KeyData = ArrayBufferView | DataView; // Partial - TypedArray is not available
 type Algorithm = {
 	name: 'AES-CTR' | 'AES-CBC' | 'AES-GCM' | 'AES-KW';
 } | {
@@ -16,9 +16,10 @@ type CryptoKey = symbol; // CryptoKey is a pretty complex type that's not worth 
 export interface WebCrypto {
 	getRandomValues: (array: ArrayBufferView) => ArrayBufferView;
 	subtle: {
+		// eslint-disable-next-line max-params
 		importKey: (format: Format, keyData: KeyData, algorithm: Algorithm, extractable: boolean, keyUsages: Usage[]) => Promise<CryptoKey>;
-		verify: (algorithm: 'HMAC', key: CryptoKey, signature: ArrayBuffer, data: ArrayBufferView<ArrayBuffer>) => Promise<boolean>;
-		sign: (algorithm: 'HMAC', key: CryptoKey, data: ArrayBufferView<ArrayBuffer>) => Promise<ArrayBuffer>;
+		verify: (algorithm: 'HMAC', key: CryptoKey, signature: ArrayBuffer, data: ArrayBufferView) => Promise<boolean>;
+		sign: (algorithm: 'HMAC', key: CryptoKey, data: ArrayBufferView) => Promise<ArrayBuffer>;
 	};
 }
 
