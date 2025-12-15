@@ -1,1 +1,1 @@
-import './targets/node.js'; // eslint-disable-line import/no-unassigned-import
+import './targets/node.js'; // eslint-disable-line import-x/no-unassigned-import

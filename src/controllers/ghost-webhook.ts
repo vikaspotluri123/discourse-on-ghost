@@ -148,7 +148,7 @@ export class GhostWebhookController {
 			return false;
 		}
 
-		switch (this._webhookVersion) {
+		switch (this._webhookVersion) { // eslint-disable-line @typescript-eslint/switch-exhaustiveness-check
 			// First implementation of webhooks - timestamp is not included in signature
 			case '1': {
 				bodyToSign = JSON.stringify(request.body);

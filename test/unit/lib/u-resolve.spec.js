@@ -1,6 +1,7 @@
 // @ts-check
 
 import {expect} from 'chai';
+import {describe, it} from 'mocha';
 import {uResolve} from '../../../dist/lib/u-resolve.js';
 
 describe('Unit > Lib > MicroResolver', function () {

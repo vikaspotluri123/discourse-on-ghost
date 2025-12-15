@@ -2,6 +2,7 @@
 import {createHmac} from 'node:crypto';
 import sinon from 'sinon';
 import {expect} from 'chai';
+import {describe, it} from 'mocha';
 import {GhostWebhookController} from '../../../dist/controllers/ghost-webhook.js';
 import {testInjector} from '../../utils/injector.js';
 import {Configuration} from '../../../dist/types/config.js';

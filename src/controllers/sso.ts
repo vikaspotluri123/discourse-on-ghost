@@ -28,6 +28,7 @@ export class SSOController {
 
 		// Don't use nullish coalescing here because obscureGhostSSOPath needs to be the fallback (even to an empty string) until it's removed
 		// The prefixed period is to make the absolute URL relative.
+		// eslint-disable-next-line @typescript-eslint/no-deprecated
 		this._jwtRedirect = new URL(`.${config.jwtGhostSSOPath || config.obscureGhostSSOPath}`, config.ghostUrl).href;
 		this.key = this.core.crypto.secretToKey(config.discourseSecret);
 		this._corsOrigin = new URL(this._jwtRedirect).origin;

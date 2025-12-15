@@ -76,8 +76,7 @@ export class RoutingManager {
 		this.logger.info(''
 			+ 'Webhooks Mounted:\n'
 			+ ` - Member Updated @ ${domain}${fullMemberUpdatedRoute}`
-			+ (deleteHandler ? '\n - Member Deleted @ ' + domain + fullMemberDeletedRoute : ''),
-		);
+			+ (deleteHandler ? '\n - Member Deleted @ ' + domain + fullMemberDeletedRoute : ''));
 	}
 
 	private addAdminRoutes(app: Application) {

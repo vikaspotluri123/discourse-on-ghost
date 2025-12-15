@@ -1,7 +1,7 @@
 import {createPublicKey} from 'node:crypto';
 import GhostAdminApi from '@tryghost/admin-api';
 import getToken from '@tryghost/admin-api/lib/token.js';
-// eslint-disable-next-line import/no-extraneous-dependencies
+// eslint-disable-next-line import-x/no-extraneous-dependencies, n/no-extraneous-import
 import jsonwebtoken, {type GetPublicKeyOrSecret} from 'jsonwebtoken';
 import type {RequestInit} from 'node-fetch';
 import type {GhostMemberWithSubscriptions, GhostMemberWithTiers, GhostTier} from '../types/ghost.js';
@@ -164,7 +164,12 @@ export class GhostService {
 					return;
 				}
 
-				resolve({success: true, payload: payload.sub as string});
+				if (typeof payload === 'string' || typeof payload.sub !== 'string') {
+					resolve({success: false, error: new Error('Invalid JWT: expected payload.sub to be a string')});
+					return;
+				}
+
+				resolve({success: true, payload: payload.sub});
 			});
 		});
 	}

@@ -1,5 +1,6 @@
 // @ts-check
 import sinon from 'sinon';
+import {afterEach} from 'mocha';
 import {Logger} from '../../dist/types/logger.js';
 import {testInjector} from './injector.js';
 

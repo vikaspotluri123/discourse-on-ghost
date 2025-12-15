@@ -3,6 +3,7 @@
   "compilerOptions": {
     "strict": true,
     "forceConsistentCasingInFileNames": true,
+    "lib": ["es2021"],
     "downlevelIteration": true,
     "esModuleInterop": true,
     "module": "es2020",

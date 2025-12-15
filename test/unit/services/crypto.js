@@ -1,4 +1,5 @@
 import {expect} from 'chai';
+import {describe, it} from 'mocha';
 import {toHex} from '../../../dist/services/crypto.js';
 
 const HEX_BUFFER_SIZE = 2 ** 8;
@@ -44,7 +45,6 @@ describe('Unit > Services > Crypto', function () {
 			+ 'e8 e9 ea eb ec ed ee ef'
 			+ 'f0 f1 f2 f3 f4 f5 f6 f7'
 			+ 'f8 f9 fa fb fc fd fe ff'
-		).replaceAll(' ', ''),
-		);
+		).replaceAll(' ', ''));
 	});
 });

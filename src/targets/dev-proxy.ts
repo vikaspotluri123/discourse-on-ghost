@@ -41,7 +41,7 @@ export async function load(dogHome: string, app: Application) {
 			headers: request.headers as Record<string, string>,
 			body,
 			redirect: 'manual',
-		}).then(proxyResponse => { // eslint-disable-line @typescript-eslint/promise-function-async
+		}).then(proxyResponse => { // eslint-disable-line @typescript-eslint/promise-function-async, promise/prefer-await-to-then
 			response.status(proxyResponse.status);
 
 			for (const [name, value] of proxyResponse.headers.entries()) {
@@ -49,9 +49,9 @@ export async function load(dogHome: string, app: Application) {
 			}
 
 			return proxyResponse.text();
-		}).then(body => {
+		}).then(body => { // eslint-disable-line promise/prefer-await-to-then
 			response.send(body);
-		}).catch((error: unknown) => {
+		}).catch((error: unknown) => { // eslint-disable-line promise/prefer-await-to-then
 			logger.error(error);
 			response.status(500).send((error as {message?: string})?.message ?? 'Unknown error');
 		});
