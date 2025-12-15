@@ -35,7 +35,7 @@
     "@types/express": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^22.14.0",
+    "@types/node": "^25.0.2",
     "@types/sinon": "^21.0.0",
     "chai": "^5.2.0",
     "esbuild": "^0.27.1",
