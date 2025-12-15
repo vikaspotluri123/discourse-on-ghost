@@ -164,7 +164,12 @@ export class GhostService {
 					return;
 				}
 
-				resolve({success: true, payload: payload.sub as string});
+				if (typeof payload === 'string' || typeof payload.sub !== 'string') {
+					resolve({success: false, error: new Error('Invalid JWT: expected payload.sub to be a string')});
+					return;
+				}
+
+				resolve({success: true, payload: payload.sub});
 			});
 		});
 	}
