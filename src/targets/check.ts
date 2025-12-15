@@ -59,7 +59,7 @@ class CheckStatusReporter implements StatusReporter {
 	}
 
 	toString(indent: number) {
-		let statusMessage = this.statusMessage;
+		let {statusMessage} = this;
 		if (statusMessage) {
 			if (statusMessage.includes('\n')) {
 				const indentedNewLine = '\n' + ' '.repeat(indent * 2);
@@ -72,7 +72,6 @@ class CheckStatusReporter implements StatusReporter {
 		return `${this.statusPrefix} ${this.name}${statusMessage}`;
 	}
 
-	// eslint-disable-next-line @typescript-eslint/ban-types
 	private _createStatusMethod(status: CheckStatusReporter['_status'] & {}, prefix: string) {
 		return (message: string | DiffFailure = '') => {
 			if (this._status) {

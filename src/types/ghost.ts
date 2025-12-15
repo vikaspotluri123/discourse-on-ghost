@@ -2,8 +2,8 @@ export interface GhostMember {
 	id?: string;
 	uuid: string;
 	email: string;
-	name: string | null; // eslint-disable-line @typescript-eslint/ban-types
-	firstname: string | null; // eslint-disable-line @typescript-eslint/ban-types
+	name: string | undefined;
+	firstname: string | undefined;
 	paid: boolean;
 	subscriptions?: unknown[];
 	avatar_image: string;

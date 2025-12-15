@@ -33,37 +33,35 @@ export class DiscourseSyncService {
 				groups.delete(groupSlug);
 			} else {
 				work.push(this._discourseService.idempotentlyCreateGroup(groupSlug, getNiceName(tier.name))
-					.then(({created}) => {
+					.then(({created}) => { // eslint-disable-line promise/prefer-await-to-then
 						if (created) {
 							this.logger.info(`${LOG_PREFIX} Created group ${groupSlug}`);
 						}
 					})
-					.catch((error: unknown) => {
+					.catch((error: unknown) => { // eslint-disable-line promise/prefer-await-to-then
 						this.logger.error({
 							message: `${LOG_PREFIX} Unable to create group ${groupSlug}`,
 							err: error,
 						});
-					}),
-				);
+					}));
 			}
 		}
 
 		if (removeUnmappedTiers) {
 			for (const [name, id] of groups.entries()) {
 				work.push(this._discourseService.deleteGroup(id)
-					.then(() => {
+					.then(() => { // eslint-disable-line promise/prefer-await-to-then
 						this.logger.info(`${LOG_PREFIX} Deleted group ${name} (${id})`);
 					})
-					.catch((error: unknown) => {
+					.catch((error: unknown) => { // eslint-disable-line promise/prefer-await-to-then
 						this.logger.error({
 							message: `${LOG_PREFIX} Unable to delete group ${name} (${id})`,
 							err: error,
 						});
-					}),
-				);
+					}));
 			}
 		} else if (groups.size > 0) {
-			this.logger.info(`${LOG_PREFIX} Not removing unmapped groups: ${Array.from(groups.keys()).join(', ')}`);
+			this.logger.info(`${LOG_PREFIX} Not removing unmapped groups: ${[...groups.keys()].join(', ')}`);
 		}
 
 		await Promise.all(work);

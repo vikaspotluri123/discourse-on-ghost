@@ -12,9 +12,7 @@ export class Queue {
 		this._semaphore = new Semaphore(1, delay);
 	}
 
-	async add<TExecutor extends (...arguments_: any[]) => any>(
-		name: string, execute: TExecutor, ...arguments_: Parameters<TExecutor>
-	): Promise<ReturnType<TExecutor>> {
+	async add<TExecutor extends (...arguments_: any[]) => any>(name: string, execute: TExecutor, ...arguments_: Parameters<TExecutor>): Promise<ReturnType<TExecutor>> {
 		this._jobs.add(name);
 		this._jobId++;
 		const unsubscribe = await this._semaphore.acquire();

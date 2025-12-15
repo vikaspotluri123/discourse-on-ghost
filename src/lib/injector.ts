@@ -1,6 +1,7 @@
 type Class<T> = new() => T;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+// Using the primitive breaks type safety
+// eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
 interface InjectionToken<T> extends Symbol {
 	$TokenName: T;
 }
@@ -24,6 +25,8 @@ export function inject<Dependency>(token: Token<Dependency>): Dependency {
 		return singleton as Dependency;
 	}
 
+	// `instanceof` check is required for type safety
+	// eslint-disable-next-line unicorn/no-instanceof-builtins
 	if (typeof token === 'symbol' || token instanceof Symbol) {
 		const tokenName = String(token).slice(7, -1);
 		throw new TypeError(`Cannot inject "${tokenName}": InjectionTokens must be bootstrapped`);

@@ -87,7 +87,7 @@ class DiscourseChecksService extends DiscourseService {
 		return this.apiKeyError;
 	}
 
-	async getSiteSettings(): Promise<RawDiscourseSettings | null> { // eslint-disable-line @typescript-eslint/ban-types
+	async getSiteSettings(): Promise<RawDiscourseSettings | null> { // eslint-disable-line @typescript-eslint/no-restricted-types
 		if (this.apiKeyError) {
 			return null;
 		}

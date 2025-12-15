@@ -15,18 +15,21 @@ declare module '@tryghost/errors' {
 		err?: GhostError;
 	}
 
-	interface GhostError extends Error {}
+	interface GhostError extends Error {} // eslint-disable-line @typescript-eslint/no-empty-object-type
 
 	interface GhostErrorConstructor {
 		new(options: GhostErrorOptions): GhostError;
 		(options: GhostErrorOptions): GhostError;
 	}
 
-	type KnownGhostErrors = 'InternalServerError' | 'IncorrectUsageError' | 'NotFoundError' | 'BadRequestError' | 'UnauthorizedError' | 'NoPermissionError' | 'ValidationError' | 'UnsupportedMediaTypeError' | 'TooManyRequestsError' | 'MaintenanceError' | 'MethodNotAllowedError' | 'RequestNotAcceptableError' | 'RequestEntityTooLargeError' | 'TokenRevocationError' | 'VersionMismatchError' | 'DataExportError' | 'DataImportError' | 'EmailError' | 'ThemeValidationError' | 'DisabledFeatureError' | 'UpdateCollisionError' | 'HostLimitError' | 'HelperWarning' | 'PasswordResetRequiredError' | 'UnhandledJobError' | 'NoContentError' | 'ConflictError' | 'MigrationError';
+	type KnownGhostErrors = 'InternalServerError' | 'IncorrectUsageError' | 'NotFoundError' | 'BadRequestError'
+		| 'UnauthorizedError' | 'NoPermissionError' | 'ValidationError' | 'UnsupportedMediaTypeError' | 'TooManyRequestsError'
+		| 'MaintenanceError' | 'MethodNotAllowedError' | 'RequestNotAcceptableError' | 'RequestEntityTooLargeError'
+		| 'TokenRevocationError' | 'VersionMismatchError' | 'DataExportError' | 'DataImportError' | 'EmailError'
+		| 'ThemeValidationError' | 'DisabledFeatureError' | 'UpdateCollisionError' | 'HostLimitError' | 'HelperWarning'
+		| 'PasswordResetRequiredError' | 'UnhandledJobError' | 'NoContentError' | 'ConflictError' | 'MigrationError';
 
-	const defaultExport: {
-		[error in KnownGhostErrors]: GhostErrorConstructor;
-	};
+	const defaultExport: Record<KnownGhostErrors, GhostErrorConstructor>;
 
 	export default defaultExport;
 }
@@ -34,9 +37,7 @@ declare module '@tryghost/errors' {
 declare module '@tryghost/logging' {
 	type GhostLoggingMethods = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
 
-	const defaultExport: {
-		[k in GhostLoggingMethods]: (...arguments_: any[]) => void
-	};
+	const defaultExport: Record<GhostLoggingMethods, (...arguments_: any[]) => void>;
 
 	export default defaultExport;
 }

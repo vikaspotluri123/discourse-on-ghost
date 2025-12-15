@@ -159,7 +159,7 @@ export class DiscourseService {
 		return groups;
 	}
 
-	async getMember(uuid: string): Promise < {id: number; groups: InternalGroup[]; username: string} | undefined > {
+	async getMember(uuid: string): Promise <{id: number; groups: InternalGroup[]; username: string} | undefined> {
 		const url = this.resolve(`/u/by-external/${uuid}.json`);
 		const options = this.getHeaders();
 

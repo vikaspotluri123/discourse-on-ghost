@@ -3,6 +3,7 @@
 /* eslint-disable unicorn/no-process-exit */
 import process, {argv} from 'node:process';
 import {existsSync} from 'node:fs';
+// eslint-disable-next-line import-x/no-extraneous-dependencies, n/no-extraneous-import
 import glob from 'glob';
 import {context} from 'esbuild';
 import nodemon from 'nodemon';
