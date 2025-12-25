@@ -22,6 +22,11 @@ app.disable('x-powered-by');
 app.use(useRequestLogging());
 routingManager.addAllRoutes(app);
 
-app.listen(config.port, config.hostname, () => {
+app.listen(config.port, config.hostname, error => {
+	if (error) {
+		core.logger.error(error);
+		return;
+	}
+
 	core.logger.info(`Listening on http://${config.hostname}:${config.port}`);
 });
