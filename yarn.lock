@@ -1218,6 +1218,14 @@
     "@stdlib/utils-copy" "^0.2.0"
     uuid "^9.0.0"
 
+"@tryghost/errors@^2.2.1":
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@tryghost/errors/-/errors-2.2.1.tgz#e6b98aa35d077c240d4cf00eb0a788f3775258c0"
+  integrity sha512-7zR5Wu9UMalFZbWZs3nN3MzJg6mKek11W51AP8UGz5sN4fQofoeLwXHLI/AuT7nDuWiJZHsJcI1EGJg0iQHV3g==
+  dependencies:
+    "@stdlib/utils-copy" "^0.2.0"
+    uuid "^13.0.0"
+
 "@tryghost/http-stream@^0.1.38":
   version "0.1.38"
   resolved "https://registry.yarnpkg.com/@tryghost/http-stream/-/http-stream-0.1.38.tgz#68a9442bc2d952af7efd281a8cb71ef8df2184d5"
@@ -5908,6 +5916,11 @@ url-or-path@^2.6.1:
   version "2.6.1"
   resolved "https://registry.yarnpkg.com/url-or-path/-/url-or-path-2.6.1.tgz#973971046244f7713f4be052ff9c5253068b2290"
   integrity sha512-fgFGHE43YhtMpv/1ZAdwKE9q2lFfEa9NfJ4yriBtjXbb1GAZxuVQVhsHXhHQjHd6W5A4FcMWQ25gxWmxVglDTw==
+
+uuid@^13.0.0:
+  version "13.0.0"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-13.0.0.tgz#263dc341b19b4d755eb8fe36b78d95a6b65707e8"
+  integrity sha512-XQegIaBTVUjSHliKqcnFqYypAd4S+WCYt5NIeRs6w/UAry7z8Y9j5ZwRRL4kzq9U3sD6v+85er9FvkEaBpji2w==
 
 uuid@^3.3.2:
   version "3.4.0"
