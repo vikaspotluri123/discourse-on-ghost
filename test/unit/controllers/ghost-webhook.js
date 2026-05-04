@@ -6,6 +6,7 @@ import {GhostWebhookController} from '../../../dist/controllers/ghost-webhook.js
 import {testInjector} from '../../utils/injector.js';
 import {Configuration} from '../../../dist/types/config.js';
 import {stubLogging} from '../../utils/logger.js';
+import {MemberSyncService} from '../../../dist/services/member-sync.js';
 
 /**
  * @typedef {import('../../../src/types/config.js').ConfigurationType} Config
@@ -30,6 +31,90 @@ function sign(message, key) {
 }
 
 describe('Unit > Controllers > GhostWebhook', function () {
+	describe('Member Updated', function () {
+		it('ignores member updates that only contain engagement metadata', async function () {
+			const logger = stubLogging();
+			const memberSync = {
+				has: sinon.stub().returns(false),
+				queue: sinon.stub(),
+			};
+			testInjector.set(MemberSyncService, memberSync);
+
+			const controller = createGhostWebhookController();
+			const status = sinon.stub();
+			const end = sinon.stub();
+			const next = sinon.stub();
+			const response = {status, end};
+			status.returns(response);
+
+			await controller.memberUpdated({
+				body: {
+					member: {
+						current: {
+							id: 'member-id',
+							uuid: 'member-uuid',
+							tiers: [],
+						},
+						previous: Object.fromEntries([
+							['last_seen_at', '2026-05-04T13:00:00.000Z'],
+							['updated_at', '2026-05-04T13:00:00.000Z'],
+						]),
+					},
+				},
+				headers: {},
+			}, response, next);
+
+			expect(status.args).to.deep.equal([[204]]);
+			expect(end.calledOnce).to.be.true;
+			expect(memberSync.has.called).to.be.false;
+			expect(memberSync.queue.called).to.be.false;
+			expect(next.called).to.be.false;
+			expect(logger.info.lastCall.args).to.deep.equal(['Ignoring member updated event; no relevant fields changed']);
+		});
+
+		it('syncs member updates that include membership data', async function () {
+			stubLogging();
+			const memberSync = {
+				has: sinon.stub().returns(false),
+				queue: sinon.stub(),
+			};
+			testInjector.set(MemberSyncService, memberSync);
+
+			const controller = createGhostWebhookController();
+			const status = sinon.stub();
+			const json = sinon.stub();
+			const next = sinon.stub();
+			const response = {status, json};
+			status.returns(response);
+
+			const tiers = [{id: 'tier-id', slug: 'tier-slug', name: 'Tier'}];
+			await controller.memberUpdated({
+				body: {
+					member: {
+						current: {
+							id: 'member-id',
+							uuid: 'member-uuid',
+							tiers,
+						},
+						previous: {
+							tiers,
+							...Object.fromEntries([
+								['updated_at', '2026-05-04T13:00:00.000Z'],
+							]),
+						},
+					},
+				},
+				headers: {},
+			}, response, next);
+
+			expect(memberSync.has.args).to.deep.equal([['member-id']]);
+			expect(memberSync.queue.args).to.deep.equal([['member-id', 'setDiscourseGroupsFromTiers', 'member-uuid', tiers]]);
+			expect(status.args).to.deep.equal([[202]]);
+			expect(json.args).to.deep.equal([[{message: 'Syncing member'}]]);
+			expect(next.called).to.be.false;
+		});
+	});
+
 	describe('Webhook Verification', function () {
 		it('not verified', async function () {
 			const logger = stubLogging();

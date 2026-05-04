@@ -1,4 +1,4 @@
-import type {RequestInit} from 'node-fetch';
+import type {RequestInit, Response} from 'node-fetch';
 import errors from '@tryghost/errors';
 import {FetchInjectionToken} from '../lib/request.js';
 import {Semaphore, withSemaphore} from '../lib/semaphore.js';
@@ -32,6 +32,31 @@ interface CreateGroup {
 interface InternalGroup {
 	id: number;
 	name: string;
+}
+
+export async function parseResponseAs<TShape>(response: Response): Promise<TShape> {
+	const text = await response.text();
+
+	try {
+		return JSON.parse(text) as TShape;
+	} catch (error) {
+		throw new errors.InternalServerError({
+			message: 'Unable to parse Discourse response body as JSON',
+			errorDetails: {
+				body: text,
+				parseError: error,
+			},
+		});
+	}
+}
+
+export async function parseResponseErrorDetails(response: Response) {
+	const text = await response.text();
+	try {
+		return JSON.parse(text) as unknown;
+	} catch {
+		return {body: text};
+	}
 }
 
 export class DiscourseService {
@@ -85,7 +110,7 @@ export class DiscourseService {
 		const possibleGroup = await this._fetch(checkUrl, options);
 
 		if (possibleGroup.ok) {
-			const {group} = await possibleGroup.json() as {group: DiscourseGroup};
+			const {group} = await parseResponseAs<{group: DiscourseGroup}>(possibleGroup);
 			return {
 				created: false,
 				group,
@@ -108,7 +133,7 @@ export class DiscourseService {
 		}, {name, fullName});
 
 		if (creationResponse.ok) {
-			const {basic_group: group} = await creationResponse.json() as {basic_group: DiscourseGroup};
+			const {basic_group: group} = await parseResponseAs<{basic_group: DiscourseGroup}>(creationResponse);
 			return {
 				created: true,
 				group,
@@ -117,7 +142,7 @@ export class DiscourseService {
 
 		const error = new errors.InternalServerError({
 			message: `Unable to create group ${name} - response is not ok`,
-			errorDetails: await creationResponse.json(),
+			errorDetails: await parseResponseErrorDetails(creationResponse),
 		});
 
 		this.logger.error(error);
@@ -135,11 +160,11 @@ export class DiscourseService {
 		if (!response.ok) {
 			throw new errors.InternalServerError({
 				message: `Unable to delete group ${id} - response is not ok`,
-				errorDetails: await response.json(),
+				errorDetails: await parseResponseErrorDetails(response),
 			});
 		}
 
-		const body = await response.json() as {success?: string};
+		const body = await parseResponseAs<{success?: string}>(response);
 
 		if (!body.success) {
 			throw new errors.InternalServerError({
@@ -154,7 +179,7 @@ export class DiscourseService {
 		const options = this.getHeaders(true);
 
 		const response = await this._fetch(url, options);
-		const {groups} = await response.json() as {groups: DiscourseGroup[]};
+		const {groups} = await parseResponseAs<{groups: DiscourseGroup[]}>(response);
 
 		return groups;
 	}
@@ -166,7 +191,7 @@ export class DiscourseService {
 		const response = await this._fetch(url, options);
 
 		if (response.ok) {
-			const {user} = await response.json() as {user: {id: number; groups: InternalGroup[]; username: string}};
+			const {user} = await parseResponseAs<{user: {id: number; groups: InternalGroup[]; username: string}}>(response);
 			return {
 				id: user.id,
 				username: user.username,
@@ -180,7 +205,7 @@ export class DiscourseService {
 			this.logger.error(new errors.InternalServerError({
 				message: `Unable to get member ${uuid} - response is not ok`,
 				statusCode: response.status,
-				errorDetails: await response.json(),
+				errorDetails: await parseResponseErrorDetails(response),
 			}));
 		}
 
@@ -200,13 +225,13 @@ export class DiscourseService {
 		if (!response.ok) {
 			this.logger.error(new errors.InternalServerError({
 				message: `Unable to add user ${discourseId} to group ${name} - response is not ok`,
-				errorDetails: await response.json(),
+				errorDetails: await parseResponseErrorDetails(response),
 			}));
 
 			return false;
 		}
 
-		const body = await response.json() as {errors?: string[]};
+		const body = await parseResponseAs<{errors?: string[]}>(response);
 
 		return !body.errors || body.errors.length === 0;
 	}
@@ -218,7 +243,7 @@ export class DiscourseService {
 			return false;
 		}
 
-		const {group: {id}} = await lookupResponse.json() as {group: DiscourseGroup};
+		const {group: {id}} = await parseResponseAs<{group: DiscourseGroup}>(lookupResponse);
 
 		const deleteUrl = this.resolve(`/groups/${id}/members.json`);
 		const response = await this._fetch(deleteUrl, {
@@ -227,7 +252,7 @@ export class DiscourseService {
 			...this.getHeaders(true),
 		}, {discourseId: discourseId.toString()});
 
-		const body = await response.json() as {errors?: string[]};
+		const body = await parseResponseAs<{errors?: string[]}>(response);
 
 		if (!response.ok) {
 			this.logger.error(new errors.InternalServerError({
@@ -308,13 +333,13 @@ export class DiscourseService {
 		if (!response.ok) {
 			this.logger.error(new errors.InternalServerError({
 				message: `Unable to anonymize user ${id} - response is not ok`,
-				errorDetails: await response.json(),
+				errorDetails: await parseResponseErrorDetails(response),
 			}));
 
 			return false;
 		}
 
-		const {success, username: newUsername} = await response.json() as {success: string; username: string};
+		const {success, username: newUsername} = await parseResponseAs<{success: string; username: string}>(response);
 
 		if (success.toLowerCase() !== 'ok') {
 			this.logger.info(`Unable to anonymize ${username} - success is "${success}"`);
@@ -356,13 +381,13 @@ export class DiscourseService {
 
 			this.logger.error(new errors.InternalServerError({
 				message: `Unable to suspend ${username} - response is not ok`,
-				errorDetails: await response.json(),
+				errorDetails: await parseResponseErrorDetails(response),
 			}));
 
 			return false;
 		}
 
-		const body = await response.json() as {suspension?: unknown};
+		const body = await parseResponseAs<{suspension?: unknown}>(response);
 
 		this.logger.info(`Suspended ${username} (${uuid})`);
 		return 'suspension' in body;
@@ -392,7 +417,7 @@ export class DiscourseService {
 		if (!response.ok) {
 			this.logger.error(new errors.InternalServerError({
 				message: `Unable to delete user ${username} - response is not ok`,
-				errorDetails: await response.json(),
+				errorDetails: await parseResponseErrorDetails(response),
 			}));
 
 			return false;

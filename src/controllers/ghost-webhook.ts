@@ -11,6 +11,15 @@ import {Fifo} from '../lib/fifo.js';
 type SafeMemberRemoved = MemberRemoved['member']['previous'] & {id: string};
 type DeleteHandler = (payload: SafeMemberRemoved) => Parameters<MemberSyncService['queue']>;
 
+const IGNORED_MEMBER_UPDATE_FIELDS = new Set([
+	'email_count',
+	'email_open_rate',
+	'email_opened_count',
+	'geolocation',
+	'last_seen_at',
+	'updated_at',
+]);
+
 export function parseSignature(signature: string) {
 	const response: Record<string, string> = {};
 	const tokens = signature.split(/, ?/);
@@ -20,6 +29,19 @@ export function parseSignature(signature: string) {
 	}
 
 	return response;
+}
+
+export function shouldIgnoreMemberUpdatedEvent(member: MemberUpdated['member']) {
+	let hasChangedFields = false;
+
+	for (const field of Object.keys(member.previous ?? {})) {
+		hasChangedFields = true;
+		if (!IGNORED_MEMBER_UPDATE_FIELDS.has(field)) {
+			return false;
+		}
+	}
+
+	return hasChangedFields;
 }
 
 type MaybeKey = ReturnType<IsomorphicCoreType['crypto']['secretToKey']> | undefined;
@@ -52,6 +74,12 @@ export class GhostWebhookController {
 
 		if (!body.member?.current.id) {
 			next(new errors.BadRequestError({message: 'Missing member ID'}));
+			return;
+		}
+
+		if (shouldIgnoreMemberUpdatedEvent(body.member)) {
+			this.logger.info('Ignoring member updated event; no relevant fields changed');
+			response.status(204).end();
 			return;
 		}
 
