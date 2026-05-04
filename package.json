@@ -21,9 +21,9 @@
     "build": "esbuild `find src -name '*.ts'` --outdir=build --platform=node --target=node16  --format=esm"
   },
   "dependencies": {
-    "@tryghost/admin-api": "^1.14.7",
-    "@tryghost/errors": "^3.1.0",
-    "@tryghost/logging": "^4.1.1",
+    "@tryghost/admin-api": "^1.14.8",
+    "@tryghost/errors": "^3.2.0",
+    "@tryghost/logging": "^4.2.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "node-fetch": "^3.3.2",
