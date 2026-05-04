@@ -40,7 +40,7 @@ export interface GhostMemberWithSubscriptions extends GhostMember {
 export interface MemberUpdated {
 	member: {
 		current: Partial<GhostMember> & GhostMemberWithTiers;
-		partial: Partial<GhostMemberWithTiers>;
+		previous?: Partial<GhostMemberWithTiers>;
 	};
 }
 
