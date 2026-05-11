@@ -55,10 +55,10 @@ describe('Unit > Controllers > GhostWebhook', function () {
 							uuid: 'member-uuid',
 							tiers: [],
 						},
-						previous: Object.fromEntries([
-							['last_seen_at', '2026-05-04T13:00:00.000Z'],
-							['updated_at', '2026-05-04T13:00:00.000Z'],
-						]),
+						previous: {
+							last_seen_at: '2026-05-04T13:00:00.000Z',
+							updated_at: '2026-05-04T13:00:00.000Z',
+						},
 					},
 				},
 				headers: {},
@@ -98,9 +98,7 @@ describe('Unit > Controllers > GhostWebhook', function () {
 						},
 						previous: {
 							tiers,
-							...Object.fromEntries([
-								['updated_at', '2026-05-04T13:00:00.000Z'],
-							]),
+							updated_at: '2026-05-04T13:00:00.000Z',
 						},
 					},
 				},
