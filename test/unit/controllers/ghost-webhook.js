@@ -56,8 +56,10 @@ describe('Unit > Controllers > GhostWebhook', function () {
 							tiers: [],
 						},
 						previous: {
+							/* eslint-disable camelcase */
 							last_seen_at: '2026-05-04T13:00:00.000Z',
 							updated_at: '2026-05-04T13:00:00.000Z',
+							/* eslint-enable camelcase */
 						},
 					},
 				},
@@ -98,7 +100,9 @@ describe('Unit > Controllers > GhostWebhook', function () {
 						},
 						previous: {
 							tiers,
+							/* eslint-disable camelcase */
 							updated_at: '2026-05-04T13:00:00.000Z',
+							/* eslint-enable camelcase */
 						},
 					},
 				},
