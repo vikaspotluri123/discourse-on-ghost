@@ -38,7 +38,7 @@
     "@types/node": "^25.9.1",
     "@types/sinon": "^21.0.1",
     "chai": "^6.2.1",
-    "esbuild": "^0.28.0",
+    "esbuild": "^0.28.1",
     "mocha": "^11.7.6",
     "nodemon": "^3.1.14",
     "sinon": "^22.0.0",
